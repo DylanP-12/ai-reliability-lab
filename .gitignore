@@ -1,0 +1,15 @@
+# secrets — never committed
+.env
+
+# dependencies — reinstallable from package.json
+node_modules/
+
+# build output — regenerated
+dist/
+
+# large generated research data (small samples are tracked; runs are not)
+data/*.jsonl
+
+# OS noise
+.DS_Store
+Thumbs.db
