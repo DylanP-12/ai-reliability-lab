@@ -38,7 +38,7 @@ Phase B — Development environment
 - [ ] L008 Secrets, .env, .gitignore — date: ___ conf: _/5
 
 Phase C — Git & GitHub
-- [ ] L009 Git: init, status, add, commit — date: ___ conf: _/5
+- [x] L009 Git: init, status, add, commit — date: 2026-08-14 conf: 3/5
 - [ ] L010 GitHub: remote, push, README — date: ___ conf: _/5
 - [ ] L011 Branches, merges, pull requests — date: ___ conf: _/5
 - [ ] L012 Issues, milestones, labels + Review 1 — date: ___ conf: _/5
