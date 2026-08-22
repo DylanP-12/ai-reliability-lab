@@ -8,8 +8,8 @@ export class LlmError extends Error {
   }
 }
 
-function classify(status) {
-  if (status === 429) {
+export function classify(status) {
+      if (status === 429) {
     return new LlmError('rate limited', 'rate_limit', { status, retryable: true });
   }
   if (status >= 500 && status <= 599) {
