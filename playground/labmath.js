@@ -1,4 +1,11 @@
+// export function mean(numbers) {
+//   return numbers.reduce((total, current) => total + current, 0) / numbers.length;
+// }
+
 export function mean(numbers) {
+  if (numbers.length === 0) {
+    throw new RangeError('mean of empty array');
+  }
   return numbers.reduce((total, current) => total + current, 0) / numbers.length;
 }
 

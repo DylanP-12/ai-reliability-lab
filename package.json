@@ -3,10 +3,11 @@
   "version": "0.1.0",
   "description": "Research instrument measuring LLM constraint adherence over long conversations",
   "main": "index.js",
- "type": "module",
-"scripts": {
-  "playground": "node playground/main.js"
-},
+  "type": "module",
+  "scripts": {
+    "playground": "node playground/main.js",
+    "test": "node --test"
+  },
   "author": "",
   "license": "MIT"
 }
