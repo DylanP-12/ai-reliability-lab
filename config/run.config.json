@@ -1,0 +1,14 @@
+{
+  "run_id": "gen-2026-08-11",
+  "dataset_version": "ds-v1",
+  "seed": 20260811,
+  "repetitions": 10,
+  "temperature": 0.7,
+  "max_output_tokens": 800,
+  "spacing_ms": 1000,
+  "concurrency": 1,
+  "request_timeout_ms": 120000,
+  "max_attempts": 3,
+  "spend_cap_usd": 5,
+  "system_prompt": null
+}
