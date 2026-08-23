@@ -54,7 +54,7 @@ Phase D — JavaScript foundations
 - [ ] L017 Errors and unit testing — date: ___ conf: _/5
 
 Phase E — Repository scaffold
-- [ ] L018 Scaffold the real repository — date: ___ conf: _/5
+- [x ] L018 Scaffold the real repository — date: ___ conf: _/5
 - [ ] L019 Architecture rules as code — date: ___ conf: _/5
 
 Phase F — Deterministic utilities
@@ -138,3 +138,274 @@ Phase Q — Completion
 - [ ] M10 All screens working — evidence: ___
 - [ ] M11 Acceptance tests passing — evidence: ___
 - [ ] M12 Deployed and documented — evidence: ___
+
+
+# PROGRESS — AI Reliability Lab
+
+## End-of-lesson records
+
+Lesson: L001
+Completed: Yes
+Concepts I can explain:
+Files created:
+Files modified:
+Tests run:
+Test results:
+Git branch:
+Commit:
+GitHub issue/PR:
+Problems still open:
+My confidence from 1-5:
+What I need help with:
+Next lesson: L002
+
+Lesson: L002
+Completed: Yes
+Concepts I can explain:
+Files created:
+Files modified:
+Tests run:
+Test results:
+Git branch:
+Commit:
+GitHub issue/PR:
+Problems still open:
+My confidence from 1-5:
+What I need help with:
+Next lesson: L003
+
+Lesson: L003
+Completed: Yes
+Concepts I can explain:
+Files created:
+Files modified:
+Tests run:
+Test results:
+Git branch:
+Commit:
+GitHub issue/PR:
+Problems still open:
+My confidence from 1-5:
+What I need help with:
+Next lesson: L004
+
+Lesson: L004
+Completed: Yes
+Concepts I can explain:
+Files created:
+Files modified:
+Tests run:
+Test results:
+Git branch:
+Commit:
+GitHub issue/PR:
+Problems still open:
+My confidence from 1-5:
+What I need help with:
+Next lesson: L005
+
+Lesson: L005
+Completed: Yes
+Concepts I can explain:
+Files created:
+Files modified:
+Tests run:
+Test results:
+Git branch:
+Commit:
+GitHub issue/PR:
+Problems still open:
+My confidence from 1-5:
+What I need help with:
+Next lesson: L006
+
+Lesson: L006
+Completed: Yes
+Concepts I can explain:
+Files created:
+Files modified:
+Tests run:
+Test results:
+Git branch:
+Commit:
+GitHub issue/PR:
+Problems still open:
+My confidence from 1-5:
+What I need help with:
+Next lesson: L007
+
+Lesson: L007
+Completed: Yes
+Concepts I can explain:
+Files created:
+Files modified:
+Tests run:
+Test results:
+Git branch:
+Commit:
+GitHub issue/PR:
+Problems still open:
+My confidence from 1-5:
+What I need help with:
+Next lesson: L008
+
+Lesson: L008
+Completed: Yes
+Concepts I can explain: environment variables, .env / .env.example pattern, .gitignore before first commit
+Files created: .gitignore, .env, .env.example, playground/read-env.js
+Files modified:
+Tests run:
+Test results:
+Git branch:
+Commit:
+GitHub issue/PR:
+Problems still open:
+My confidence from 1-5:
+What I need help with:
+Next lesson: L009
+
+Lesson: L009-L011
+Completed: Yes
+Concepts I can explain: git init/status/add/commit, remotes/push/pull, branches, merges, pull requests
+Files created:
+Files modified:
+Tests run:
+Test results:
+Git branch:
+Commit:
+GitHub issue/PR: PR #1 - merged
+Problems still open:
+My confidence from 1-5:
+What I need help with:
+Next lesson: L012
+
+Lesson: L012
+Completed: Yes - Milestone Review 1 passed
+Concepts I can explain: GitHub issues, milestones, labels
+Files created:
+Files modified: PROGRESS.md (M1 backlog reconstructed and logged)
+Tests run:
+Test results:
+Git branch:
+Commit:
+GitHub issue/PR:
+Problems still open:
+My confidence from 1-5:
+What I need help with:
+Next lesson: L013
+
+Lesson: L013
+Completed: Yes
+Concepts I can explain: modern JS data structures, destructuring
+Files created: playground/d01-data.js
+Files modified:
+Tests run:
+Test results:
+Git branch:
+Commit:
+GitHub issue/PR:
+Problems still open:
+My confidence from 1-5:
+What I need help with:
+Next lesson: L014
+
+Lesson: L014
+Completed: Yes
+Concepts I can explain: functions, purity, modules, scope
+Files created: playground/labmath.js (exporting mean, clamp, weightedScore)
+Files modified:
+Tests run:
+Test results:
+Git branch:
+Commit:
+GitHub issue/PR:
+Problems still open:
+My confidence from 1-5:
+What I need help with:
+Next lesson: L015
+
+Lesson: L015
+Completed: Yes
+Concepts I can explain: JSON, JSONL, CSV data formats; frozen-data / lab-notebook-pages analogy for append-only files
+Files created: playground/d03-formats.js
+Files modified:
+Tests run:
+Test results:
+Git branch:
+Commit:
+GitHub issue/PR:
+Problems still open:
+My confidence from 1-5:
+What I need help with:
+Next lesson: L016
+
+Lesson: L016
+Completed: Yes
+Concepts I can explain: promises, async/await, fetch, sequential vs. parallel execution, HTTP status code families
+Files created:
+Files modified:
+Tests run:
+Test results:
+Git branch:
+Commit:
+GitHub issue/PR:
+Problems still open:
+My confidence from 1-5:
+What I need help with:
+Next lesson: L017
+
+Lesson: L017
+Completed: Yes - full lesson, including PR review cycle
+Concepts I can explain: typed errors/classification, node:test + assert.strict, equal vs deepEqual, assert.throws (and why the arrow wrapper), red-to-green, export requirements, top-level code runs on import
+Files created: playground/d05-errors.js, tests/labmath.test.js, tests/errors.test.js
+Files modified: package.json (test script), playground/labmath.js (empty-array guard)
+Tests run: npm test - red run (missing throw) + green run (guard added) + full 5-test suite
+Test results: 5 passing, 0 failing, verified green on main post-merge
+Git branch: main (playground/js-foundations merged via PR #8, deleted)
+Commit: 17a4f21 (final fix commit), merged to main
+GitHub issue/PR: PR #8 - merged, included one real review cycle (missing export + missing test coverage)
+Problems still open: arrow function syntax - solidifying; for...of loops - needed a from-scratch explanation; top-level vs. function-scoped code - new gap surfaced
+My confidence from 1-5:
+What I need help with:
+Next lesson: L018
+
+Lesson: L018
+Completed: Yes - full lesson, including PR review cycle
+Concepts I can explain: git tracks files not directories (empty dirs invisible to git status); export keyword and named exports (multiple exports per file); destructuring in function parameters happens before the function body runs, so calling with no args throws before reaching custom code; JSON vs JS (data vs. logic, no comments/trailing commas/unquoted keys); why /core/ can't do file I/O (browser-compatible constraint); placeholder-throw vs placeholder-return-fake-value (fails loud vs. fails silent); when a PR should/shouldn't close a GitHub issue (stub != implementation)
+Files created: core/ids.js, core/seededRandom.js, core/llmClient.js, core/runConversation.js, core/buildJudgePacket.js, core/parseJudge.js, core/cost.js, core/parseScenarios.js, cli/collect.js, cli/score.js, cli/prepare-app-data.js, config/models.json, config/run.config.json, app/.gitkeep, app/README.md, data/.gitkeep, tests/README.md
+Files modified: none
+Tests run: node -e smoke test on core/ids.js module import
+Test results: n/a (no automated tests this lesson - smoke test confirmed module graph resolves; buildUnitId({}) correctly throws "not implemented: L020")
+Git branch: repo/scaffold (merged via PR #9, deleted)
+Commit: 5a0eee8 ("Scaffold repository per handoff section 2 with placeholder modules"), merged to main as d6e4931
+GitHub issue/PR: PR #9 - merged. Confirmed issues #5/#6/#7 ("Implement...") should NOT be closed by this PR since stubs aren't implementations - left open for their real lessons (L020/L021/L022)
+Problems still open: -
+My confidence from 1-5:
+What I need help with: -
+Next lesson: L019
+
+## Lessons checklist
+
+Phase A
+[x] L001  [x] L002  [x] L003  [x] L004  [x] L005
+
+Phase B
+[x] L006  [x] L007  [x] L008
+
+Phase C
+[x] L009  [x] L010  [x] L011  [x] L012
+
+Phase D
+[x] L013  [x] L014  [x] L015  [x] L016  [x] L017
+
+Phase E
+[x] L018 (2026-08-22)  [ ] L019
+
+Phase F - Q
+All remaining lessons L020-L062: [ ] not started
+
+## Milestones
+
+[x] M1 Project + GitHub repo created - evidence: PR #1, Milestone Review 1 passed at L012
+[ ] M2 Shared utilities tested
+[ ] M3 through M12 - not started
