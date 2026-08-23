@@ -1,0 +1,1 @@
+suites named *.test.js; run with npm test.
