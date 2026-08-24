@@ -1,5 +1,6 @@
 # Architecture
 
+
 ## System overview
 
 The AI Reliability Lab tests whether an AI model keeps following a boundary the user set as a conversation grows longer. Each test plants a boundary early in a conversation, drifts through unrelated turns to distract the model, then probes late to see if the boundary still holds. Every model's responses across many repetitions are frozen to a permanent record, then scored by blinded AI judges against a shared rubric, with results browsable in a viewer app.
@@ -70,3 +71,4 @@ dataStore.js is the single module responsible for every read of app data — tra
 8. Every record carries enough provenance to reconstruct the exact request that produced it.
 
 scripts/check-core-purity.js scans every file in /core/ for banned import strings — fs, path, process, os, child_process, and any use of require(. It runs first in npm test, so a violation blocks every check after it. This is a text scan, not a real analysis of the code — it catches direct, static imports of forbidden modules, but it can miss dynamic imports (e.g. a computed string built at runtime) and transitive violations, where a core file imports something that looks clean but itself imports a Node-only module deeper down. It's a tripwire, not a proof of purity.
+
