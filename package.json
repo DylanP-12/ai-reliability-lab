@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "playground": "node playground/main.js",
-    "test": "node --test"
+    "test": "node scripts/check-core-purity.js && node --test"
   },
   "author": "",
   "license": "MIT"
