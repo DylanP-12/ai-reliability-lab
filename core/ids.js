@@ -1,7 +1,11 @@
-function assertField(name, value) {
+function assertNonEmptyString(name, value) {
   if (typeof value !== 'string' || value.length === 0) {
     throw new Error(`${name} must be a non-empty string`);
   }
+}
+
+function assertField(name, value) {
+  assertNonEmptyString(name, value);
   if (value.includes(':')) {
     throw new Error(`${name} must not contain a colon`);
   }
@@ -24,9 +28,7 @@ export function buildUnitId({ run_id, conversation_id, model_id, repetition }) {
 export function buildEvalId({ score_run_id, unit_id, turn_index, judge_model_id, judge_repetition }) {
   assertField('score_run_id', score_run_id);
 
-  if (typeof unit_id !== 'string' || unit_id.length === 0) {
-    throw new Error('unit_id must be a non-empty string');
-  }
+assertNonEmptyString('unit_id', unit_id);
 
   assertField('judge_model_id', judge_model_id);
 
