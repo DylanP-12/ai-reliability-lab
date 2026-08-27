@@ -1,30 +1,15 @@
 [
   {
-    "model_id": "deepseek-v3.1",
-    "label": "DeepSeek V3.1",
-    "or_model": "deepseek/deepseek-chat-v3.1",
+    "model_id": "placeholder-model",
+    "label": "Placeholder Model",
+    "or_model": "provider/placeholder-model",
     "provider_pin": "VERIFY-IN-L023",
     "reasoning_enabled": false,
-    "family": "deepseek",
+    "family": "placeholder",
     "weights": "open",
-    "context_tokens": 163840,
-    "price_in_per_m": 0.25,
-    "price_out_per_m": 0.95,
-    "pricing_verified": "2026-08-27",
-    "can_judge": true
-  },
-  {
-    "model_id": "qwen3-32b",
-    "label": "Qwen3 32B",
-    "or_model": "qwen/qwen3-32b",
-    "provider_pin": "VERIFY-IN-L023",
-    "reasoning_enabled": false,
-    "family": "qwen",
-    "weights": "open",
-    "context_tokens": 131072,
-    "price_in_per_m": 0.08,
-    "price_out_per_m": 0.28,
-    "pricing_verified": "2026-08-27",
-    "can_judge": true
+    "context_tokens": 0,
+    "price_in_per_m": 0,
+    "price_out_per_m": 0,
+    "can_judge": false
   }
 ]
