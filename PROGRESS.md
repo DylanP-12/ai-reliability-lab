@@ -384,6 +384,21 @@ My confidence from 1-5:
 What I need help with: -
 Next lesson: L019
 
+Lesson: L022
+Completed: Yes - full lesson, including Milestone Review 2 and recovery from an accidental PR revert
+Concepts I can explain: per-million token pricing conversion, fail-closed vs fail-open for safety-critical calculations, reasoning tokens billing as output, quadratic input-cost growth in multi-turn conversations, round numbers vs tolerance-checked floating point assertions
+Files created: tests/cost.test.js
+Files modified: core/cost.js, config/models.json
+Tests run: npm test (full suite, red-first TDD confirmed before implementation)
+Test results: 25/25 passing, purity check clean
+Git branch: core/cost (merged to main)
+Commit: baa1484 (implementation); ab8a2d8 (recovery after accidental revert via PR #14)
+GitHub issue/PR: PR #13 - merged; PR #14 - accidental revert of PR #13, corrected via git revert of the revert
+Problems still open: reasoning_tokens vs completion_tokens overlap assumption unverified until L023/L026 real API payloads; provider_pin still VERIFY-IN-L023 in models.json
+My confidence from 1-5: 3.5
+What I need help with: distinguishing "computes the number a safety feature relies on" vs "is the safety feature itself" - landed after discussion, not yet automatic recall
+Next lesson: L023
+
 ## Lessons checklist
 
 Phase A
@@ -399,13 +414,15 @@ Phase D
 [x] L013  [x] L014  [x] L015  [x] L016  [x] L017
 
 Phase E
-[x] L018 (2026-08-22)  [ ] L019
+[x] L018 (2026-08-22)  [x] L019
 
-Phase F - Q
-All remaining lessons L020-L062: [ ] not started
+Phase F
+[x] L020  [x] L021  [x] L022 (2026-08-27) - Milestone Review 2 passed
 
+Phase G - Q
+All remaining lessons L023-L062: [ ] not started
 ## Milestones
 
 [x] M1 Project + GitHub repo created - evidence: PR #1, Milestone Review 1 passed at L012
-[ ] M2 Shared utilities tested
+[x] M2 Shared utilities tested - evidence: PR #13, Milestone Review 2 passed at L022, 25/25 tests passing
 [ ] M3 through M12 - not started
