@@ -32,7 +32,8 @@ X-OpenRouter-Metadata: enabled           // opt-in; without it, no provider info
 | `response_text` | `choices[0].message.content` | API |
 | `finish_reason` | `choices[0].finish_reason` | API |
 | `usage.total_tokens` | `usage.total_tokens` | API |
-| `upstream_provider` | `openrouter_metadata.endpoints...` (needs `X-OpenRouter-Metadata: enabled`) | API |
+| `upstream_provider` | find entry in `openrouter_metadata.endpoints.available[]` where `selected === true`, take `.provider` (needs `X-OpenRouter-Metadata: enabled` header; verified 2026-08-29) | API | 
+| `reasoning_text` | `choices[0].message.reasoning` (present only when `reasoning: {enabled: true}` was sent; verified 2026-08-29) | API |
 | `model_fingerprint` | `system_fingerprint` | API |
 | `latency_ms` | `response_ts - request_ts`, our own clock | DERIVED |
 | `prompt_hash` | we compute it from the prompt text | DERIVED |
