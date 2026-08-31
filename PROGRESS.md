@@ -26,16 +26,16 @@ Next lesson:
 ## Lessons
 
 Phase A — Understand the idea
-- [ ] L001 The research question and the system — date: ___ conf: _/5
-- [ ] L002 Reading a technical design — date: ___ conf: _/5
-- [ ] L003 Requirements: functional vs nonfunctional — date: ___ conf: _/5
-- [ ] L004 Architecture on paper — date: ___ conf: _/5
-- [ ] L005 Backlog, milestones, and the plan — date: ___ conf: _/5
+- [x] L001 The research question and the system — date: ___ conf: _/5
+- [x] L002 Reading a technical design — date: ___ conf: _/5
+- [x] L003 Requirements: functional vs nonfunctional — date: ___ conf: _/5
+- [x] L004 Architecture on paper — date: ___ conf: _/5
+- [x] L005 Backlog, milestones, and the plan — date: ___ conf: _/5
 
 Phase B — Development environment
-- [ ] L006 Editor, terminal, Node.js — date: ___ conf: _/5
-- [ ] L007 Project folder, package.json, ES modules — date: ___ conf: _/5
-- [ ] L008 Secrets, .env, .gitignore — date: ___ conf: _/5
+- [x] L006 Editor, terminal, Node.js — date: ___ conf: _/5
+- [x] L007 Project folder, package.json, ES modules — date: ___ conf: _/5
+- [x] L008 Secrets, .env, .gitignore — date: ___ conf: _/5
 
 Phase C — Git & GitHub
 - [x] L009 Git: init, status, add, commit — date: 2026-08-17 conf: 3/5
@@ -44,29 +44,38 @@ Phase C — Git & GitHub
 - [x] L012 Issues, milestones, labels + Review 1 — date: 2026-08-17 conf: 3/5
 
   **M1 complete** — repo: https://github.com/DylanP-12/ai-reliability-lab
-   Evidence: issues #2, #3, #4 (closed) 
+   Evidence: issues #2, #3, #4 (closed)
 
 Phase D — JavaScript foundations
-- [ ] L013 Modern JS: data and destructuring — date: ___ conf: _/5
-- [ ] L014 Functions, purity, modules, scope — date: ___ conf: _/5
-- [ ] L015 Data formats: JSON, JSONL, CSV — date: ___ conf: _/5
-- [ ] L016 Async JS, fetch, HTTP — date: ___ conf: _/5
-- [ ] L017 Errors and unit testing — date: ___ conf: _/5
+- [x] L013 Modern JS: data and destructuring — date: ___ conf: _/5
+- [x] L014 Functions, purity, modules, scope — date: ___ conf: _/5
+- [x] L015 Data formats: JSON, JSONL, CSV — date: ___ conf: _/5
+- [x] L016 Async JS, fetch, HTTP — date: ___ conf: _/5
+- [x] L017 Errors and unit testing — date: ___ conf: _/5
 
 Phase E — Repository scaffold
-- [x ] L018 Scaffold the real repository — date: ___ conf: _/5
-- [ ] L019 Architecture rules as code — date: ___ conf: _/5
+- [x] L018 Scaffold the real repository — date: 2026-08-22 conf: _/5
+- [x] L019 Architecture rules as code — date: ___ conf: _/5
 
 Phase F — Deterministic utilities
-- [ ] L020 core/ids.js — date: ___ conf: _/5
-- [ ] L021 core/seededRandom.js — date: ___ conf: _/5
-- [ ] L022 core/cost.js + Review 2 — date: ___ conf: _/5
+- [x] L020 core/ids.js — date: ___ conf: _/5
+- [x] L021 core/seededRandom.js — date: ___ conf: _/5
+- [x] L022 core/cost.js + Review 2 — date: 2026-08-27 conf: 3.5/5
 
 Phase G — LLM client
-- [ ] L023 Anatomy of an LLM API call — date: ___ conf: _/5
-- [ ] L024 llmClient.js part 1 — date: ___ conf: _/5
-- [ ] L025 llmClient.js part 2 — date: ___ conf: _/5
-- [ ] L026 First real API call — date: ___ conf: _/5
+- [x] L023 Anatomy of an LLM API call — date: ___ conf: _/5
+- [x] L024 llmClient.js part 1 — date: ___ conf: _/5
+- [x] L025 llmClient.js part 2 — date: ___ conf: 3/5
+- [x] L026 First real API call — date: 2026-08-31 conf: _/5
+
+  **M3 complete** — PR: `cli/smoke-call` merged into `main` @ f41db95
+   Evidence: one real chatCompletion call to deepseek-v3.1 (deepinfra pin);
+   all provenance fields validated (upstream_provider: "DeepInfra",
+   finish_reason: "stop", attempts: 1); estimated cost ~$0.0000085 vs
+   actual $0.00000391; reasoning_tokens nested-extraction bug found via
+   real payload and fixed with new test coverage (62/62 tests green,
+   purity check clean); docs/api-notes.md reconciled with dated
+   CONFIRMED/CORRECTED rows; M3 milestone closed on GitHub (2/2 issues)
 
 Phase H — Scenario CSV
 - [ ] L027 Parsing scenarios.csv — date: ___ conf: _/5
@@ -126,9 +135,9 @@ Phase Q — Completion
 
 ## Milestones
 
-- [ ] M1 Project + GitHub repo created — evidence: ___
-- [ ] M2 Shared utilities tested — evidence: ___
-- [ ] M3 First safe API smoke test — evidence: ___
+- [x] M1 Project + GitHub repo created — evidence: PR #1, Milestone Review 1 passed at L012
+- [x] M2 Shared utilities tested — evidence: PR #13, Milestone Review 2 passed at L022, 25/25 tests passing
+- [x] M3 First safe API smoke test — evidence: PR merged (`cli/smoke-call` → `main` @ f41db95); real call validated (upstream_provider: "DeepInfra", finish_reason: "stop", attempts: 1); reasoning_tokens extraction bug found + fixed (62/62 tests green); M3 closed on GitHub
 - [ ] M4 Scenario parser working — evidence: ___
 - [ ] M5 Conversation runner working — evidence: ___
 - [ ] M6 Collection CLI resumable — evidence: ___
@@ -399,6 +408,51 @@ My confidence from 1-5: 3.5
 What I need help with: distinguishing "computes the number a safety feature relies on" vs "is the safety feature itself" - landed after discussion, not yet automatic recall
 Next lesson: L023
 
+Lesson: L023
+Completed: Yes
+Concepts I can explain: statelessness ⇒ history burden, roles, provider pinning, provenance mapping (API/measured/derived), mock-transport seam
+Files created: docs/api-notes.md
+Files modified: config/models.json (pins + dates)
+Tests run: documentary verification (all facts dated)
+Test results: no remaining VERIFY-IN-L023 markers
+Git branch: main (docs/api-notes merged)
+Commit:
+GitHub issue/PR: L024/L025 issues filed against M3
+Problems still open: reasoning_tokens vs completion_tokens overlap assumption still unverified until L026's real payload
+My confidence from 1-5:
+What I need help with:
+Next lesson: L024
+
+Lesson: L024
+Completed: Yes
+Concepts I can explain: three-phase client (build/send+measure/extract), ISO-vs-elapsed clocks, ?? vs ||, transport injection, spy pattern
+Files created: tests/llmClient.test.js
+Files modified: core/llmClient.js (stub → happy path)
+Tests run: npm test (buildRequest, happy path, spy)
+Test results: green
+Git branch: core/llm-client (opened, stayed open through L025)
+Commit: 4361dca (Implement chatCompletion happy path: send, measure, extract with provenance)
+GitHub issue/PR: issue checklist updated (happy path done, errors/retries deferred to L025)
+Problems still open: typed errors + retries (L025); spy-wrapper pattern and upstream_provider nested extraction still fuzzy at lesson close
+My confidence from 1-5:
+What I need help with:
+Next lesson: L025
+
+Lesson: L025
+Completed: Yes
+Concepts I can explain: backoff vs jitter (what each prevents), retry vs permanent classification, cap enforcement via attempt < max_attempts
+Files created:
+Files modified: core/llmClient.js (complete — LlmError, classify, backoffDelay, retry loop), tests/llmClient.test.js (final: 19 new tests)
+Tests run: npm test — 61/61 passing, purity check clean
+Test results: 61/61 passing
+Git branch: main (core/llm-client merged via PR, deleted)
+Commit: dc8b4b1 (typed errors/classification/backoff/timeouts); merge commit 0ffd8fe
+GitHub issue/PR: PR merged — Closes #16, #17
+Problems still open: spy-wrapper pattern, upstream_provider nested extraction (openrouter_metadata.endpoints.available[] with selected: true) — both still fuzzy going into L026
+My confidence from 1-5: 3/5
+What I need help with:
+Next lesson: L026
+
 ## Lessons checklist
 
 Phase A
@@ -419,10 +473,15 @@ Phase E
 Phase F
 [x] L020  [x] L021  [x] L022 (2026-08-27) - Milestone Review 2 passed
 
-Phase G - Q
-All remaining lessons L023-L062: [ ] not started
+Phase G
+[x] L023  [x] L024  [x] L025  [x] L026 (2026-08-31) — Milestone 3 passed
+
+Phase H - Q
+All remaining lessons L027-L062: [ ] not started
+
 ## Milestones
 
 [x] M1 Project + GitHub repo created - evidence: PR #1, Milestone Review 1 passed at L012
 [x] M2 Shared utilities tested - evidence: PR #13, Milestone Review 2 passed at L022, 25/25 tests passing
-[ ] M3 through M12 - not started
+[x] M3 First safe API call - evidence: PR merged (cli/smoke-call → main @ f41db95); real call to deepseek-v3.1 validated all provenance fields; reasoning_tokens extraction bug found + fixed (62/62 tests green); M3 milestone closed on GitHub
+[ ] M4 through M12 - not started
