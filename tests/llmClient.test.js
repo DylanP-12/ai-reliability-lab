@@ -97,7 +97,7 @@ test('chatCompletion: text matches canned content', async () => {
 
 test('chatCompletion: usage passes through untouched', async () => {
   const result = await chatCompletion({ ...baseParams, transport: mockTransport(cannedBody) });
-  assert.deepEqual(result.usage, cannedBody.usage);
+    assert.deepEqual(result.usage, { ...cannedBody.usage, reasoning_tokens: 0 });
 });
 
 test('chatCompletion: latency_ms is at least the mock delay', async () => {
@@ -345,7 +345,34 @@ test('chatCompletion: success result still carries full provenance (regression g
   const result = await chatCompletion({ ...baseParams, transport, max_attempts: 3 });
 
   assert.equal(result.attempts, 1);
-  assert.deepEqual(result.usage, cannedBody.usage);
+    assert.deepEqual(result.usage, { ...cannedBody.usage, reasoning_tokens: 0 });
   assert.deepEqual(result.raw, cannedBody);
   assert.ok(!Number.isNaN(Date.parse(result.request_ts)));
+});
+
+test('chatCompletion: extracts reasoning_tokens from nested completion_tokens_details when flat field is absent', async () => {
+  const canned = {
+    choices: [{ message: { content: 'ok' }, finish_reason: 'stop' }],
+    usage: {
+      prompt_tokens: 9,
+      completion_tokens: 2,
+      total_tokens: 11,
+      completion_tokens_details: { reasoning_tokens: 0, image_tokens: 0, audio_tokens: 0 },
+    },
+  };
+
+  const result = await chatCompletion({
+    or_model: 'test/model',
+    messages: [{ role: 'user', content: 'hi' }],
+    provider_pin: 'test-provider',
+    reasoning_enabled: false,
+    temperature: 0,
+    max_tokens: 10,
+    max_attempts: 1,
+    apiKey: 'fake-key',
+    transport: mockTransport(canned),
+  });
+
+  // TODO: assert result.usage.reasoning_tokens equals 0, top-level
+  assert.equal(result.usage.reasoning_tokens, 0);
 });

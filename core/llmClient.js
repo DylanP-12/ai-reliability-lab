@@ -122,7 +122,10 @@ export async function chatCompletion({
         return {
           text: choice?.message?.content ?? null,
           reasoning_text: choice?.message?.reasoning ?? null,
-          usage: raw.usage,
+          usage: {
+  ...raw.usage,
+  reasoning_tokens: raw.usage?.reasoning_tokens ?? raw.usage?.completion_tokens_details?.reasoning_tokens ?? 0,
+},
           upstream_provider: selectedEndpoint?.provider ?? null,
           model_fingerprint: raw.system_fingerprint ?? null,
           finish_reason: choice?.finish_reason ?? null,
