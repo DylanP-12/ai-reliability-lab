@@ -20,3 +20,9 @@ excludes secrets from history. Can reconsider going public later once
 mature.
 Alternatives: Public (rejected for now — no benefit yet, adds risk if
 .gitignore is ever misconfigured).
+
+   2026-08-31 — L026 smoke call, model: deepseek-v3.1 (deepinfra pin)
+   Estimated: ~$0.0000085 | Actual: $0.00000391
+   Surprises: model_fingerprint absent for DeepInfra; reasoning_tokens
+   nested under completion_tokens_details rather than flat — llmClient
+   extraction corrected to normalize it.
