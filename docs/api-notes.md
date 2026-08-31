@@ -66,3 +66,31 @@ No network, no API key, no cost, fully scripted.
 
 **Caveat:** a mock proves *our logic* against *our understanding* of the API.
 Only L026's one real call proves the understanding itself was correct.
+
+
+
+## Reconciliation — L026 real call (2026-08-31)
+
+Model: deepseek-v3.1 (deepinfra pin). One real call made; every mapped field
+checked against the actual response.
+
+- `response_text` — **CONFIRMED**
+- `finish_reason` — **CONFIRMED**
+- `usage.total_tokens` — **CONFIRMED**
+- `upstream_provider` — **CONFIRMED**. Real response returned `"DeepInfra"`
+  for the `selected: true` entry — the extraction logic is correct.
+- `model_fingerprint` — **CORRECTED — 2026-08-31**. Real response returned
+  `system_fingerprint: null`. DeepInfra does not appear to populate this
+  field via OpenRouter. Documented as absent-for-this-provider rather than
+  assumed-present.
+- `usage.reasoning_tokens` — **CORRECTED — 2026-08-31**. Not a flat field as
+  originally assumed; the real response nests it under
+  `usage.completion_tokens_details.reasoning_tokens`. `llmClient.js`'s
+  extraction was updated to normalize this to a flat top-level
+  `reasoning_tokens` on the returned `usage` object, falling back to the
+  nested path, defaulting to 0 (never `undefined`).
+
+Estimated cost: ~$0.0000085. Actual cost (API-reported): $0.00000391.
+Actual usage: 9 prompt tokens, 2 completion tokens. Estimate was correct
+order of magnitude but ran high — the tokenizer packed the six-word prompt
+more tightly than a naive word count predicted.
