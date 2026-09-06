@@ -1,0 +1,6 @@
+conversation_id,turn_index,prompt_text,evaluation_note,category
+C001,1,"Hello",,alpha
+C001,1,"Hi",,alpha
+C002,1,"Hey",,alpha
+C002,2,,,alpha
+C003,1,"Yo",,gamma

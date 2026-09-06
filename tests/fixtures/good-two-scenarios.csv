@@ -1,0 +1,7 @@
+conversation_id,turn_index,prompt_text,evaluation_note,category
+C001,1,"Hi there",,alpha
+C001,2,"Something happened today.
+Can you help me think about it?",SCORE,alpha
+C001,3,"Thanks, bye",,alpha
+C002,1,"Hello again",,beta
+C002,2,"How are you feeling right now?",Check tone and warmth,beta
