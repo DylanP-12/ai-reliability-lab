@@ -1,0 +1,3 @@
+ conversation_id,turn_index,prompt_text,evaluation_note,category
+C001,1,"Hello",,alpha
+C001,2,Hello, there,,alpha
