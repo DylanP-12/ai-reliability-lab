@@ -453,6 +453,14 @@ My confidence from 1-5: 3/5
 What I need help with:
 Next lesson: L026
 
+
+
+parseScenarios written from scratch: all 8 validation rules, collect-all error reporting, checkpoint derivation, sidecar-driven category validation with graceful degradation
+10 fixtures, including a real bug you found and fixed (the swapped bad-gap/bad-blank-prompt bodies) and the boundary case from §9 (bad-gap-start.csv)
+12 tests written, 80/80 passing, zero regressions on L027's work
+Student checkpoint and full knowledge check both completed
+Committed, pushed, PR'd, merged, branch deleted, main pulled
+
 ## Lessons checklist
 
 Phase A
