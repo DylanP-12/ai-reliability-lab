@@ -1,8 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { parseCsv, parseScenarios } from '../core/parseScenarios.js';
-
+import { parseCsv, parseScenarios, serializeScenarios } from '../core/parseScenarios.js';
 const SIMPLE = `a,b,c
 d,e,f
 `;
@@ -216,4 +215,24 @@ test('BAD_GAP_START: scenario not starting at turn_index 1 throws', () => {
       return true;
     }
   );
+});
+
+
+test('round-trip: object -> csv -> object preserves data with commas, quotes, newlines', () => {
+  const original = [
+    {
+      conversation_id: 'C001',
+      category: 'demo',
+      turn_count: 1,
+      turns: [
+        { turn_index: 1, prompt_text: 'He said, "hi"\nthen left', evaluation_note: 'SCORE' }
+      ],
+      checkpoints: [1],
+    }
+  ];
+
+  const csv = serializeScenarios(original);
+  const result = parseScenarios(csv);
+
+  assert.deepEqual(result, original);
 });
