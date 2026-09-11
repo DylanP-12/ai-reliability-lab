@@ -236,3 +236,25 @@ test('round-trip: object -> csv -> object preserves data with commas, quotes, ne
 
   assert.deepEqual(result, original);
 });
+
+test('round-trip: plain scenario with no special characters needs no quoting', () => {
+  const original = [
+    {
+      conversation_id: 'C002',
+      category: 'demo',
+      turn_count: 1,
+      turns: [
+        { turn_index: 1, prompt_text: 'Hello there', evaluation_note: 'SCORE' }
+      ],
+      checkpoints: [1],
+    }
+  ];
+
+  const csv = serializeScenarios(original);
+
+  // Assert the output is genuinely UNquoted — proves csvField isn't over-quoting
+  assert.equal(csv.includes('"'), false);
+
+  const result = parseScenarios(csv);
+  assert.deepEqual(result, original);
+});
