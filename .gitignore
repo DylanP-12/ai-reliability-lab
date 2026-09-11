@@ -13,3 +13,5 @@ data/*.jsonl
 # OS noise
 .DS_Store
 Thumbs.db
+
+scratch/
