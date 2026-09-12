@@ -1,9 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { parseCsv, parseScenarios } from '../core/parseScenarios.js';
-
-const SIMPLE = `a,b,c
+import { parseCsv, parseScenarios, serializeScenarios, csvField } from '../core/parseScenarios.js';const SIMPLE = `a,b,c
 d,e,f
 `;
 
@@ -216,4 +214,77 @@ test('BAD_GAP_START: scenario not starting at turn_index 1 throws', () => {
       return true;
     }
   );
+});
+
+
+test('round-trip: object -> csv -> object preserves data with commas, quotes, newlines', () => {
+  const original = [
+    {
+      conversation_id: 'C001',
+      category: 'demo',
+      turn_count: 1,
+      turns: [
+        { turn_index: 1, prompt_text: 'He said, "hi"\nthen left', evaluation_note: 'SCORE' }
+      ],
+      checkpoints: [1],
+    }
+  ];
+
+  const csv = serializeScenarios(original);
+  const result = parseScenarios(csv);
+
+  assert.deepEqual(result, original);
+});
+
+test('round-trip: plain scenario with no special characters needs no quoting', () => {
+  const original = [
+    {
+      conversation_id: 'C002',
+      category: 'demo',
+      turn_count: 1,
+      turns: [
+        { turn_index: 1, prompt_text: 'Hello there', evaluation_note: 'SCORE' }
+      ],
+      checkpoints: [1],
+    }
+  ];
+
+  const csv = serializeScenarios(original);
+
+  // Assert the output is genuinely UNquoted — proves csvField isn't over-quoting
+  assert.equal(csv.includes('"'), false);
+
+  const result = parseScenarios(csv);
+  assert.deepEqual(result, original);
+});
+
+test('csvField: quoting rules', () => {
+  assert.equal(csvField('hello world'), 'hello world');
+  assert.equal(csvField("it's fine"), "it's fine");
+  assert.equal(csvField('a, b'), '"a, b"');
+  assert.equal(csvField('line1\nline2'), '"line1\nline2"');
+  assert.equal(csvField('say "hi"'), '"say ""hi"""');
+});
+
+test('round-trip: real multi-turn fixture survives object -> csv -> object', () => {
+  const original = parseScenarios(GOOD_TWO_SCENARIOS, { allowedCategories: ['alpha', 'beta'] });
+  const csv = serializeScenarios(original);
+  const result = parseScenarios(csv, { allowedCategories: ['alpha', 'beta'] });
+  assert.deepEqual(result, original);
+});
+
+test('semantic stability: unnecessary quoting in input does not survive text round-trip, but meaning does', () => {
+  const HANDWRITTEN = `conversation_id,turn_index,prompt_text,evaluation_note,category
+"C001",1,"Hello there",SCORE,"demo"
+`;
+
+  const firstParse = parseScenarios(HANDWRITTEN, { allowedCategories: ['demo'] });
+  const regeneratedCsv = serializeScenarios(firstParse);
+  const secondParse = parseScenarios(regeneratedCsv, { allowedCategories: ['demo'] });
+
+  // Direction 2 (byte-identity of TEXT) is NOT promised — and this proves it:
+  assert.notEqual(regeneratedCsv, HANDWRITTEN);
+
+  // Semantic stability IS promised — meaning survives even though bytes changed:
+  assert.deepEqual(secondParse, firstParse);
 });

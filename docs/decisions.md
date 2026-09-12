@@ -26,3 +26,11 @@ Alternatives: Public (rejected for now — no benefit yet, adds risk if
    Surprises: model_fingerprint absent for DeepInfra; reasoning_tokens
    nested under completion_tokens_details rather than flat — llmClient
    extraction corrected to normalize it.
+
+   ## 2026-09-12 — Dataset versioning: v1 files are immutable once a run exists
+Reasons: matches run.config's dataset_version; changing scenarios.csv after
+a run has used it would silently invalidate that run's results with no
+record of what changed. Future edits become scenarios.v2.csv plus a
+version bump in the sidecar — v1 stays untouched.
+Alternatives: editing v1 in place (rejected — no audit trail, breaks
+reproducibility of any run already made against v1).

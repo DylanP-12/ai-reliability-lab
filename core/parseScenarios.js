@@ -133,3 +133,35 @@ for (const t of sorted) {
 
   return scenarios;
 }
+
+export function csvField(value) {
+  const s = String(value);
+  if (/[",\r\n]/.test(s) || s !== s.trim()) {
+    return '"' + s.replaceAll('"', '""') + '"';
+  }
+  return s;
+}
+
+export function serializeScenarios(scenarios) {
+  const header = 'conversation_id,turn_index,prompt_text,evaluation_note,category';
+  const lines = [header];
+
+  for (const scenario of scenarios) {
+    for (const turn of scenario.turns) {
+      const row = [
+        csvField(scenario.conversation_id),
+        csvField(turn.turn_index),   // blank A
+        csvField(turn.prompt_text
+),   // blank B
+        csvField(turn.evaluation_note
+),   // blank C
+        csvField(scenario.category
+
+),   // blank D
+      ].join(',');
+      lines.push(row);
+    }
+  }
+
+  return lines.join('\n') + '\n';
+}
