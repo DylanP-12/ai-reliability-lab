@@ -265,3 +265,10 @@ test('csvField: quoting rules', () => {
   assert.equal(csvField('line1\nline2'), '"line1\nline2"');
   assert.equal(csvField('say "hi"'), '"say ""hi"""');
 });
+
+test('round-trip: real multi-turn fixture survives object -> csv -> object', () => {
+  const original = parseScenarios(GOOD_TWO_SCENARIOS, { allowedCategories: ['alpha', 'beta'] });
+  const csv = serializeScenarios(original);
+  const result = parseScenarios(csv, { allowedCategories: ['alpha', 'beta'] });
+  assert.deepEqual(result, original);
+});
