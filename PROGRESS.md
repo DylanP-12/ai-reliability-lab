@@ -493,3 +493,12 @@ All remaining lessons L027-L062: [ ] not started
 [x] M2 Shared utilities tested - evidence: PR #13, Milestone Review 2 passed at L022, 25/25 tests passing
 [x] M3 First safe API call - evidence: PR merged (cli/smoke-call → main @ f41db95); real call to deepseek-v3.1 validated all provenance fields; reasoning_tokens extraction bug found + fixed (62/62 tests green); M3 milestone closed on GitHub
 [ ] M4 through M12 - not started
+
+## L029 — Round-trips and the sample dataset
+- csvField + serializeScenarios written and tested (quoting rules, round-trip Direction 1, semantic stability)
+- Fixed a real CRLF bug in tests/parseScenarios.test.js via .gitattributes + editor EOL conversion
+- Authored ds-v1: 6 scenarios, 8 checkpoints, 1 single-turn scenario, 1 custom evaluation_note
+- Caught and fixed a second CRLF bug (data/scenarios.csv) and an empty dataset-notes.md, both after merge
+- Milestone 4 (Phase H) complete: parse, validate, serialize — all round-trip-proven
+- Confidence: 4/5 (CSV mechanics: 3/5, dataset design: 4/5)
+- Next: L030 — Conversation history on paper
