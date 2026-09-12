@@ -272,3 +272,19 @@ test('round-trip: real multi-turn fixture survives object -> csv -> object', () 
   const result = parseScenarios(csv, { allowedCategories: ['alpha', 'beta'] });
   assert.deepEqual(result, original);
 });
+
+test('semantic stability: unnecessary quoting in input does not survive text round-trip, but meaning does', () => {
+  const HANDWRITTEN = `conversation_id,turn_index,prompt_text,evaluation_note,category
+"C001",1,"Hello there",SCORE,"demo"
+`;
+
+  const firstParse = parseScenarios(HANDWRITTEN, { allowedCategories: ['demo'] });
+  const regeneratedCsv = serializeScenarios(firstParse);
+  const secondParse = parseScenarios(regeneratedCsv, { allowedCategories: ['demo'] });
+
+  // Direction 2 (byte-identity of TEXT) is NOT promised — and this proves it:
+  assert.notEqual(regeneratedCsv, HANDWRITTEN);
+
+  // Semantic stability IS promised — meaning survives even though bytes changed:
+  assert.deepEqual(secondParse, firstParse);
+});
