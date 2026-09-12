@@ -1,8 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { parseCsv, parseScenarios, serializeScenarios } from '../core/parseScenarios.js';
-const SIMPLE = `a,b,c
+import { parseCsv, parseScenarios, serializeScenarios, csvField } from '../core/parseScenarios.js';const SIMPLE = `a,b,c
 d,e,f
 `;
 
@@ -257,4 +256,12 @@ test('round-trip: plain scenario with no special characters needs no quoting', (
 
   const result = parseScenarios(csv);
   assert.deepEqual(result, original);
+});
+
+test('csvField: quoting rules', () => {
+  assert.equal(csvField('hello world'), 'hello world');
+  assert.equal(csvField("it's fine"), "it's fine");
+  assert.equal(csvField('a, b'), '"a, b"');
+  assert.equal(csvField('line1\nline2'), '"line1\nline2"');
+  assert.equal(csvField('say "hi"'), '"say ""hi"""');
 });
