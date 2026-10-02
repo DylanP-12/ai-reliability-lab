@@ -59,7 +59,6 @@ try {
 const result = await chat({ messages });
 const response_ts = new Date().toISOString();
     messages.push({ role: 'assistant', content: result.text });
-
      const turnRecord = {
       turn_index: turn.turn_index,
       prompt_text: turn.prompt_text,
