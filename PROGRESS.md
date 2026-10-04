@@ -139,7 +139,7 @@ Phase Q — Completion
 - [x] M2 Shared utilities tested — evidence: PR #13, Milestone Review 2 passed at L022, 25/25 tests passing
 - [x] M3 First safe API smoke test — evidence: PR merged (`cli/smoke-call` → `main` @ f41db95); real call validated (upstream_provider: "DeepInfra", finish_reason: "stop", attempts: 1); reasoning_tokens extraction bug found + fixed (62/62 tests green); M3 closed on GitHub
 - [ ] M4 Scenario parser working — evidence: ___
-- [ ] M5 Conversation runner working — evidence: ___
+- [x] M5 Conversation runner tested - evidence: PR #23 merged (main @ 948e7d0), tests "§11-1" to "§11-6", 92/92 passing. Review 3: "what breaks if" round done, four beats restated after review. Follow-up: six-rule recall and why test 3 shares one client, revisit at start of L033.
 - [ ] M6 Collection CLI resumable — evidence: ___
 - [ ] M7 Scoring pipeline working — evidence: ___
 - [ ] M8 App data prepared — evidence: ___
@@ -452,6 +452,21 @@ Problems still open: spy-wrapper pattern, upstream_provider nested extraction (o
 My confidence from 1-5: 3/5
 What I need help with:
 Next lesson: L026
+
+Lesson: L032
+Completed: yes (explain-back partial, resume point: six rules + test 3 reasoning)
+Concepts I can explain: aliasing (reference vs snapshot), four beats, deepEqual vs includes, sabotage checks
+Files created: tests/runConversation.test.js
+Files modified: core/runConversation.js (whitespace only)
+Tests run: npm test
+Test results: 92 pass, 0 fail
+Git branch: core/run-conversation (merged, deleted)
+Commit: 2036103 (merged to main as 948e7d0)
+GitHub issue/PR: PR #23
+Problems still open: none in code; recall of the six rules and the shared-client test
+My confidence from 1-5: _
+What I need help with: why tests must be able to fail; the six rules
+Next lesson: L033 collect.js part 1
 
 
 
