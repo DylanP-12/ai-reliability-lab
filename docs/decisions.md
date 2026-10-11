@@ -34,3 +34,6 @@ record of what changed. Future edits become scenarios.v2.csv plus a
 version bump in the sidecar — v1 stays untouched.
 Alternatives: editing v1 in place (rejected — no audit trail, breaks
 reproducibility of any run already made against v1).
+
+Failed units retry on the next run. Resume counts only status === 'complete', the failed line stays in the append-only file, and failures are often temporary (rate limits, server errors).
+The dispatch loop lives in cli/dispatch.js, not collect.js, because importing collect.js runs its top-level code (reads config, prints the plan).
