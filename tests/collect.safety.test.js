@@ -70,3 +70,20 @@ test('cap halts: $1 per unit, $3 cap, exactly 3 units run', async () => {
     rmSync(dir, { recursive: true, force: true });
   }
 });
+
+test('cap fails closed: unknown model stops the run before any call', async () => {
+  const { scenarios, config, dir, outPath } = setupPriced();
+
+  // The schedule names a model, m9, that we never give to dispatch.
+  const schedule = scheduleUnits(expandUnits(scenarios, [makeModel('m9')], config), config.seed);
+  const { chat, calls } = countingChat();
+  try {
+    // models is EMPTY on purpose: dispatch cannot find m9 for the very first unit.
+    const result = await dispatch({ schedule, scenarios, models: [], config, apiKey: 'k', outPath, chat });
+
+    assert.equal(result.ran, 0);
+    assert.equal(calls(), 0);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
