@@ -87,3 +87,30 @@ test('cap fails closed: unknown model stops the run before any call', async () =
     rmSync(dir, { recursive: true, force: true });
   }
 });
+
+test('failure isolation: unit 2 of 5 fails, all 5 still run', async () => {
+  const { scenarios, models, config, schedule, dir, outPath } = setupPriced();
+  const roomyConfig = { ...config, spend_cap_usd: 100 };   // so the cap does not interfere
+  const five = schedule.slice(0, 5);
+
+  // A chat that works, except the 2nd call throws.
+  const { chat: okChat } = countingChat();
+  let n = 0;
+  const chat = async (...args) => {
+    n++;
+    if (n === 2) throw new Error('boom');
+    return okChat(...args);
+  };
+
+  try {
+    const result = await dispatch({ schedule: five, scenarios, models, config: roomyConfig, apiKey: 'k', outPath, chat });
+    const records = readLines(outPath).map((l) => JSON.parse(l));
+
+    assert.equal(result.ran, 5);                                              // your guess: units the loop got through
+    assert.equal(records.length, 5);                                          // your guess: lines in the file
+    assert.equal(records.filter((r) => r.status === 'failed').length, 1);     // your guess: failed records
+    assert.equal(records.filter((r) => r.status === 'complete').length, 4);   // your guess: complete records
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
