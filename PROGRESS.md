@@ -517,3 +517,7 @@ All remaining lessons L027-L062: [ ] not started
 - Milestone 4 (Phase H) complete: parse, validate, serialize — all round-trip-proven
 - Confidence: 4/5 (CSV mechanics: 3/5, dataset design: 4/5)
 - Next: L030 — Conversation history on paper
+
+## M6: Collection CLI resumable (Review 4, L036)
+- Verdict: continue, with repairs before L037: explain-back of schedule/run/persist/account/pace; #27 config validation before first paid run
+- Evidence: kill/resume drill (Ctrl-C at 22/120, resume 98 run / 22 skipped), exactly-once proof PASS, 114 tests green incl. re-run-zero, resume-missing, cap-halts, failure-isolation; PR (data/manifest)
