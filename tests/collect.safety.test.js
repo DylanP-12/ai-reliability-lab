@@ -134,3 +134,26 @@ test('spacing: one wait of spacing_ms after each unit that ran', async () => {
     rmSync(dir, { recursive: true, force: true });
   }
 });
+
+
+
+test('stop request: loop stops between units, file stays valid', async () => {
+  const { scenarios, models, config, schedule, dir, outPath } = setupPriced();
+  const roomyConfig = { ...config, spend_cap_usd: 100 };
+  const { chat, calls } = countingChat();
+
+  // Says "stop" once two API calls have been made.
+  const shouldStop = () => calls() >= 2;
+
+  try {
+    const result = await dispatch({ schedule, scenarios, models, config: roomyConfig, apiKey: 'k', outPath, chat, shouldStop });
+
+    assert.equal(result.ran, 2);              // your guess: units that ran
+
+    const lines = readLines(outPath);
+    assert.equal(lines.length, 2);            // your guess: lines in the file
+    lines.forEach((l) => JSON.parse(l));      // throws if any line is a half-written record
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
