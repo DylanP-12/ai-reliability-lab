@@ -25,14 +25,20 @@ function estimateNext(unit, scenario, model, config) {
   return outputCost + inputCost;
 }
 
-export async function dispatch({ schedule, scenarios, models, config, apiKey, outPath, chat, sleepFn = realSleep }) {
+export async function dispatch({ schedule, scenarios, models, config, apiKey, outPath, chat, sleepFn = realSleep, shouldStop = () => false }) {
   // Build the resume Set ONCE, before the loop
   const done = loadCompleteUnitIds(outPath);
   let ran = 0;
   let skipped = 0;
   let spent = 0;
 
-  for (const unit of schedule) {
+    for (const unit of schedule) {
+    // Ctrl-C (or anything else) asked us to stop: leave BEFORE starting a new unit
+    if (shouldStop()) {
+      console.log('Stop requested. Stopping after the last saved unit.');
+      break;
+    }
+
     // Resume: skip any unit whose full identity is already complete
     if (done.has(unit.unit_id)) {
       skipped++;
