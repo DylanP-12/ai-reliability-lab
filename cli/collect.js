@@ -3,18 +3,22 @@
 // Dispatch (only with --go): append-only + resume, spend cap, spacing, failure isolation, graceful Ctrl-C.
 // Dry run:  node cli/collect.js
 // Real run: node --env-file=.env cli/collect.js --go   (spends money, up to the cap)
-import { readFileSync } from 'node:fs';
+import { readFileSync, mkdirSync } from 'node:fs';
 import { parseScenarios } from '../core/parseScenarios.js';
 import { estimateTurnCostUSD } from '../core/cost.js';
 import { chatCompletion } from '../core/llmClient.js';
 import { expandUnits, scheduleUnits } from './expandUnits.js';
 import { dispatch } from './dispatch.js';
+import { sha256 } from '../core/runConversation.js';
+import { buildManifest, writeManifest, tallyResponses } from './writeManifest.js';
 
 // ---------- 1. Load inputs (all file reading happens here, in cli) ----------
 const config = JSON.parse(readFileSync('config/run.config.json', 'utf8'));
 const models = JSON.parse(readFileSync('config/models.json', 'utf8'));
 const meta = JSON.parse(readFileSync('data/scenarios.meta.json', 'utf8'));
-const csvText = readFileSync('data/scenarios.csv', 'utf8');
+const csvBytes = readFileSync('data/scenarios.csv');   // raw bytes, read once
+const csvText = csvBytes.toString('utf8');              // the same text as before, for parsing
+const datasetHash = await sha256(csvBytes);             // fingerprint of exactly these bytes
 const scenarios = parseScenarios(csvText, { allowedCategories: meta.categories });
 
 // ---------- 2. Plan: expand -> shuffle(seed) -> dispatch_index ----------
@@ -48,6 +52,7 @@ for (const u of schedule) {
 
 // ---------- 4. Summary ----------
 console.log(`run_id: ${config.run_id}   seed: ${config.seed}`);
+console.log(`dataset_hash: ${datasetHash}`);
 console.log(
   `${scenarios.length} scenarios x ${models.length} models x ${config.repetitions} repetitions = ${schedule.length} units`
 );
@@ -57,16 +62,55 @@ for (const u of schedule.slice(0, 3)) {
 }
 console.log(`rough estimated cost: $${estimatedUSD.toFixed(2)}   (spend cap: $${config.spend_cap_usd})`);
 
-// ---------- 5. Dispatch: spends real money, so it needs --go ----------
-if (!process.argv.includes('--go')) {
+// ---------- 5. Dispatch: --go is real (spends money); --mock is the offline drill ----------
+const GO = process.argv.includes('--go');
+const MOCK = process.argv.includes('--mock');
+
+if (GO && MOCK) {
+  console.error('Choose one: --go (real, spends money) or --mock (offline drill). Not both.');
+  process.exit(1);
+}
+if (!GO && !MOCK) {
   console.log('\nDry run: nothing was sent. Add --go to start collecting (spends money, up to the cap).');
   process.exit(0);
 }
 
-const apiKey = process.env.OPENROUTER_API_KEY;
-if (!apiKey) {
-  console.error('No OPENROUTER_API_KEY. Run: node --env-file=.env cli/collect.js --go');
-  process.exit(1);
+// A slow fake model for the kill/resume drill: no network, no key, no cost.
+async function slowMockChat() {
+  await new Promise(resolve => setTimeout(resolve, 150));
+  return {
+    text: 'mock reply',
+    usage: { prompt_tokens: 10, completion_tokens: 5, reasoning_tokens: 0 },
+    latency_ms: 150,
+    reasoning_text: null,
+    refusal_signal: null,
+    upstream_provider: 'mock',
+    model_fingerprint: null,
+    finish_reason: 'stop',
+    attempts: 1,
+  };
+}
+
+// Safe defaults: everything starts as the mock drill. Only --go switches to real.
+let apiKey = null;
+let chat = slowMockChat;
+let runConfig = { ...config, spacing_ms: 0 }; // a fake model needs no request spacing
+let outPath = 'tmp/drill/responses.jsonl';
+let manifestPath = 'tmp/drill/manifest.json';
+
+if (GO) {
+  apiKey = process.env.OPENROUTER_API_KEY;
+  if (!apiKey) {
+    console.error('No OPENROUTER_API_KEY. Run: node --env-file=.env cli/collect.js --go');
+    process.exit(1);
+  }
+  chat = chatCompletion;
+  runConfig = config;
+  outPath = 'data/responses.jsonl';
+  manifestPath = 'data/manifest.json';
+} else {
+  mkdirSync('tmp/drill', { recursive: true });
+  console.log('\nMOCK DRILL: fake model, no network, writing to tmp/drill/');
 }
 
 // Ctrl-C only sets a flag. dispatch checks it between units, so the file is always whole.
@@ -76,15 +120,39 @@ process.on('SIGINT', () => {
   console.log('\nFinishing current unit, then stopping...');
 });
 
-const result = await dispatch({
-  schedule,
-  scenarios,
-  models,
-  config,
-  apiKey,
-  outPath: 'data/responses.jsonl',
-  chat: chatCompletion,
-    shouldStop: () => stopping,
-});
+const startedAt = new Date().toISOString();
 
-console.log(`\nDone. ran: ${result.ran}   skipped (already complete): ${result.skipped}   spent: $${result.spent.toFixed(2)}`);
+let result;
+try {
+  result = await dispatch({
+    schedule,
+    scenarios,
+    models,
+    config: runConfig,
+    apiKey,
+    outPath,
+    chat,
+    shouldStop: () => stopping,
+  });
+} finally {
+  // Every way out of dispatch passes through here: normal end, cap stop,
+  // Ctrl-C, or an unexpected error. So a partial run gets a manifest too.
+  // Counts come from the file (all sessions), not from dispatch (this session only).
+  const tally = await tallyResponses(outPath);
+  const manifest = buildManifest({
+    config: runConfig,
+    models,
+    datasetHash,
+    counts: {
+      unit_count: schedule.length,
+      complete_count: tally.complete_count,
+      failed_count: tally.failed_count,
+    },
+    startedAt,
+    finishedAt: new Date().toISOString(),
+  });
+  await writeManifest(manifestPath, manifest);
+  console.log(`\nManifest: ${tally.complete_count}/${schedule.length} complete, ${tally.failed_count} failed, ${tally.line_count} lines in file`);
+}
+
+console.log(`Done. ran: ${result.ran}   skipped (already complete): ${result.skipped}   spent: $${result.spent.toFixed(2)}`);

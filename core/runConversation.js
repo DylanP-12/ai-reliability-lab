@@ -1,8 +1,9 @@
 import { chatCompletion } from './llmClient.js';
 import { buildUnitId } from './ids.js';
 
-async function sha256(text) {
-  const bytes = new TextEncoder().encode(text);
+export async function sha256(input) {
+  // A string is turned into UTF-8 bytes; raw bytes (e.g. readFile with no encoding) are hashed as-is.
+  const bytes = typeof input === 'string' ? new TextEncoder().encode(input) : input;
   const digest = await crypto.subtle.digest('SHA-256', bytes);
   return 'sha256:' + [...new Uint8Array(digest)]
     .map(b => b.toString(16).padStart(2, '0')).join('');
