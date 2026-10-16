@@ -57,7 +57,17 @@ try {
    currentTurnIndex = turn.turn_index;
     messages.push({ role: 'user', content: turn.prompt_text });
     const request_ts = new Date().toISOString();
-const result = await chat({ messages });
+const result = await chat({
+  or_model: model.or_model,
+  messages,
+  provider_pin: model.provider_pin,
+  reasoning_enabled: model.reasoning_enabled,
+  temperature: config.temperature,
+  max_tokens: config.max_output_tokens,
+  timeout_ms: config.request_timeout_ms,
+  max_attempts: config.max_attempts,
+  apiKey,
+});
 const response_ts = new Date().toISOString();
     messages.push({ role: 'assistant', content: result.text });
      const turnRecord = {
