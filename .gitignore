@@ -15,3 +15,6 @@ data/*.jsonl
 Thumbs.db
 
 scratch/
+
+# Scratch output from drills and experiments (never committed)
+tmp/
