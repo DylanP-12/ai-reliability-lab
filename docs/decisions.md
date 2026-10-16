@@ -37,3 +37,10 @@ reproducibility of any run already made against v1).
 
 Failed units retry on the next run. Resume counts only status === 'complete', the failed line stays in the append-only file, and failures are often temporary (rate limits, server errors).
 The dispatch loop lives in cli/dispatch.js, not collect.js, because importing collect.js runs its top-level code (reads config, prints the plan).
+
+## L035: collect safety rails
+- The spend cap is checked BEFORE dispatch, using a conservative worst-case estimate (every turn at max_output_tokens, history re-sent each turn). It fails closed: an unknown model stops the run. Landing exactly on the cap is allowed (> not >=).
+- Spacing is one wait of spacing_ms after each unit that ran, through an injectable sleepFn. It is politeness and rate-limit avoidance, not a cost control.
+- A failed unit is appended and the loop continues. Only run-level problems (unknown model, cap, stop request) stop the run.
+- Ctrl-C only sets a flag. dispatch checks it between units (shouldStop seam), and the handler lives in collect.js.
+- collect.js is a dry run unless --go is passed, so nothing spends money by accident. The first real run is L037.
