@@ -77,5 +77,4 @@ export async function dispatch({ schedule, scenarios, models, config, apiKey, ou
     await sleepFn(config.spacing_ms);
   }
 
-  return { ran, skipped };
-}
+  return { ran, skipped, spent };}
