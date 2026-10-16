@@ -3,6 +3,9 @@ import { runConversation } from '../core/runConversation.js';
 import { appendRecord, loadCompleteUnitIds } from './appendRecord.js';
 import { estimateConversationCostUSD } from '../core/cost.js';
 
+// Real sleep for real runs. Tests pass their own sleepFn so they never wait.
+const realSleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
 // Worst-case cost of running one unit: output side plus input side.
 function estimateNext(unit, scenario, model, config) {
   const turns = scenario.turns.length;
@@ -22,7 +25,7 @@ function estimateNext(unit, scenario, model, config) {
   return outputCost + inputCost;
 }
 
-export async function dispatch({ schedule, scenarios, models, config, apiKey, outPath, chat }) {
+export async function dispatch({ schedule, scenarios, models, config, apiKey, outPath, chat, sleepFn = realSleep }) {
   // Build the resume Set ONCE, before the loop
   const done = loadCompleteUnitIds(outPath);
   let ran = 0;
@@ -61,8 +64,11 @@ export async function dispatch({ schedule, scenarios, models, config, apiKey, ou
 
     // Append INSIDE the loop, right after each unit, never after all of them
     appendRecord(outPath, record);
-    ran++;    
+    ran++;
     spent += estimateConversationCostUSD(record, models);
+
+    // Space AFTER persisting and accounting: one wait per unit that ran
+    await sleepFn(config.spacing_ms);
   }
 
   return { ran, skipped };

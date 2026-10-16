@@ -114,3 +114,23 @@ test('failure isolation: unit 2 of 5 fails, all 5 still run', async () => {
     rmSync(dir, { recursive: true, force: true });
   }
 });
+
+test('spacing: one wait of spacing_ms after each unit that ran', async () => {
+  const { scenarios, models, config, schedule, dir, outPath } = setupPriced();
+  const spacedConfig = { ...config, spend_cap_usd: 100, spacing_ms: 250 };
+  const four = schedule.slice(0, 4);
+  const { chat } = countingChat();
+
+  // A sleep that never waits: it only writes down what it was asked to wait for.
+  const delays = [];
+  const sleepFn = async (ms) => { delays.push(ms); };
+
+  try {
+    await dispatch({ schedule: four, scenarios, models, config: spacedConfig, apiKey: 'k', outPath, chat, sleepFn });
+
+    // HINT: 4 units ran, and each was followed by one wait. What does each wait equal?
+        assert.deepEqual(delays, [250, 250, 250, 250]);   // replace the contents of the array
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
