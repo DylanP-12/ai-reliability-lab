@@ -1,2 +1,90 @@
-// cli/collect.js — batch generation runner (L033)
-console.log('not implemented: L033');
+// cli/collect.js - batch generation runner
+// Plan: load inputs, expand units, schedule them, print a plan summary.
+// Dispatch (only with --go): append-only + resume, spend cap, spacing, failure isolation, graceful Ctrl-C.
+// Dry run:  node cli/collect.js
+// Real run: node --env-file=.env cli/collect.js --go   (spends money, up to the cap)
+import { readFileSync } from 'node:fs';
+import { parseScenarios } from '../core/parseScenarios.js';
+import { estimateTurnCostUSD } from '../core/cost.js';
+import { chatCompletion } from '../core/llmClient.js';
+import { expandUnits, scheduleUnits } from './expandUnits.js';
+import { dispatch } from './dispatch.js';
+
+// ---------- 1. Load inputs (all file reading happens here, in cli) ----------
+const config = JSON.parse(readFileSync('config/run.config.json', 'utf8'));
+const models = JSON.parse(readFileSync('config/models.json', 'utf8'));
+const meta = JSON.parse(readFileSync('data/scenarios.meta.json', 'utf8'));
+const csvText = readFileSync('data/scenarios.csv', 'utf8');
+const scenarios = parseScenarios(csvText, { allowedCategories: meta.categories });
+
+// ---------- 2. Plan: expand -> shuffle(seed) -> dispatch_index ----------
+const units = expandUnits(scenarios, models, config);
+const schedule = scheduleUnits(units, config.seed); // seed comes from config, never a literal
+
+// ---------- 3. Rough cost estimate (assumed sizes, for the plan only) ----------
+const ASSUMED_PROMPT_TOKENS = 40;
+const ASSUMED_REPLY_TOKENS = 200;
+
+function roughUnitCostUSD(scenario, model) {
+  let total = 0;
+  for (let k = 1; k <= scenario.turn_count; k++) {
+    // Turn k re-sends every earlier prompt and reply, plus the new prompt.
+    const usage = {
+      prompt_tokens: k * ASSUMED_PROMPT_TOKENS + (k - 1) * ASSUMED_REPLY_TOKENS,
+      completion_tokens: ASSUMED_REPLY_TOKENS,
+      reasoning_tokens: 0,
+    };
+    total += estimateTurnCostUSD(usage, model);
+  }
+  return total;
+}
+
+let estimatedUSD = 0;
+for (const u of schedule) {
+  const scenario = scenarios.find((s) => s.conversation_id === u.conversation_id);
+  const model = models.find((m) => m.model_id === u.model_id);
+  estimatedUSD += roughUnitCostUSD(scenario, model);
+}
+
+// ---------- 4. Summary ----------
+console.log(`run_id: ${config.run_id}   seed: ${config.seed}`);
+console.log(
+  `${scenarios.length} scenarios x ${models.length} models x ${config.repetitions} repetitions = ${schedule.length} units`
+);
+console.log('first 3 in dispatch order:');
+for (const u of schedule.slice(0, 3)) {
+  console.log(`  ${u.dispatch_index}  ${u.unit_id}`);
+}
+console.log(`rough estimated cost: $${estimatedUSD.toFixed(2)}   (spend cap: $${config.spend_cap_usd})`);
+
+// ---------- 5. Dispatch: spends real money, so it needs --go ----------
+if (!process.argv.includes('--go')) {
+  console.log('\nDry run: nothing was sent. Add --go to start collecting (spends money, up to the cap).');
+  process.exit(0);
+}
+
+const apiKey = process.env.OPENROUTER_API_KEY;
+if (!apiKey) {
+  console.error('No OPENROUTER_API_KEY. Run: node --env-file=.env cli/collect.js --go');
+  process.exit(1);
+}
+
+// Ctrl-C only sets a flag. dispatch checks it between units, so the file is always whole.
+let stopping = false;
+process.on('SIGINT', () => {
+  stopping = true;
+  console.log('\nFinishing current unit, then stopping...');
+});
+
+const result = await dispatch({
+  schedule,
+  scenarios,
+  models,
+  config,
+  apiKey,
+  outPath: 'data/responses.jsonl',
+  chat: chatCompletion,
+    shouldStop: () => stopping,
+});
+
+console.log(`\nDone. ran: ${result.ran}   skipped (already complete): ${result.skipped}   spent: $${result.spent.toFixed(2)}`);

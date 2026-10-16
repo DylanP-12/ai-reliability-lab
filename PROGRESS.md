@@ -88,7 +88,7 @@ Phase I — Conversation runner
 - [ ] L032 History-isolation tests + Review 3 — date: ___ conf: _/5
 
 Phase J — Batch collection
-- [ ] L033 collect.js part 1 — date: ___ conf: _/5
+- [x] L033 collect.js part 1: units and scheduling - date: 2026-10-10 conf: 3/5
 - [ ] L034 collect.js part 2 — date: ___ conf: _/5
 - [ ] L035 collect.js part 3 — date: ___ conf: _/5
 - [ ] L036 Kill it and resume it + Review 4 — date: ___ conf: _/5
@@ -139,7 +139,7 @@ Phase Q — Completion
 - [x] M2 Shared utilities tested — evidence: PR #13, Milestone Review 2 passed at L022, 25/25 tests passing
 - [x] M3 First safe API smoke test — evidence: PR merged (`cli/smoke-call` → `main` @ f41db95); real call validated (upstream_provider: "DeepInfra", finish_reason: "stop", attempts: 1); reasoning_tokens extraction bug found + fixed (62/62 tests green); M3 closed on GitHub
 - [ ] M4 Scenario parser working — evidence: ___
-- [x] M5 Conversation runner tested - evidence: PR #23 merged (main @ 948e7d0), tests "§11-1" to "§11-6", 92/92 passing. Review 3: "what breaks if" round done, four beats restated after review. Follow-up: six-rule recall and why test 3 shares one client, revisit at start of L033.
+- [x] M5 Conversation runner tested - evidence: PR #23 merged (main @ 948e7d0), tests "§11-1" to "§11-6", 92/92 passing. Review 3: "what breaks if" round done, four beats restated after review. Follow-up: six-rule recall and why test 3 shares one client, revisit at start of L033.  Follow-up revisited 2026-10-10 at start of L033: six rules reviewed (1 recalled unaided, then regrouped as in / isolated / never out), test 3 reasoning reached with a hint.
 - [ ] M6 Collection CLI resumable — evidence: ___
 - [ ] M7 Scoring pipeline working — evidence: ___
 - [ ] M8 App data prepared — evidence: ___
