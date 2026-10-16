@@ -9,12 +9,16 @@ import { estimateTurnCostUSD } from '../core/cost.js';
 import { chatCompletion } from '../core/llmClient.js';
 import { expandUnits, scheduleUnits } from './expandUnits.js';
 import { dispatch } from './dispatch.js';
+import { sha256 } from '../core/runConversation.js';
+import { buildManifest, writeManifest, tallyResponses } from './writeManifest.js';
 
 // ---------- 1. Load inputs (all file reading happens here, in cli) ----------
 const config = JSON.parse(readFileSync('config/run.config.json', 'utf8'));
 const models = JSON.parse(readFileSync('config/models.json', 'utf8'));
 const meta = JSON.parse(readFileSync('data/scenarios.meta.json', 'utf8'));
-const csvText = readFileSync('data/scenarios.csv', 'utf8');
+const csvBytes = readFileSync('data/scenarios.csv');   // raw bytes, read once
+const csvText = csvBytes.toString('utf8');              // the same text as before, for parsing
+const datasetHash = await sha256(csvBytes);             // fingerprint of exactly these bytes
 const scenarios = parseScenarios(csvText, { allowedCategories: meta.categories });
 
 // ---------- 2. Plan: expand -> shuffle(seed) -> dispatch_index ----------
@@ -48,6 +52,7 @@ for (const u of schedule) {
 
 // ---------- 4. Summary ----------
 console.log(`run_id: ${config.run_id}   seed: ${config.seed}`);
+console.log(`dataset_hash: ${datasetHash}`);
 console.log(
   `${scenarios.length} scenarios x ${models.length} models x ${config.repetitions} repetitions = ${schedule.length} units`
 );
@@ -76,15 +81,41 @@ process.on('SIGINT', () => {
   console.log('\nFinishing current unit, then stopping...');
 });
 
-const result = await dispatch({
-  schedule,
-  scenarios,
-  models,
-  config,
-  apiKey,
-  outPath: 'data/responses.jsonl',
-  chat: chatCompletion,
-    shouldStop: () => stopping,
-});
+const outPath = 'data/responses.jsonl';
+const manifestPath = 'data/manifest.json';
+const startedAt = new Date().toISOString();
 
-console.log(`\nDone. ran: ${result.ran}   skipped (already complete): ${result.skipped}   spent: $${result.spent.toFixed(2)}`);
+let result;
+try {
+  result = await dispatch({
+    schedule,
+    scenarios,
+    models,
+    config,
+    apiKey,
+    outPath,
+    chat: chatCompletion,
+    shouldStop: () => stopping,
+  });
+} finally {
+  // Every way out of dispatch passes through here: normal end, cap stop,
+  // Ctrl-C, or an unexpected error. So a partial run gets a manifest too.
+  // Counts come from the file (all sessions), not from dispatch (this session only).
+  const tally = await tallyResponses(outPath);
+  const manifest = buildManifest({
+    config,
+    models,
+    datasetHash,
+    counts: {
+      unit_count: schedule.length,
+      complete_count: tally.complete_count,
+      failed_count: tally.failed_count,
+    },
+    startedAt,
+    finishedAt: new Date().toISOString(),
+  });
+  await writeManifest(manifestPath, manifest);
+  console.log(`\nManifest: ${tally.complete_count}/${schedule.length} complete, ${tally.failed_count} failed, ${tally.line_count} lines in file`);
+}
+
+console.log(`Done. ran: ${result.ran}   skipped (already complete): ${result.skipped}   spent: $${result.spent.toFixed(2)}`);
