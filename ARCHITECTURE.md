@@ -72,3 +72,28 @@ dataStore.js is the single module responsible for every read of app data — tra
 
 scripts/check-core-purity.js scans every file in /core/ for banned import strings — fs, path, process, os, child_process, and any use of require(. It runs first in npm test, so a violation blocks every check after it. This is a text scan, not a real analysis of the code — it catches direct, static imports of forbidden modules, but it can miss dynamic imports (e.g. a computed string built at runtime) and transitive violations, where a core file imports something that looks clean but itself imports a Node-only module deeper down. It's a tripwire, not a proof of purity.
 
+## manifest.json (defined in L036)
+
+Written whole (not appended) by `cli/collect.js` on every exit from dispatch
+(normal end, cap stop, Ctrl-C, error). Holds counts and hashes only, never
+response text, so it is safe to commit and share.
+
+| Field | Meaning | Source |
+|---|---|---|
+| run_id | Which run this describes | config.run_id |
+| dataset_version | Human label for the scenario set | config.dataset_version |
+| dataset_hash | sha256 of the exact scenarios.csv bytes at run start; mismatch means the scenarios changed | sha256(raw CSV bytes), computed once at load |
+| seed | Seed for the dispatch shuffle | config.seed |
+| models | model_ids included | models.json |
+| repetitions | Repetitions per scenario x model | config.repetitions |
+| concurrency | Parallel units | config.concurrency |
+| unit_count | Units scheduled | schedule.length |
+| complete_count | Distinct unit_ids with a complete record (complete wins over an earlier failure) | tallyResponses(responses file) |
+| failed_count | Distinct unit_ids failed with no later complete record | tallyResponses(responses file) |
+| started_at | Start of the latest session (known debt: not the first session) | clock at dispatch start |
+| finished_at | When this manifest was written | clock in finally |
+| config_snapshot | The config that actually ran, verbatim | runConfig |
+| code_version | Build that produced the data (optional; currently null) | not yet filled |
+
+Authoritative truth is the set of records keyed by unit_id + status, not the raw
+line count: line_count > complete_count is valid after a failed unit is retried.
