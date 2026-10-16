@@ -1,10 +1,10 @@
 // tests/manifest.test.js — tests for cli/writeManifest.js
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, readFile } from 'node:fs/promises';
+import { mkdtemp, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { buildManifest, writeManifest } from '../cli/writeManifest.js';
+import { buildManifest, writeManifest, tallyResponses } from '../cli/writeManifest.js';
 
 const config = { run_id: 'r', dataset_version: 'v', seed: 1, repetitions: 1, concurrency: 1 };
 
@@ -41,4 +41,21 @@ test('buildManifest fails closed when config is missing a required field', () =>
     }),
     /seed/
   );
+});
+
+test('tallyResponses: a failed-then-retried unit counts as complete, not failed', async () => {
+  // Setup: u1 fails, then completes on resume; u2 completes
+  const dir = await mkdtemp(join(tmpdir(), 'tally-'));
+  const path = join(dir, 'responses.jsonl');
+  await writeFile(path, [
+    '{"unit_id":"u1","status":"failed"}',
+    '{"unit_id":"u1","status":"complete"}',
+    '{"unit_id":"u2","status":"complete"}',
+  ].join('\n') + '\n');
+
+  // Action
+  const tally = await tallyResponses(path);
+
+  // Assertion: three lines, but only two units, both complete
+  assert.deepEqual(tally, { line_count: 3, complete_count: 2, failed_count: 0 });
 });

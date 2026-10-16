@@ -53,3 +53,29 @@ export async function writeManifest(path, manifest) {
   }
   return manifest;
 }
+
+
+// Count units by their current status, reading the responses file back.
+// For each unit_id, 'complete' wins: a failed-then-retried unit counts as complete.
+export async function tallyResponses(path) {
+  let text = '';
+  try {
+    text = await readFile(path, 'utf8');
+  } catch (err) {
+    if (err.code !== 'ENOENT') throw err; // no file yet = nothing done yet; any other error is real
+  }
+
+  const complete = new Set();
+  const failed = new Set();
+  let line_count = 0;
+  for (const line of text.split('\n')) {
+    if (line.trim() === '') continue;
+    line_count++;
+    const record = JSON.parse(line); // a corrupt line throws: fail loudly, never guess
+    if (record.status === 'complete') complete.add(record.unit_id);
+    else if (record.status === 'failed') failed.add(record.unit_id);
+  }
+  for (const id of complete) failed.delete(id); // complete wins
+
+  return { line_count, complete_count: complete.size, failed_count: failed.size };
+}
