@@ -11,19 +11,31 @@ import { expandUnits, scheduleUnits } from './expandUnits.js';
 import { dispatch } from './dispatch.js';
 import { sha256 } from '../core/runConversation.js';
 import { buildManifest, writeManifest, tallyResponses } from './writeManifest.js';
+import { validateConfig } from '../core/validateConfig.js';
 
 // ---------- 1. Load inputs (all file reading happens here, in cli) ----------
-const config = JSON.parse(readFileSync('config/run.config.json', 'utf8'));
+const config = validateConfig(JSON.parse(readFileSync('config/run.config.json', 'utf8')));
 const models = JSON.parse(readFileSync('config/models.json', 'utf8'));
 const meta = JSON.parse(readFileSync('data/scenarios.meta.json', 'utf8'));
 const csvBytes = readFileSync('data/scenarios.csv');   // raw bytes, read once
 const csvText = csvBytes.toString('utf8');              // the same text as before, for parsing
 const datasetHash = await sha256(csvBytes);             // fingerprint of exactly these bytes
 const scenarios = parseScenarios(csvText, { allowedCategories: meta.categories });
-
 // ---------- 2. Plan: expand -> shuffle(seed) -> dispatch_index ----------
 const units = expandUnits(scenarios, models, config);
-const schedule = scheduleUnits(units, config.seed); // seed comes from config, never a literal
+const fullSchedule = scheduleUnits(units, config.seed); // seed comes from config, never a literal
+
+// --max-units N: take the first N in dispatch order (smoke run). Fails closed on a bad N.
+const maxIdx = process.argv.indexOf('--max-units');
+let maxUnits = null;
+if (maxIdx !== -1) {
+  maxUnits = Number(process.argv[maxIdx + 1]);
+  if (!Number.isInteger(maxUnits) || maxUnits <= 0) {
+    console.error('--max-units needs a positive whole number, e.g. --max-units 4');
+    process.exit(1);
+  }
+}
+const schedule = maxUnits ? fullSchedule.slice(0, maxUnits) : fullSchedule;
 
 // ---------- 3. Rough cost estimate (assumed sizes, for the plan only) ----------
 const ASSUMED_PROMPT_TOKENS = 40;
@@ -54,7 +66,8 @@ for (const u of schedule) {
 console.log(`run_id: ${config.run_id}   seed: ${config.seed}`);
 console.log(`dataset_hash: ${datasetHash}`);
 console.log(
-  `${scenarios.length} scenarios x ${models.length} models x ${config.repetitions} repetitions = ${schedule.length} units`
+  `${scenarios.length} scenarios x ${models.length} models x ${config.repetitions} repetitions = ${fullSchedule.length} units` +
+  (maxUnits ? `, running the first ${schedule.length} (--max-units)` : '')
 );
 console.log('first 3 in dispatch order:');
 for (const u of schedule.slice(0, 3)) {
@@ -106,8 +119,9 @@ if (GO) {
   }
   chat = chatCompletion;
   runConfig = config;
-  outPath = 'data/responses.jsonl';
-  manifestPath = 'data/manifest.json';
+  const suffix = maxUnits ? '.smoke' : '';
+  outPath = `data/responses${suffix}.jsonl`;
+  manifestPath = `data/manifest${suffix}.json`;
 } else {
   mkdirSync('tmp/drill', { recursive: true });
   console.log('\nMOCK DRILL: fake model, no network, writing to tmp/drill/');
