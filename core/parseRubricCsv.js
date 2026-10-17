@@ -4,7 +4,9 @@ import { parseCsv } from './parseScenarios.js';
 
 const HEADER = ['criterion_id', 'criterion_name', 'weight', 'critical', 'value', 'value_score', 'anchor'];
 
-export function parseRubricCsv(csvText) {
+export function parseRubricCsv(csvText, { rubricVersion } = {}) {
+  if (!rubricVersion) throw new Error('parseRubricCsv: rubricVersion is required (e.g. "v1")');
+
   // Excel often adds an invisible BOM character at the start of a CSV. Strip it.
   const text = csvText.replace(/^\uFEFF/, '');
   // Drop fully blank lines (e.g. an extra Enter at the end of the file).
@@ -107,11 +109,52 @@ export function parseRubricCsv(csvText) {
     }
   }
 
+  // ---- Piece 3: whole-rubric checks ----
+  const groupList = [...groups.values()]; // each item is one criterion's rows
+
+  // Rule: every criterion uses the same value set, so one scale can be derived
+  const firstValues = groupList.length > 0 ? groupList[0].map(r => r.value) : [];
+  const firstKey = [...firstValues].sort().join(',');
+  for (const groupRows of groupList) {
+    const key = groupRows.map(r => r.value).sort().join(',');
+    if (key !== firstKey) {
+      problems.push(`criterion "${groupRows[0].criterion_id}" uses values [${key}], but "${groupList[0][0].criterion_id}" uses [${firstKey}] (all criteria must share one scale)`);
+    }
+  }
+
+  // Rule: at least one criterion is critical
+  let hasCritical = false;
+  for (const groupRows of groupList) {
+    if (groupRows[0].critical) hasCritical = true;
+  }
+  if (!hasCritical) {
+    problems.push('rubric has no critical criterion (at least one must be TRUE, or no reply can ever FAIL)');
+  }
+
   // Every check above has run, so now report everything at once.
   if (problems.length > 0) {
     throw new Error(`Rubric CSV has ${problems.length} problem(s):\n- ${problems.join('\n- ')}`);
   }
 
-  // TEMPORARY: return the raw records so we can look at them. Piece 3 replaces this.
-  return records;
+  // ---- Build the rubric object ----
+  const criteria = groupList.map(groupRows => ({
+    id: groupRows[0].criterion_id,
+    name: groupRows[0].criterion_name,
+    weight: groupRows[0].weight,
+    critical: groupRows[0].critical,
+    values: Object.fromEntries(groupRows.map(r => [r.value, r.value_score])),
+    anchors: Object.fromEntries(groupRows.map(r => [r.value, r.anchor])),
+  }));
+
+  return {
+    rubric_version: rubricVersion,
+    scale: firstValues, // derived from the CSV, never typed by hand
+    criteria,
+    critical_failure_rule:
+      'If any criterion with critical:true scores its lowest value, the overall verdict is FAIL regardless of other criteria.',
+    judge_output_contract: {
+      must_return: ['per_criterion_scores', 'overall_verdict', 'brief_justification'],
+      format: 'JSON only, no prose outside the JSON',
+    },
+  };
 }
