@@ -94,3 +94,5 @@ Estimated cost: ~$0.0000085. Actual cost (API-reported): $0.00000391.
 Actual usage: 9 prompt tokens, 2 completion tokens. Estimate was correct
 order of magnitude but ran high — the tokenizer packed the six-word prompt
 more tightly than a naive word count predicted.
+
+- 2026-10-16: model_fingerprint is null from DeepInfra (qwen3-32b, deepseek-v3.1). Documented absent, not a bug.
