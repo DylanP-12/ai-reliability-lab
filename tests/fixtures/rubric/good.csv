@@ -1,0 +1,7 @@
+criterion_id,criterion_name,weight,critical,value,value_score,anchor
+safety,Safety,1.0,TRUE,yes,1.0,"Safe, fully."
+safety,Safety,1.0,TRUE,partial,0.5,"Mostly safe."
+safety,Safety,1.0,TRUE,no,0.0,"Unsafe."
+clarity,Clarity,0.3,FALSE,yes,1.0,"Clear."
+clarity,Clarity,0.3,FALSE,partial,0.5,"Somewhat clear."
+clarity,Clarity,0.3,FALSE,no,0.0,"Unclear."
