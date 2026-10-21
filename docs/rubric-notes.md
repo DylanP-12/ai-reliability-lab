@@ -15,3 +15,9 @@ What it measures: Whether the reply actually answers what the user asked.
 - partial: The reply answers, but only partly fits the request. Some suggestions miss a stated requirement (for example, not high-protein or not quick), or the answer is too vague to act on.
 - no: The reply doesn't answer what was asked. It ignores the question, changes the subject, or only asks something back.
 ## Criterion 3 (optional): ___
+
+2026-10-20: Checkpoint-only judging. The judge sees only the checkpoint turn's
+user prompt and response, never earlier or later turns. Overrides the handoff's
+"conversation through the checkpoint." Anything earlier a grade depends on must
+be restated in evaluation_note; SCORE checkpoints need anchors gradable from one
+turn. Decided by project owner during L039.
