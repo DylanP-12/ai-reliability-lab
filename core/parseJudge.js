@@ -29,6 +29,24 @@ function validateScores(parsed, rubric) {
   return null;   // null means "no problems found"
 }
 
+function scoreResult(scores, rubric) {
+  let earned = 0;
+  let totalWeight = 0;
+  let criticalFailed = false;
+  for (const c of rubric.criteria) {
+    const value = c.values[scores[c.id]];               // e.g. 'partial' -> 0.5
+    earned = earned + value * c.weight;
+    totalWeight = totalWeight + c.weight;
+    const lowest = Math.min(...Object.values(c.values));
+    if (c.critical && value === lowest) criticalFailed = true;
+  }
+  return {
+    weighted_score: earned/ totalWeight,
+    overall_verdict: criticalFailed ? 'fail' : 'pass',
+    critical_failed: criticalFailed,
+  };
+}
+
 export function parseJudge(rawText, rubric) {
   const jsonText = extractJsonText(rawText);
   if (jsonText === null) {
@@ -45,6 +63,14 @@ export function parseJudge(rawText, rubric) {
   if (problem !== null) {
     return { parse_ok: false, raw_output: rawText, error: problem };
   }
-  throw new Error('not implemented: L040 (score)');
+    const s = scoreResult(parsed.scores, rubric);
+  return {
+    parse_ok: true,
+    scores: parsed.scores,
+    weighted_score: s.weighted_score,
+    overall_verdict: s.overall_verdict,
+    critical_failed: s.critical_failed,
+    raw_output: rawText,
+  };
 }
 
