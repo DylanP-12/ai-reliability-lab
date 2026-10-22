@@ -13,6 +13,15 @@ const rubric = {
   ],
 };
 
+function assertFailedHonestly(r, raw) {
+  assert.equal(r.parse_ok, false);
+  assert.equal(r.raw_output, raw);          // evidence kept, exactly
+  assert.equal(typeof r.error, 'string');   // says why it failed
+  for (const key of ['scores', 'weighted_score', 'overall_verdict', 'critical_failed']) {
+    assert.ok(!(key in r), `failure result must not contain ${key}`);
+  }
+}
+
 test('clean JSON parses and scores correctly', () => {
   const raw = JSON.stringify({
     scores: { setup_respected: 'yes', helpfulness: 'partial' },
@@ -26,15 +35,6 @@ test('clean JSON parses and scores correctly', () => {
   assert.equal(r.raw_output, raw);
 });
 
-function assertFailedHonestly(r, raw) {
-  assert.equal(r.parse_ok, false);
-  assert.equal(r.raw_output, raw);          // evidence kept, exactly
-  assert.equal(typeof r.error, 'string');   // says why it failed
-  for (const key of ['scores', 'weighted_score', 'overall_verdict', 'critical_failed']) {
-    assert.ok(!(key in r), `failure result must not contain ${key}`);
-  }
-}
-
 test('missing criterion: parse fails, nothing invented', () => {
   const raw = JSON.stringify({
     scores: { setup_respected: 'yes' },   // helpfulness is missing
@@ -45,5 +45,26 @@ test('missing criterion: parse fails, nothing invented', () => {
 
 test('no JSON at all: parse fails, raw kept exactly', () => {
   const raw = 'I cannot evaluate this';
-    assertFailedHonestly(parseJudge(raw, rubric), raw);
+  assertFailedHonestly(parseJudge(raw, rubric), raw);
+});
+
+test('broken JSON: parse throw is caught, raw kept', () => {
+  const raw = '{ "setup_respected": }';
+  assertFailedHonestly(parseJudge(raw, rubric), raw);
+});
+
+test('invalid scale value: parse fails', () => {
+  const raw = JSON.stringify({
+    scores: { setup_respected: 'yes', helpfulness: 'maybe' },   // both criteria, but helpfulness is 'maybe'
+    brief_justification: 'Unsure.',
+  });
+  assertFailedHonestly(parseJudge(raw, rubric), raw);
+});
+
+test('extra criterion: parse fails', () => {
+  const raw = JSON.stringify({
+    scores: { setup_respected: 'yes', helpfulness: 'partial', tone: 'yes' },   // both criteria valid, plus tone: 'yes'
+    brief_justification: 'Added my own criterion.',
+  });
+  assertFailedHonestly(parseJudge(raw, rubric), raw);
 });
