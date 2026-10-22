@@ -68,3 +68,15 @@ test('extra criterion: parse fails', () => {
   });
   assertFailedHonestly(parseJudge(raw, rubric), raw);
 });
+
+test('critical criterion at its lowest value: verdict fails, score still recorded', () => {
+  const raw = JSON.stringify({
+    scores: { setup_respected: 'no', helpfulness: 'yes' },
+    brief_justification: 'Ignored the setup entirely.',
+  });
+  const r = parseJudge(raw, rubric);
+  assert.equal(r.parse_ok, true);
+  assert.ok(Math.abs(r.weighted_score - 0.3 / 1.3) < 1e-9);
+  assert.equal(r.overall_verdict, 'fail');
+  assert.equal(r.critical_failed, true);
+});
