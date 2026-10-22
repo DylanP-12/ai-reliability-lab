@@ -80,3 +80,25 @@ test('critical criterion at its lowest value: verdict fails, score still recorde
   assert.equal(r.overall_verdict, 'fail');
   assert.equal(r.critical_failed, true);
 });
+
+test('fenced JSON: code fences around the object still parse', () => {
+  const json = JSON.stringify({
+    scores: { setup_respected: 'yes', helpfulness: 'yes' },
+    brief_justification: 'Good.',
+  });
+  const raw = '```json\n' + json + '\n```';
+  const r = parseJudge(raw, rubric);
+  assert.equal(r.parse_ok, true);
+  assert.equal(r.raw_output, raw);
+});
+
+test('prose-wrapped JSON: chatty text around the object still parses', () => {
+  const json = JSON.stringify({
+    scores: { setup_respected: 'yes', helpfulness: 'yes' },
+    brief_justification: 'Good.',
+  });
+  const raw = 'Sure! Here is my assessment: ' + json + ' Hope that helps!';
+  const r = parseJudge(raw, rubric);
+  assert.equal(r.parse_ok, true);
+  assert.equal(r.raw_output, raw);
+});
