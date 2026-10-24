@@ -33,3 +33,17 @@ if (rec.status === 'complete') done.add(rec.unit_id);  }
 
   return done;
 }
+
+// Scoring resume: done = the judge call happened (status 'complete'),
+// even if parse_ok is false. A failed call (status 'failed') is retried.
+export function loadCompleteEvalIds(path) {
+  const done = new Set();
+  if (!existsSync(path)) return done;
+
+  const lines = readFileSync(path, 'utf8').split('\n').filter(line => line.trim());
+  for (const line of lines) {
+    const rec = JSON.parse(line);
+    if (rec.status === 'complete') done.add(rec.eval_id);
+  }
+  return done;
+}
