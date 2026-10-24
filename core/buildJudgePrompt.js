@@ -2,10 +2,13 @@
 export function buildJudgePrompt(packet) {
   const { rubric, private_note, transcript } = packet;
 
-  // The rules: what to grade, and the exact JSON shape to return
-  const criteriaLines = rubric.criteria.map(c =>
-    `- ${c.id} (${c.name})${c.critical ? ' [CRITICAL]' : ''}`
-  ).join('\n');
+  // The rules: each criterion, then what each scale value means (its anchors)
+  const criteriaLines = rubric.criteria.map(c => {
+    const header = `- ${c.id} (${c.name})${c.critical ? ' [CRITICAL]' : ''}`;
+    if (!c.anchors) return header;
+    const anchorLines = rubric.scale.map(v => `    ${v}: ${c.anchors[v]}`);
+    return [header, ...anchorLines].join('\n');
+  }).join('\n');
 
   const exampleScores = rubric.criteria.map(c => `"${c.id}": "${rubric.scale[0]}"`).join(', ');
 
