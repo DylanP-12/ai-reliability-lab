@@ -1,7 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { expandEvalUnits } from '../cli/score.js';
-
+import { expandEvalUnits } from '../cli/expandEvalUnits.js';
 // Two complete records. m-b is also a judge (self-judge case).
 const records = [
   { unit_id: 'gen-x:C001:m-a:r01', model_id: 'm-a', status: 'complete',
