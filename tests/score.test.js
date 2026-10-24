@@ -135,3 +135,23 @@ test('resume: a partial run judges only the missing eval_ids', async () => {
   const ids = readEvals(evaluationsPath).map((e) => e.eval_id);
   assert.equal(new Set(ids).size, ids.length);   // no eval judged twice
 });
+
+test('preservation: garbage judge output is kept with parse_ok false, raw intact, no scores', async () => {
+  const { evaluationsPath, records } = setup();
+  const units = expandEvalUnits(records, config);
+  const GARBAGE = 'Sure! Looks good to me.';
+
+  await scoreDispatch({ units, records, scenarios, models, rubric, config, apiKey: null,
+    evaluationsPath, chat: mockJudge([GARBAGE]), sleepFn: noSleep });
+
+  const evals = readEvals(evaluationsPath);
+  assert.equal(evals.length, units.length);          // not dropped
+  for (const e of evals) {
+    assert.equal(e.status, 'complete');               // the call happened
+    assert.equal(e.parse_ok, false);                  // but the output was unusable
+    assert.equal(e.raw_output, GARBAGE);              // evidence kept exactly
+    assert.equal('scores' in e, false);               // nothing invented
+    assert.equal('weighted_score' in e, false);
+    assert.equal('overall_verdict' in e, false);
+  }
+});
