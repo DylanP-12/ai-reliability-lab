@@ -101,3 +101,37 @@ test('write-target proof: every append goes to the evaluations path, nowhere els
   assert.equal(paths.length, units.length);
   assert.ok(paths.every((p) => p === evaluationsPath));
 });
+
+test('resume: a second run appends zero and makes zero judge calls', async () => {
+  const { evaluationsPath, records } = setup();
+  const units = expandEvalUnits(records, config);
+
+  await scoreDispatch({ units, records, scenarios, models, rubric, config, apiKey: null,
+    evaluationsPath, chat: mockJudge([CLEAN]), sleepFn: noSleep });
+
+  const secondJudge = mockJudge([CLEAN]);
+  const second = await scoreDispatch({ units, records, scenarios, models, rubric, config, apiKey: null,
+    evaluationsPath, chat: secondJudge, sleepFn: noSleep });
+
+  assert.equal(second.ran, 0);
+  assert.equal(second.skipped, units.length);
+  assert.equal(secondJudge.calls.length, 0);
+  assert.equal(readEvals(evaluationsPath).length, units.length);
+});
+
+test('resume: a partial run judges only the missing eval_ids', async () => {
+  const { evaluationsPath, records } = setup();
+  const units = expandEvalUnits(records, config);
+
+  // First run only does the first unit (like a run that was stopped early)
+  await scoreDispatch({ units: units.slice(0, 1), records, scenarios, models, rubric, config, apiKey: null,
+    evaluationsPath, chat: mockJudge([CLEAN]), sleepFn: noSleep });
+
+  const second = await scoreDispatch({ units, records, scenarios, models, rubric, config, apiKey: null,
+    evaluationsPath, chat: mockJudge([CLEAN]), sleepFn: noSleep });
+
+  assert.equal(second.ran, 1);
+  assert.equal(second.skipped, 1);
+  const ids = readEvals(evaluationsPath).map((e) => e.eval_id);
+  assert.equal(new Set(ids).size, ids.length);   // no eval judged twice
+});
