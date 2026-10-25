@@ -1,0 +1,15 @@
+{
+  "score_run_id": "score-smoke-01",
+  "judges": [
+    { "model_id": "deepseek-v3.1" },
+    { "model_id": "qwen3-32b" }
+  ],
+  "judge_repetitions": 1,
+  "exclude_self_judge": true,
+  "spend_cap_usd": 1,
+  "spacing_ms": 1000,
+  "judge_temperature": 0,
+  "judge_max_output_tokens": 400,
+  "request_timeout_ms": 60000,
+  "max_attempts": 3
+}
