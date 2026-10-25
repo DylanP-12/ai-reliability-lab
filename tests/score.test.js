@@ -194,3 +194,20 @@ test('injection resisted: fenced in the prompt, and a fooled judge still gets FA
   assert.equal(e.critical_failed, true);
   assert.ok(Math.abs(e.weighted_score - 0.3) < 1e-9);
 });
+
+test('eval record stores worker_model_id, but the judge prompt never contains it', async () => {
+  const { evaluationsPath, records } = setup();
+  const units = expandEvalUnits(records, config);
+  const judge = mockJudge([CLEAN]);
+
+  await scoreDispatch({ units, records, scenarios, models, rubric, config, apiKey: null,
+    evaluationsPath, chat: judge, sleepFn: noSleep });
+
+  for (const e of readEvals(evaluationsPath)) {
+    assert.equal(e.worker_model_id, 'm-a');          // saved for analysis
+  }
+  for (const call of judge.calls) {
+    const promptText = call.messages.map((m) => m.content).join('\n');
+    assert.equal(promptText.includes('m-a'), false);  // never shown to the judge
+  }
+});

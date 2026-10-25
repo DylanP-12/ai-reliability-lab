@@ -71,6 +71,7 @@ export async function scoreDispatch({
       turn_index: unit.turn_index,
       judge_model_id: unit.judge_model_id,
       judge_repetition: unit.judge_repetition,
+      worker_model_id: record.model_id,
       rubric_version: rubric.rubric_version,
       judge_or_model: judge.or_model,
       request_ts: new Date().toISOString(),
