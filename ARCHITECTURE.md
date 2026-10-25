@@ -97,3 +97,28 @@ response text, so it is safe to commit and share.
 
 Authoritative truth is the set of records keyed by unit_id + status, not the raw
 line count: line_count > complete_count is valid after a failed unit is retried.
+
+## Evaluation record (data/evaluations.*.jsonl)
+
+One line per judge attempt, append-only. Resume keys on eval_id; a failed record is
+retried and the retry is appended (the failed line stays).
+
+| Field | Meaning | Source |
+|---|---|---|
+| eval_id | unique id: score_run:unit:turn:judge:judge_rep | buildEvalId |
+| score_run_id | which scoring run | score.config.json |
+| unit_id | the worker conversation graded | responses record |
+| turn_index | checkpoint turn graded | responses record |
+| worker_model_id | who wrote the response (stored, never sent to the judge) | responses record |
+| judge_model_id / judge_or_model | judge model, our id / OpenRouter id | score.config.json / models config |
+| judge_repetition | judge rep number (j1...) | expandEvalUnits |
+| rubric_version | rubric used | rubric.vN.json |
+| status | did the call happen: complete or failed | score.js |
+| error | stage, classification, message (failed only) | llmClient |
+| parse_ok | was the judge output usable | parseJudge |
+| scores | per-criterion values picked by the judge | parseJudge (from judge) |
+| weighted_score | weighted numeric score | parseJudge (our code) |
+| critical_failed | a critical criterion at its lowest value | parseJudge (our code) |
+| overall_verdict | pass or fail, computed by our code, not the judge | parseJudge (our code) |
+| raw_output | judge text exactly as returned, always kept | judge API |
+| usage, latency_ms, attempts, finish_reason, upstream_provider, model_fingerprint, request_ts, response_ts | call provenance | llmClient |
