@@ -72,3 +72,22 @@ test('no private notes: an evaluation_note in scenarios.json is caught', () => {
     rmSync(dir, { recursive: true, force: true });
   }
 });
+
+test('byte-identity: a response_text that differs from the frozen file is caught', () => {
+  const dir = makeGoodData();
+  try {
+    const index = readJson(dir, 'index.json');
+    const file = index[0].file;
+    const convo = readJson(dir, file);
+    const turn = convo.turns.find((t) => typeof t.response_text === 'string' && t.response_text.length > 0);
+    turn.response_text = turn.response_text.slice(0, -1);
+    writeJson(dir, file, convo);
+    const problems = validateAppData(dir, { frozenResponsesPath: FROZEN });
+    assert.ok(
+      problems.some((p) => p.includes('byte-identity') && p.includes(convo.unit_id)),
+      problems.join('\n'),
+    );
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});

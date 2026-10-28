@@ -54,10 +54,44 @@ export function checkSecretsAndNotes(dir) {
   }
   return problems;
 }
+// Check 3: every response_text in the app data is exactly the text in the frozen file.
+export function checkByteIdentity(dir, index, frozenResponsesPath) {
+  if (!frozenResponsesPath) {
+    return ['byte-identity: no frozen responses path given, so nothing could be compared'];
+  }
+  const frozen = new Map();
+  const lines = readFileSync(frozenResponsesPath, 'utf8').split('\n').filter((line) => line.trim() !== '');
+  for (const line of lines) {
+    const record = JSON.parse(line);
+    frozen.set(record.unit_id, record);
+  }
+
+  const problems = [];
+  for (const entry of index) {
+    if (!existsSync(join(dir, entry.file))) continue; // already reported by checkOrphans
+    const source = frozen.get(entry.unit_id);
+    if (!source) {
+      problems.push(`byte-identity: ${entry.unit_id} does not exist in the frozen file`);
+      continue;
+    }
+    const convo = readJson(dir, entry.file);
+    for (const turn of convo.turns) {
+      const original = source.turns.find((t) => t.turn_index === turn.turn_index);
+      if (!original || original.response_text !== turn.response_text) {
+        problems.push(`byte-identity: ${entry.unit_id} turn ${turn.turn_index} does not match the frozen response_text`);
+      }
+    }
+  }
+  return problems;
+}
 
 export function validateAppData(dir, { frozenResponsesPath } = {}) {
   const index = readJson(dir, 'index.json');
-    return [...checkOrphans(dir, index), ...checkSecretsAndNotes(dir)];
+  return [
+    ...checkOrphans(dir, index),
+    ...checkSecretsAndNotes(dir),
+    ...checkByteIdentity(dir, index, frozenResponsesPath),
+  ];
 }
 
 // Run only when started directly: node cli/validateAppData.js [dataDir] [frozenResponsesPath]
