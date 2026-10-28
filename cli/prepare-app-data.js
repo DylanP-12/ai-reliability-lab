@@ -1,4 +1,4 @@
-// cli/prepare-app-data.js: frozen data to app-sized chunks (L043)
+// cli/prepare-app-data.js: frozen data to app-sized chunks (L043) + aggregates (L044)
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 import { parseScenarios } from '../core/parseScenarios.js';
@@ -21,6 +21,119 @@ export function latestPerUnit(records) {
     byUnit.set(record.unit_id, record);
   }
   return [...byUnit.values()];
+}
+
+export function latestPerEval(records) {
+  const byEval = new Map();
+  for (const record of records) {
+    byEval.set(record.eval_id, record);
+  }
+  return [...byEval.values()];
+}
+
+export function combineJudgments(evals) {
+  const judgments = evals.map((e) => {
+    const base = { judge_model_id: e.judge_model_id, judge_repetition: e.judge_repetition };
+    if (e.status === 'failed') {
+      return { ...base, status: 'failed', reason: e.error?.classification ?? 'unknown' };
+    }
+    if (e.parse_ok !== true) {
+      return { ...base, status: 'unparseable' };
+    }
+    return { ...base, status: 'scored', overall_verdict: e.overall_verdict, weighted_score: e.weighted_score };
+  });
+
+  const scored = judgments.filter((j) => j.status === 'scored');
+  const passes = scored.filter((j) => j.overall_verdict === 'pass').length;
+  const fails = scored.filter((j) => j.overall_verdict === 'fail').length;
+  if (passes + fails !== scored.length) {
+    throw new Error('combineJudgments: overall_verdict must be "pass" or "fail"');
+  }
+
+  let outcome;
+  if (scored.length === 0) outcome = 'no_valid_judgment';
+  else if (passes > fails) outcome = 'pass';
+  else if (fails > passes) outcome = 'fail';
+  else outcome = 'split';
+
+  const mean_weighted_score =
+    scored.length === 0 ? null : scored.reduce((sum, j) => sum + j.weighted_score, 0) / scored.length;
+
+  return { outcome, mean_weighted_score, judgments };
+}
+
+export function scoreUnit(unit, evalsForUnit) {
+  if (unit.status === 'failed') {
+    return { unit_id: unit.unit_id, status: 'failed', checkpoints: [] };
+  }
+  const checkpointTurns = unit.turns
+    .filter((turn) => turn.is_checkpoint)
+    .map((turn) => turn.turn_index);
+  const checkpoints = checkpointTurns.map((turnIndex) => ({
+    turn_index: turnIndex,
+    ...combineJudgments(evalsForUnit.filter((e) => e.turn_index === turnIndex)),
+  }));
+  return { unit_id: unit.unit_id, status: unit.status, checkpoints };
+}
+
+export function summarizeGroup({ conversation_id, model_id, units }) {
+  const scoredUnits = units.filter((u) => u.status !== 'failed');
+  const failedUnits = units.filter((u) => u.status === 'failed');
+
+  const turnIndexes = [...new Set(scoredUnits.flatMap((u) => u.checkpoints.map((c) => c.turn_index)))]
+    .sort((a, b) => a - b);
+
+  const checkpoints = turnIndexes.map((turnIndex) => {
+    const results = scoredUnits.flatMap((u) => u.checkpoints.filter((c) => c.turn_index === turnIndex));
+    const count = (outcome) => results.filter((c) => c.outcome === outcome).length;
+    const pass = count('pass');
+    const fail = count('fail');
+    const judgments = results.flatMap((c) => c.judgments);
+    const means = results.map((c) => c.mean_weighted_score).filter((v) => v !== null);
+    return {
+      turn_index: turnIndex,
+      pass,
+      fail,
+      split: count('split'),
+      no_valid_judgment: count('no_valid_judgment'),
+      denominator: pass + fail,
+      rate: pass + fail === 0 ? null : pass / (pass + fail),
+      mean_weighted_score: means.length === 0 ? null : means.reduce((a, b) => a + b, 0) / means.length,
+      judgments_failed: judgments.filter((j) => j.status === 'failed').length,
+      judgments_unparseable: judgments.filter((j) => j.status === 'unparseable').length,
+    };
+  });
+
+  return {
+    conversation_id,
+    model_id,
+    units_total: units.length,
+    units_scored: scoredUnits.length,
+    units_failed: failedUnits.length,
+    failed_unit_ids: failedUnits.map((u) => u.unit_id),
+    checkpoints,
+    units,
+  };
+}
+
+export const COMBINE_RULE =
+  'outcome = majority of overall_verdict across scored judgments (tie = "split"); ' +
+  'mean_weighted_score = mean over scored judgments; failed and unparseable judgments are listed but never vote';
+
+export function buildScores(units, evals) {
+  const groups = new Map();
+  for (const unit of units) {
+    const key = `${unit.conversation_id}|${unit.model_id}`;
+    if (!groups.has(key)) {
+      groups.set(key, { conversation_id: unit.conversation_id, model_id: unit.model_id, units: [] });
+    }
+    const evalsForUnit = evals.filter((e) => e.unit_id === unit.unit_id);
+    groups.get(key).units.push(scoreUnit(unit, evalsForUnit));
+  }
+  return {
+    combine_rule: COMBINE_RULE,
+    groups: [...groups.values()].map(summarizeGroup),
+  };
 }
 
 export function toConversation(unit) {
@@ -84,6 +197,7 @@ export function toScenarioDisplay(scenario) {
 
 export function prepareAppData({
   responsesPath = 'data/responses.smoke.jsonl',
+  evaluationsPath = 'data/evaluations.smoke.jsonl',
   modelsPath = 'config/models.json',
   scenariosPath = 'data/scenarios.csv',
   metaPath = 'data/scenarios.meta.json',
@@ -112,7 +226,17 @@ export function prepareAppData({
   }).map(toScenarioDisplay);
   writeFileSync(`${outDir}/scenarios.json`, JSON.stringify(scenarios, null, 2), 'utf8');
 
-  return { units: units.length, index: index.length, models: models.length, scenarios: scenarios.length };
+  const evals = latestPerEval(readJsonl(evaluationsPath));
+  const scores = buildScores(units, evals);
+  writeFileSync(`${outDir}/scores.json`, JSON.stringify(scores, null, 2), 'utf8');
+
+  return {
+    units: units.length,
+    index: index.length,
+    models: models.length,
+    scenarios: scenarios.length,
+    scoreGroups: scores.groups.length,
+  };
 }
 
 // Run only when started directly with `node cli/prepare-app-data.js`, not when imported by a test.
@@ -122,4 +246,5 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
   console.log(`wrote index.json with ${r.index} entries`);
   console.log(`wrote models.json with ${r.models} entries`);
   console.log(`wrote scenarios.json with ${r.scenarios} scenarios`);
+  console.log(`wrote scores.json with ${r.scoreGroups} groups`);
 }
