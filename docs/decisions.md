@@ -44,3 +44,13 @@ The dispatch loop lives in cli/dispatch.js, not collect.js, because importing co
 - A failed unit is appended and the loop continues. Only run-level problems (unknown model, cap, stop request) stop the run.
 - Ctrl-C only sets a flag. dispatch checks it between units (shouldStop seam), and the handler lives in collect.js.
 - collect.js is a dry run unless --go is passed, so nothing spends money by accident. The first real run is L037.
+
+## L043: prepare-app-data part 1
+- The app reads only derived files in app/public/data/. The frozen files are never read by the browser and never modified by prep. A wrong derived file is fixed by regenerating it.
+- Private notes: the public build omits evaluation_note entirely. Checkpoint turn numbers are kept, since they say which turns are scored, not what the note says. A local researcher build could include notes behind a flag, but none is built for now, and the default build must never include them.
+- Every derived file is built by an allowlist of named fields, never a spread, so a new field in the frozen records cannot leak. Kept: display info and experimental conditions (reasoning_enabled). Dropped: routing and provenance (provider, or_model, provider_pin, model_fingerprint, seed), billing (usage, prices), and reasoning_text.
+- When a unit has several records (failed attempts, then a retry), the last record in file order wins. The earlier attempts stay in the frozen file.
+- A unit whose final record failed stays in index.json with status and failure.classification. It is never dropped and never given a score of zero.
+- Conversation filenames replace ':' with '_', because Windows forbids ':' in filenames. Each index entry carries its file path, so the app never rebuilds paths itself.
+- prepareAppData() is exported and runs only when the file is started directly, so tests can import it without writing files (same reason as cli/dispatch.js).
+- app/public/data/ is gitignored. It is generated from frozen data (including gitignored smoke data), so it is rebuilt by running prep rather than committed. Deployment will run prep as a build step.
