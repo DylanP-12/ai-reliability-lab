@@ -136,6 +136,48 @@ export function buildScores(units, evals) {
   };
 }
 
+export function buildDegradation(scores) {
+  const byModel = new Map();
+  for (const g of scores.groups) {
+    if (!byModel.has(g.model_id)) {
+      byModel.set(g.model_id, {
+        model_id: g.model_id, units_total: 0, units_scored: 0, units_failed: 0, points: new Map(),
+      });
+    }
+    const m = byModel.get(g.model_id);
+    m.units_total += g.units_total;
+    m.units_scored += g.units_scored;
+    m.units_failed += g.units_failed;
+    for (const c of g.checkpoints) {
+      if (!m.points.has(c.turn_index)) {
+        m.points.set(c.turn_index, {
+          turn_index: c.turn_index, pass: 0, fail: 0, split: 0, no_valid_judgment: 0, units_failed: 0,
+        });
+      }
+      const p = m.points.get(c.turn_index);
+      p.pass += c.pass;
+      p.fail += c.fail;
+      p.split += c.split;
+      p.no_valid_judgment += c.no_valid_judgment;
+      p.units_failed += g.units_failed;
+    }
+  }
+
+  return {
+    x_axis: 'turn_index of the checkpoint (scored-turn position)',
+    models: [...byModel.values()].map((m) => ({
+      ...m,
+      points: [...m.points.values()]
+        .sort((a, b) => a.turn_index - b.turn_index)
+        .map((p) => ({
+          ...p,
+          denominator: p.pass + p.fail,
+          rate: p.pass + p.fail === 0 ? null : p.pass / (p.pass + p.fail),
+        })),
+    })),
+  };
+}
+
 export function toConversation(unit) {
   return {
     unit_id: unit.unit_id,
@@ -229,6 +271,10 @@ export function prepareAppData({
   const evals = latestPerEval(readJsonl(evaluationsPath));
   const scores = buildScores(units, evals);
   writeFileSync(`${outDir}/scores.json`, JSON.stringify(scores, null, 2), 'utf8');
+  
+  const degradation = buildDegradation(scores);
+  mkdirSync(`${outDir}/results`, { recursive: true });
+  writeFileSync(`${outDir}/results/degradation.json`, JSON.stringify(degradation, null, 2), 'utf8');
 
   return {
     units: units.length,
@@ -236,6 +282,7 @@ export function prepareAppData({
     models: models.length,
     scenarios: scenarios.length,
     scoreGroups: scores.groups.length,
+    degradationModels: degradation.models.length,
   };
 }
 
@@ -247,4 +294,5 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
   console.log(`wrote models.json with ${r.models} entries`);
   console.log(`wrote scenarios.json with ${r.scenarios} scenarios`);
   console.log(`wrote scores.json with ${r.scoreGroups} groups`);
+    console.log(`wrote results/degradation.json with ${r.degradationModels} models`);
 }
