@@ -18,3 +18,5 @@ scratch/
 
 # Scratch output from drills and experiments (never committed)
 tmp/
+
+app/public/data/
