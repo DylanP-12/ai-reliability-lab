@@ -91,3 +91,33 @@ test('byte-identity: a response_text that differs from the frozen file is caught
     rmSync(dir, { recursive: true, force: true });
   }
 });
+
+test('denominator: a rate without its denominator is caught', () => {
+  const dir = makeGoodData();
+  try {
+    const scores = readJson(dir, 'scores.json');
+    delete scores.groups[0].checkpoints[0].denominator;
+    writeJson(dir, 'scores.json', scores);
+    const problems = validateAppData(dir, { frozenResponsesPath: FROZEN });
+    assert.ok(problems.some((p) => p.includes('denominator missing')), problems.join('\n'));
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('zero-fill: a failed unit that still counts in the scores is caught', () => {
+  const dir = makeGoodData();
+  try {
+    const index = readJson(dir, 'index.json');
+    index[0].status = 'failed';
+    index[0].failure = { classification: 'rate_limit', turn_index: 3 };
+    writeJson(dir, 'index.json', index);
+    const problems = validateAppData(dir, { frozenResponsesPath: FROZEN });
+    assert.ok(
+      problems.some((p) => p.includes('zero-fill') && p.includes(index[0].unit_id)),
+      problems.join('\n'),
+    );
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});

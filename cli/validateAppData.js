@@ -24,6 +24,7 @@ export function checkOrphans(dir, index) {
   }
   return problems;
 }
+
 // List every file under dir, including files in subfolders like conversations/ and results/.
 function listFiles(dir, prefix = '') {
   const files = [];
@@ -54,6 +55,7 @@ export function checkSecretsAndNotes(dir) {
   }
   return problems;
 }
+
 // Check 3: every response_text in the app data is exactly the text in the frozen file.
 export function checkByteIdentity(dir, index, frozenResponsesPath) {
   if (!frozenResponsesPath) {
@@ -85,12 +87,70 @@ export function checkByteIdentity(dir, index, frozenResponsesPath) {
   return problems;
 }
 
+// Check 4: every rate has its denominator, failed units are never scored, and the counts add up.
+export function checkScores(dir, index) {
+  const problems = [];
+  const scores = readJson(dir, 'scores.json');
+  const indexById = new Map(index.map((entry) => [entry.unit_id, entry]));
+
+  for (const entry of index) {
+    if (entry.status === 'failed' && !entry.failure?.classification) {
+      problems.push(`failure reason missing: ${entry.unit_id} is failed but has no reason`);
+    }
+  }
+
+  for (const g of scores.groups) {
+    const where = `${g.conversation_id}/${g.model_id}`;
+    if (g.units_scored + g.units_failed !== g.units_total) {
+      problems.push(`counts: ${where} units_scored + units_failed does not equal units_total`);
+    }
+    for (const u of g.units) {
+      const entry = indexById.get(u.unit_id);
+      if (!entry) {
+        problems.push(`counts: ${where} scores ${u.unit_id}, which is not in index.json`);
+        continue;
+      }
+      if (entry.status === 'failed' && u.status !== 'failed') {
+        problems.push(`zero-fill: ${u.unit_id} failed in index.json but is still scored in ${where}`);
+      }
+    }
+    for (const c of g.checkpoints) {
+      const at = `${where} turn ${c.turn_index}`;
+      if (typeof c.denominator !== 'number') {
+        problems.push(`denominator missing: ${at}`);
+        continue;
+      }
+      if (c.denominator !== c.pass + c.fail) {
+        problems.push(`denominator wrong: ${at} is not pass + fail`);
+      }
+      if (c.pass + c.fail + c.split + c.no_valid_judgment !== g.units_scored) {
+        problems.push(`counts: ${at} outcomes do not add up to units_scored`);
+      }
+      const expectedRate = c.denominator === 0 ? null : c.pass / c.denominator;
+      if (c.rate !== expectedRate) {
+        problems.push(`rate wrong: ${at} is not pass / denominator`);
+      }
+    }
+  }
+
+  const degradation = readJson(dir, 'results/degradation.json');
+  for (const m of degradation.models) {
+    for (const p of m.points) {
+      if (typeof p.denominator !== 'number') {
+        problems.push(`denominator missing: degradation ${m.model_id} turn ${p.turn_index}`);
+      }
+    }
+  }
+  return problems;
+}
+
 export function validateAppData(dir, { frozenResponsesPath } = {}) {
   const index = readJson(dir, 'index.json');
   return [
     ...checkOrphans(dir, index),
     ...checkSecretsAndNotes(dir),
     ...checkByteIdentity(dir, index, frozenResponsesPath),
+    ...checkScores(dir, index),
   ];
 }
 
