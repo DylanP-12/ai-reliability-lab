@@ -121,3 +121,16 @@ test('zero-fill: a failed unit that still counts in the scores is caught', () =>
     rmSync(dir, { recursive: true, force: true });
   }
 });
+
+test('degradation: a point whose rate does not match its counts is caught', () => {
+  const dir = makeGoodData();
+  try {
+    const degradation = readJson(dir, 'results/degradation.json');
+    degradation.models[0].points[0].rate = 0.5;
+    writeJson(dir, 'results/degradation.json', degradation);
+    const problems = validateAppData(dir, { frozenResponsesPath: FROZEN });
+    assert.ok(problems.some((p) => p.includes('rate wrong: degradation')), problems.join('\n'));
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});

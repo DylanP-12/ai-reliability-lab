@@ -136,8 +136,17 @@ export function checkScores(dir, index) {
   const degradation = readJson(dir, 'results/degradation.json');
   for (const m of degradation.models) {
     for (const p of m.points) {
+      const at = `degradation ${m.model_id} turn ${p.turn_index}`;
       if (typeof p.denominator !== 'number') {
-        problems.push(`denominator missing: degradation ${m.model_id} turn ${p.turn_index}`);
+        problems.push(`denominator missing: ${at}`);
+        continue;
+      }
+      if (p.denominator !== p.pass + p.fail) {
+        problems.push(`denominator wrong: ${at} is not pass + fail`);
+      }
+      const expectedRate = p.denominator === 0 ? null : p.pass / p.denominator;
+      if (p.rate !== expectedRate) {
+        problems.push(`rate wrong: ${at} is not pass / denominator`);
       }
     }
   }
