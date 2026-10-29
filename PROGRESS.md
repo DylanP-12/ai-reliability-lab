@@ -521,3 +521,19 @@ All remaining lessons L027-L062: [ ] not started
 ## M6: Collection CLI resumable (Review 4, L036)
 - Verdict: continue, with repairs before L037: explain-back of schedule/run/persist/account/pace; #27 config validation before first paid run
 - Evidence: kill/resume drill (Ctrl-C at 22/120, resume 98 run / 22 skipped), exactly-once proof PASS, 114 tests green incl. re-run-zero, resume-missing, cap-halts, failure-isolation; PR (data/manifest)
+
+Lesson: L044
+Completed: 2026-10-28
+Concepts I can explain: Node-side aggregation, join-not-mutate, exclude-not-zero-fill, denominators-always, the data validator
+Files created: cli/validateAppData.js, tests/validateAppData.test.js, app/public/data/scores.json (derived), app/public/data/results/degradation.json (derived)
+Files modified: cli/prepare-app-data.js (aggregates), PROGRESS.md (M8)
+Tests run: npm test; real validator run on app/public/data
+Test results: 187 pass, 0 fail; validator PASS exit 0; frozen file hashes unchanged after prep
+Git branch: data/app-prep (merged into main)
+Commit: 58c9598 (review fix); merge hash after merge
+GitHub issue/PR: PR #43 closes #41, #42; M8 closed
+Review 6 verdict: continue
+Problems still open: explain-it-back needed guidance (join field, app only reads); revisit in L048/L050
+My confidence from 1-5: _
+What I need help with:
+Next lesson: L045 - React: components, JSX, props
