@@ -142,7 +142,7 @@ Phase Q — Completion
 - [x] M5 Conversation runner tested - evidence: PR #23 merged (main @ 948e7d0), tests "§11-1" to "§11-6", 92/92 passing. Review 3: "what breaks if" round done, four beats restated after review. Follow-up: six-rule recall and why test 3 shares one client, revisit at start of L033.  Follow-up revisited 2026-10-10 at start of L033: six rules reviewed (1 recalled unaided, then regrouped as in / isolated / never out), test 3 reasoning reached with a hint.
 - [ ] M6 Collection CLI resumable — evidence: ___
 - - [x] M7 Scoring pipeline working — evidence: PR #40; read-only hashes identical (3x) on responses.smoke.jsonl; agreement 7/7 (uninformative on setup, #39); Review 5 passed at L042
-- [ ] M8 App data prepared — evidence: ___
+- [x ] M8 App data prepared — evidence: ___
 - [ ] M9 Transcript browser working — evidence: ___
 - [ ] M10 All screens working — evidence: ___
 - [ ] M11 Acceptance tests passing — evidence: ___
