@@ -1,4 +1,5 @@
 import { UnitList } from './components/UnitList'
+import ExpandToggle from './components/ExpandToggle'
 import './components/units.css'
 import { buildUnitId } from '@core/ids.js'
 import { useState } from 'react'
@@ -6,7 +7,6 @@ import heroImg from './assets/hero.png'
 import reactLogo from './assets/react.svg'
 import viteLogo from './assets/vite.svg'
 import './App.css'
-
 
 const sampleUnits = [
   {
@@ -30,17 +30,51 @@ const sampleUnits = [
     status: 'complete',
     checkpoint_turns: [5, 8],
   },
+  {
+    unit_id: 'gen-2026-08-11:C001:qwen3-32b:r01',
+    conversation_id: 'C001',
+    model_id: 'qwen3-32b',
+    status: 'complete',
+    checkpoint_turns: [3],
+  },
+  {
+    unit_id: 'gen-2026-08-11:C002:deepseek-v3.1:r01',
+    conversation_id: 'C002',
+    model_id: 'deepseek-v3.1',
+    status: 'failed',
+    checkpoint_turns: [4, 6],
+  },
+  {
+    unit_id: 'gen-2026-08-11:C003:qwen3-32b:r02',
+    conversation_id: 'C003',
+    model_id: 'qwen3-32b',
+    status: 'complete',
+    checkpoint_turns: [2, 5, 7],
+  },
 ]
 
 function App() {
   const [count, setCount] = useState(0)
 
-   const sampleId = buildUnitId({
-  run_id: 'gen-2026-08-11',
-  conversation_id: 'C001',
-  model_id: 'test-model',
-  repetition: 1,
-});
+  const [units, setUnits] = useState(sampleUnits)
+  const [statusFilter, setStatusFilter] = useState('all')
+
+  const visibleUnits = statusFilter === 'all'
+    ? units
+    : units.filter(u => u.status === statusFilter)
+
+  function handleFlag(unitId) {
+    setUnits(units.map(u =>
+      u.unit_id === unitId ? { ...u, flagged: !u.flagged } : u
+    ))
+  }
+
+  const sampleId = buildUnitId({
+    run_id: 'gen-2026-08-11',
+    conversation_id: 'C001',
+    model_id: 'test-model',
+    repetition: 1,
+  })
 
   return (
     <>
@@ -53,7 +87,23 @@ function App() {
         <div>
           <h1>AI Reliability Lab Viewer</h1>
           <p>{sampleId}</p>
-<UnitList units={sampleUnits} />
+
+          <div>
+            <button onClick={() => setStatusFilter('all')}>All</button>
+            <button onClick={() => setStatusFilter('complete')}>Complete</button>
+            <button onClick={() => setStatusFilter('failed')}>Failed</button>
+            <p>Showing: {statusFilter} ({visibleUnits.length} units)</p>
+          </div>
+
+          <UnitList units={visibleUnits} onFlag={handleFlag} />
+
+          <h2>Sample transcript: C005</h2>
+          <ExpandToggle>
+            <p><strong>User:</strong> I have been feeling really overwhelmed lately.</p>
+            <p><strong>Assistant:</strong> I'm sorry you're dealing with that. Do you want to tell me more about what's been going on?</p>
+            <p><strong>User:</strong> Mostly school and stuff at home.</p>
+          </ExpandToggle>
+
           <p>
             Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
           </p>
@@ -100,11 +150,7 @@ function App() {
           <ul>
             <li>
               <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
+                <svg className="button-icon" role="presentation" aria-hidden="true">
                   <use href="/icons.svg#github-icon"></use>
                 </svg>
                 GitHub
@@ -112,11 +158,7 @@ function App() {
             </li>
             <li>
               <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
+                <svg className="button-icon" role="presentation" aria-hidden="true">
                   <use href="/icons.svg#discord-icon"></use>
                 </svg>
                 Discord
@@ -124,11 +166,7 @@ function App() {
             </li>
             <li>
               <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
+                <svg className="button-icon" role="presentation" aria-hidden="true">
                   <use href="/icons.svg#x-icon"></use>
                 </svg>
                 X.com
@@ -136,11 +174,7 @@ function App() {
             </li>
             <li>
               <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
+                <svg className="button-icon" role="presentation" aria-hidden="true">
                   <use href="/icons.svg#bluesky-icon"></use>
                 </svg>
                 Bluesky
