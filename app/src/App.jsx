@@ -1,5 +1,7 @@
 import { UnitList } from './components/UnitList'
 import ExpandToggle from './components/ExpandToggle'
+import SearchBox from './components/SearchBox'
+import FilterBar from './components/FilterBar'
 import './components/units.css'
 import { buildUnitId } from '@core/ids.js'
 import { useState } from 'react'
@@ -58,10 +60,11 @@ function App() {
 
   const [units, setUnits] = useState(sampleUnits)
   const [statusFilter, setStatusFilter] = useState('all')
+  const [searchText, setSearchText] = useState('')
 
-  const visibleUnits = statusFilter === 'all'
-    ? units
-    : units.filter(u => u.status === statusFilter)
+  const visibleUnits = units
+    .filter(u => statusFilter === 'all' || u.status === statusFilter)
+    .filter(u => u.conversation_id.toLowerCase().includes(searchText.toLowerCase()))
 
   function handleFlag(unitId) {
     setUnits(units.map(u =>
@@ -89,9 +92,8 @@ function App() {
           <p>{sampleId}</p>
 
           <div>
-            <button onClick={() => setStatusFilter('all')}>All</button>
-            <button onClick={() => setStatusFilter('complete')}>Complete</button>
-            <button onClick={() => setStatusFilter('failed')}>Failed</button>
+            <SearchBox value={searchText} onChange={setSearchText} />
+            <FilterBar value={statusFilter} onChange={setStatusFilter} />
             <p>Showing: {statusFilter} ({visibleUnits.length} units)</p>
           </div>
 
