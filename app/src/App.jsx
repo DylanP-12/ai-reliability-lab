@@ -8,57 +8,14 @@ import { useState } from 'react'
 import heroImg from './assets/hero.png'
 import reactLogo from './assets/react.svg'
 import viteLogo from './assets/vite.svg'
+import UnitIndexLoader from './components/UnitIndexLoader'
 import './App.css'
 
-const sampleUnits = [
-  {
-    unit_id: 'gen-2026-08-11:C006:qwen3-32b:r07',
-    conversation_id: 'C006',
-    model_id: 'qwen3-32b',
-    status: 'failed',
-    checkpoint_turns: [8],
-  },
-  {
-    unit_id: 'gen-2026-08-11:C005:deepseek-v3.1:r08',
-    conversation_id: 'C005',
-    model_id: 'deepseek-v3.1',
-    status: 'complete',
-    checkpoint_turns: [5, 8],
-  },
-  {
-    unit_id: 'gen-2026-08-11:C005:deepseek-v3.1:r07',
-    conversation_id: 'C005',
-    model_id: 'deepseek-v3.1',
-    status: 'complete',
-    checkpoint_turns: [5, 8],
-  },
-  {
-    unit_id: 'gen-2026-08-11:C001:qwen3-32b:r01',
-    conversation_id: 'C001',
-    model_id: 'qwen3-32b',
-    status: 'complete',
-    checkpoint_turns: [3],
-  },
-  {
-    unit_id: 'gen-2026-08-11:C002:deepseek-v3.1:r01',
-    conversation_id: 'C002',
-    model_id: 'deepseek-v3.1',
-    status: 'failed',
-    checkpoint_turns: [4, 6],
-  },
-  {
-    unit_id: 'gen-2026-08-11:C003:qwen3-32b:r02',
-    conversation_id: 'C003',
-    model_id: 'qwen3-32b',
-    status: 'complete',
-    checkpoint_turns: [2, 5, 7],
-  },
-]
 
-function App() {
+
+function UnitViewer({ initialUnits }) {
   const [count, setCount] = useState(0)
-
-  const [units, setUnits] = useState(sampleUnits)
+const [units, setUnits] = useState(initialUnits)
   const [statusFilter, setStatusFilter] = useState('all')
   const [searchText, setSearchText] = useState('')
 
@@ -189,6 +146,14 @@ function App() {
       <div className="ticks"></div>
       <section id="spacer"></section>
     </>
+  )
+}
+
+function App() {
+  return (
+    <UnitIndexLoader>
+      {units => <UnitViewer initialUnits={units} />}
+    </UnitIndexLoader>
   )
 }
 
