@@ -1,0 +1,5 @@
+.unit-list { list-style: none; padding: 0; margin: 16px 0; }
+.unit-row { display: flex; gap: 16px; align-items: center; padding: 8px 12px; border-bottom: 1px solid #444; }
+.badge { padding: 2px 8px; border-radius: 10px; font-size: 0.85em; color: #fff; }
+.badge-complete { background: #1f6f3f; }
+.badge-failed { background: #8a2b2b; }

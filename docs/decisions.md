@@ -54,3 +54,9 @@ The dispatch loop lives in cli/dispatch.js, not collect.js, because importing co
 - Conversation filenames replace ':' with '_', because Windows forbids ':' in filenames. Each index entry carries its file path, so the app never rebuilds paths itself.
 - prepareAppData() is exported and runs only when the file is started directly, so tests can import it without writing files (same reason as cli/dispatch.js).
 - app/public/data/ is gitignored. It is generated from frozen data (including gitignored smoke data), so it is rebuilt by running prep rather than committed. Deployment will run prep as a build step.
+
+## 2026-10-29 — L045: Vite can import from /core/
+L045: Vite/core import question (opened L004) resolved. app/vite.config.js
+aliases @core to ../core and sets server.fs.allow to the repo root.
+Verified: buildUnitId from @core/ids.js runs in the browser. Works because
+core has no Node-only imports.
