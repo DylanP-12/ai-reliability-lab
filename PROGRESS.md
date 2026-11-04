@@ -111,7 +111,7 @@ Phase N — React foundations
 - [ ] L045 Components, JSX, props — date: ___ conf: _/5
 - [ ] L046 State, events, lists — date: ___ conf: _/5
 - [ ] L047 Forms and lifting state — date: ___ conf: _/5
-- [ ] L048 useEffect + async data + Review 7 — date: ___ conf: _/5
+Review 7 ✓ — 2026-11-03, evidence: PR #48 (M9 continues through L052)
 
 Phase O — Shell & data layer
 - [ ] L049 App shell — date: ___ conf: _/5
@@ -537,3 +537,4 @@ Problems still open: explain-it-back needed guidance (join field, app only reads
 My confidence from 1-5: _
 What I need help with:
 Next lesson: L045 - React: components, JSX, props
+
