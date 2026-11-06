@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { dataStore } from '../lib/dataStore.js';
 
 function UnitIndexLoader({ children }) {
   const [units, setUnits] = useState(null);   // null = haven't loaded yet
@@ -7,14 +8,9 @@ function UnitIndexLoader({ children }) {
   useEffect(() => {
   let cancelled = false;
 
-fetch('/data/index.json')
-    .then(res => {
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return res.json();
-    })
+  dataStore.getIndex()
     .then(data => { if (!cancelled) setUnits(data); })
     .catch(err => { if (!cancelled) setError(err.message); });
-
   return () => { cancelled = true; };
 }, []);
   if (error) return <div className="error">Couldn't load data: {error}</div>;
