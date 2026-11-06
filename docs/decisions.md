@@ -60,3 +60,7 @@ L045: Vite/core import question (opened L004) resolved. app/vite.config.js
 aliases @core to ../core and sets server.fs.allow to the repo root.
 Verified: buildUnitId from @core/ids.js runs in the browser. Works because
 core has no Node-only imports.
+
+## L049: app shell, screens, nav
+- Navigation is one `screen` state value in App.jsx plus a controlled NavBar. There is no router library, because the scope fence bans one and a local research viewer does not need shareable URLs.
+- The cost: no URL deep-linking (no link to a specific screen or transcript), and the browser back button does not move between screens. Acceptable for a local single-user viewer; revisit if this ever becomes a public tool.
