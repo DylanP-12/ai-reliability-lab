@@ -45,8 +45,7 @@ export function getCellState(group, unitsForPair) {
 
 // Draws one cell from its state.
 // label = what a screen reader announces first, e.g. "C006, qwen3-32b"
-export function OutcomeCell({ group, unitsForPair, label }) {
-  const s = getCellState(group, unitsForPair)
+export function OutcomeCell({ group, unitsForPair, label, onSelect, isSelected = false }) {  const s = getCellState(group, unitsForPair)
 
   let main, sub, spoken
   if (s.kind === 'held' || s.kind === 'crossed') {
@@ -71,8 +70,10 @@ export function OutcomeCell({ group, unitsForPair, label }) {
   return (
     <button
       type="button"
-      className={`cell cell-${s.kind}`}
+      className={`cell cell-${s.kind}${isSelected ? ' cell-selected' : ''}`}
       aria-label={`${label}: ${spoken}${sub ? ', ' + sub : ''}`}
+      aria-pressed={isSelected}
+      onClick={onSelect}
     >
       <span className="cell-main">{main}</span>
       {sub && <span className="cell-sub">{sub}</span>}

@@ -27,3 +27,14 @@
   display: inline-block; width: 12px; height: 12px; border-radius: 2px;
   margin-right: 6px; vertical-align: middle;
 }
+
+/* L052: the clicked cell */
+.cell-selected {
+  outline: 3px solid #111;
+  outline-offset: 2px;
+}
+
+/* L052: repetition picker */
+.rep-list ul { list-style: none; padding: 0; display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.rep { padding: 0.4rem 0.8rem; border: 1px solid #888; border-radius: 6px; background: #fff; cursor: pointer; }
+.rep-selected { outline: 3px solid #111; outline-offset: 2px; }

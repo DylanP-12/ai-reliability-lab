@@ -2,11 +2,15 @@ import { useEffect, useState } from 'react'
 import { dataStore } from '../lib/dataStore'
 import SearchBox from '../components/SearchBox'
 import { Grid } from '../components/Grid'
-
+import { RepetitionList } from '../components/RepetitionList'
 export function TranscriptsScreen() {
   const [data, setData] = useState(null)   // { units, groups } once loaded
   const [error, setError] = useState(null)
   const [searchText, setSearchText] = useState('')
+
+  // L052 selection: which cell was clicked, then which repetition was picked.
+  const [selectedCell, setSelectedCell] = useState(null)      // { conversation_id, model_id }
+  const [selectedUnitId, setSelectedUnitId] = useState(null)  // a unit_id, or null
 
   // Load both small files through the store. Never a transcript.
   useEffect(() => {
@@ -18,6 +22,12 @@ export function TranscriptsScreen() {
       .catch(err => { if (!cancelled) setError(err) })
     return () => { cancelled = true }
   }, [])
+
+  // A new cell means a new repetition list, so the old pick is cleared.
+  function handleSelectCell(cell) {
+    setSelectedCell(cell)
+    setSelectedUnitId(null)
+  }
 
   // The three states from L048, plus a real empty state.
   if (error) {
@@ -42,7 +52,24 @@ export function TranscriptsScreen() {
       <SearchBox value={searchText} onChange={setSearchText} />
       {visibleUnits.length === 0
         ? <p>No scenarios match "{searchText}".</p>
-        : <Grid units={visibleUnits} groups={data.groups} />}
+        : <Grid
+            units={visibleUnits}
+            groups={data.groups}
+            selectedCell={selectedCell}
+            onSelectCell={handleSelectCell}
+          />}
+
+          {selectedCell && (
+        <RepetitionList
+          cell={selectedCell}
+          units={data.units}
+          selectedUnitId={selectedUnitId}
+          onSelectUnit={setSelectedUnitId}
+        />
+      )}
+
+      {/* TEMPORARY: proves a repetition was picked. Replaced by the loader next. */}
+      {selectedUnitId && <p>Selected unit: {selectedUnitId}</p>}
     </Shell>
   )
 }
