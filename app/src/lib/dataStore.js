@@ -17,7 +17,13 @@ export function createDataStore({ fetchFn = fetch, basePath = '/data' } = {}) {
     getModels:       () => loadJson('models.json'),
     getScores:       () => loadJson('scores.json'),
     getResults:      () => loadJson('results/degradation.json'),
-    getConversation: (unitId) => loadJson(`conversations/${unitId}.json`),
+     getConversation: async (unitId) => {
+    
+        const index = await loadJson('index.json');
+      const entry = index.find(u => u.unit_id === unitId);
+      if (!entry) throw new Error(`Unknown unit: ${unitId}`);
+      return loadJson(entry.file);
+    },
     clearCache:      () => cache.clear(),
   };
 }

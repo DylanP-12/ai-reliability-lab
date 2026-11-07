@@ -12,6 +12,17 @@ function makeFakeFetch(body = [], ok = true, status = 200) {
   return { fakeFetch, calls };
 }
 
+// A fake fetch that answers each URL with its own body; unknown URLs get a 404
+function makeRoutedFetch(routes) {
+  const calls = [];
+  const fakeFetch = async (url) => {
+    calls.push(url);
+    if (!(url in routes)) return { ok: false, status: 404, json: async () => null };
+    return { ok: true, status: 200, json: async () => routes[url] };
+  };
+  return { fakeFetch, calls };
+}
+
 test('getIndex loads and returns JSON', async () => {
   const { fakeFetch, calls } = makeFakeFetch([{ unitId: 'u1' }]);
   const store = createDataStore({ fetchFn: fakeFetch });
@@ -51,16 +62,6 @@ test('a failed load rejects with the resource name and status', async () => {
   await assert.rejects(store.getIndex(), /index\.json.*404/);
 });
 
-test('getConversation requests the right path, and getIndex does not fetch it', async () => {
-  const { fakeFetch, calls } = makeFakeFetch({});
-  const store = createDataStore({ fetchFn: fakeFetch });
-
-  await store.getIndex();
-  assert.deepEqual(calls, ['/data/index.json']);   // no transcript loaded yet
-
-  await store.getConversation('u1');
-  assert.deepEqual(calls, ['/data/index.json', '/data/conversations/u1.json']);
-});
 
 test('clearCache makes the next call fetch again', async () => {
   const { fakeFetch, calls } = makeFakeFetch([]);
@@ -71,4 +72,32 @@ test('clearCache makes the next call fetch again', async () => {
   await store.getIndex();
 
   assert.equal(calls.length, 2);
+});
+
+test('getConversation loads the file the index names, and getIndex does not fetch it', async () => {
+  const { fakeFetch, calls } = makeRoutedFetch({
+    '/data/index.json': [
+      { unit_id: 'run:C001:m1:r01', file: 'conversations/run_C001_m1_r01.json' },
+    ],
+    '/data/conversations/run_C001_m1_r01.json': { unit_id: 'run:C001:m1:r01', turns: [] },
+  });
+  const store = createDataStore({ fetchFn: fakeFetch });
+
+  await store.getIndex();
+  assert.deepEqual(calls, ['/data/index.json']);   // no transcript loaded yet
+
+  const convo = await store.getConversation('run:C001:m1:r01');
+  assert.equal(convo.unit_id, 'run:C001:m1:r01');
+  assert.deepEqual(calls, [
+    '/data/index.json',                          // index fetched once, then reused from cache
+    '/data/conversations/run_C001_m1_r01.json',  // the file the index named
+  ]);
+});
+
+test('getConversation fails closed on a unit the index does not list', async () => {
+  const { fakeFetch, calls } = makeRoutedFetch({ '/data/index.json': [] });
+  const store = createDataStore({ fetchFn: fakeFetch });
+
+  await assert.rejects(store.getConversation('run:C999:m1:r01'), /Unknown unit: run:C999:m1:r01/);
+  assert.deepEqual(calls, ['/data/index.json']);   // it never guessed a path
 });
