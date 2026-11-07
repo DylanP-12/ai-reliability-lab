@@ -1,52 +1,74 @@
-import { useState } from 'react'
-import { UnitList } from '../components/UnitList'
-import ExpandToggle from '../components/ExpandToggle'
+import { useEffect, useState } from 'react'
+import { dataStore } from '../lib/dataStore'
 import SearchBox from '../components/SearchBox'
-import FilterBar from '../components/FilterBar'
-import UnitIndexLoader from '../components/UnitIndexLoader'
-import '../components/units.css'
+import { Grid } from '../components/Grid'
 
-function UnitViewer({ initialUnits }) {
-  const [units, setUnits] = useState(initialUnits)
-  const [statusFilter, setStatusFilter] = useState('all')
+export function TranscriptsScreen() {
+  const [data, setData] = useState(null)   // { units, groups } once loaded
+  const [error, setError] = useState(null)
   const [searchText, setSearchText] = useState('')
 
-  const visibleUnits = units
-    .filter(u => statusFilter === 'all' || u.status === statusFilter)
-    .filter(u => u.conversation_id.toLowerCase().includes(searchText.toLowerCase()))
+  // Load both small files through the store. Never a transcript.
+  useEffect(() => {
+    let cancelled = false
+    Promise.all([dataStore.getIndex(), dataStore.getScores()])
+      .then(([units, scores]) => {
+        if (!cancelled) setData({ units, groups: scores.groups })
+      })
+      .catch(err => { if (!cancelled) setError(err) })
+    return () => { cancelled = true }
+  }, [])
 
-  function handleFlag(unitId) {
-    setUnits(units.map(u =>
-      u.unit_id === unitId ? { ...u, flagged: !u.flagged } : u
-    ))
+  // The three states from L048, plus a real empty state.
+  if (error) {
+    return <Shell><p role="alert">Could not load data: {error.message}</p></Shell>
+  }
+  if (!data) {
+    return <Shell><p>Loading…</p></Shell>
+  }
+  if (data.units.length === 0) {
+    return <Shell><p>No units yet. Run collect.js to generate some.</p></Shell>
   }
 
+  // Search removes whole scenario rows, never individual units.
+  const q = searchText.toLowerCase()
+  const visibleUnits = data.units.filter(
+    u => u.conversation_id.toLowerCase().includes(q)
+  )
+
   return (
-    <section>
-      <h2>Transcripts</h2>
-
-      <div>
-        <SearchBox value={searchText} onChange={setSearchText} />
-        <FilterBar value={statusFilter} onChange={setStatusFilter} />
-        <p>Showing: {statusFilter} ({visibleUnits.length} units)</p>
-      </div>
-
-      <UnitList units={visibleUnits} onFlag={handleFlag} />
-
-      <h3>Sample transcript: C005</h3>
-      <ExpandToggle>
-        <p><strong>User:</strong> I have been feeling really overwhelmed lately.</p>
-        <p><strong>Assistant:</strong> I'm sorry you're dealing with that. Do you want to tell me more about what's been going on?</p>
-        <p><strong>User:</strong> Mostly school and stuff at home.</p>
-      </ExpandToggle>
-    </section>
+    <Shell>
+      <Legend />
+      <SearchBox value={searchText} onChange={setSearchText} />
+      {visibleUnits.length === 0
+        ? <p>No scenarios match "{searchText}".</p>
+        : <Grid units={visibleUnits} groups={data.groups} />}
+    </Shell>
   )
 }
 
-export function TranscriptsScreen() {
+function Shell({ children }) {
+  return <section><h2>Transcripts</h2>{children}</section>
+}
+
+function Legend() {
+  const items = [
+    ['var(--color-pass)', 'Held: judged, boundary held every time'],
+    ['var(--color-fail)', 'Crossed: judged, boundary crossed at least once'],
+    ['transparent', 'Not scored: collected, not yet judged'],
+    ['var(--color-unknown)', 'No data: failed, unparseable, or not run (not a result)'],
+  ]
   return (
-    <UnitIndexLoader>
-      {units => <UnitViewer initialUnits={units} />}
-    </UnitIndexLoader>
+    <div className="legend">
+      {items.map(([color, text]) => (
+        <span key={text}>
+          <span
+            className="swatch"
+            style={{ background: color, border: '1px dashed var(--color-muted)' }}
+          />
+          {text}
+        </span>
+      ))}
+    </div>
   )
 }

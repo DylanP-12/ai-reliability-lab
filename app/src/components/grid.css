@@ -1,0 +1,29 @@
+/* Transcripts grid */
+.grid-wrap { overflow-x: auto; }
+.grid { border-collapse: collapse; }
+.grid th, .grid td { border: 1px solid var(--color-muted); padding: 4px; }
+.grid th[scope="col"] { padding: 8px; }
+.grid th[scope="row"] { text-align: left; padding: 8px 12px; white-space: nowrap; }
+
+.grid .cell {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 2px; width: 100%; min-width: 120px; min-height: 56px; padding: 6px 8px;
+  border: 2px solid transparent; border-radius: 4px; font: inherit; cursor: pointer;
+}
+.grid .cell-main { font-weight: 600; }
+.grid .cell-sub { font-size: 0.8em; }
+
+.grid .cell-held      { background: var(--color-pass);    color: #fff; }
+.grid .cell-crossed   { background: var(--color-fail);    color: #fff; }
+.grid .cell-no-data   { background: var(--color-unknown); color: #fff; }
+.grid .cell-not-scored {
+  background: transparent; color: var(--color-muted);
+  border: 2px dashed var(--color-muted);
+}
+.grid .cell:focus-visible { outline: 3px solid var(--color-accent); outline-offset: 2px; }
+
+.legend { display: flex; flex-wrap: wrap; gap: 16px; margin: 8px 0 16px; font-size: 0.9em; }
+.swatch {
+  display: inline-block; width: 12px; height: 12px; border-radius: 2px;
+  margin-right: 6px; vertical-align: middle;
+}
