@@ -11,3 +11,15 @@
 .bubble-assistant { background: #fff; border: 1px solid #ddd; }
 .bubble-role { font-weight: 700; font-size: 0.85rem; margin-bottom: 0.25rem; }
 .bubble-text { white-space: pre-wrap; overflow-wrap: anywhere; }
+
+/* L052: mode toggle + side-by-side */
+.mode-toggle { display: flex; gap: 0.5rem; margin: 1rem 0; }
+.compare-controls { display: flex; gap: 1rem; flex-wrap: wrap; margin: 1rem 0; }
+.compare-note { color: #555; font-style: italic; }
+.compare-wrap { overflow-x: auto; }
+.compare-table { border-collapse: collapse; width: 100%; table-layout: fixed; }
+.compare-table th, .compare-table td { border: 1px solid #ddd; padding: 0.5rem; vertical-align: top; text-align: left; white-space: pre-wrap; overflow-wrap: anywhere; }
+.compare-table .col-turn { width: 6rem; }
+.compare-row-checkpoint td, .compare-row-checkpoint th { background: #f3f6ff; }
+.compare-row-checkpoint th { border-left: 4px solid #2563eb; }
+.compare-gap { color: #92400e; }

@@ -1,21 +1,27 @@
 import { useEffect, useState } from 'react'
 import { dataStore } from '../lib/dataStore'
+import { useTranscript } from '../lib/useTranscript'
+import { getSetupTurn } from '../lib/setupTurn'
 import SearchBox from '../components/SearchBox'
 import { Grid } from '../components/Grid'
 import { RepetitionList } from '../components/RepetitionList'
 import { TranscriptView } from '../components/TranscriptView'
-import { getSetupTurn } from '../lib/setupTurn'
+import { ComparePanel } from '../components/ComparePanel'
+
 export function TranscriptsScreen() {
-  const [data, setData] = useState(null)   // { units, groups } once loaded
+  const [data, setData] = useState(null)   // { units, groups, scenarios } once loaded
   const [error, setError] = useState(null)
   const [searchText, setSearchText] = useState('')
+  const [mode, setMode] = useState('browse') // 'browse' | 'compare'
 
   // L052 selection: which cell was clicked, then which repetition was picked.
   const [selectedCell, setSelectedCell] = useState(null)      // { conversation_id, model_id }
   const [selectedUnitId, setSelectedUnitId] = useState(null)  // a unit_id, or null
-  const [transcript, setTranscript] = useState(null)            // the loaded conversation
-  const [transcriptError, setTranscriptError] = useState(null)  // its load error, if any
-  // Load both small files through the store. Never a transcript.
+
+  // One transcript, race-safe (see useTranscript).
+  const { transcript, error: transcriptError, mismatch } = useTranscript(selectedUnitId)
+
+  // Load the small catalog files through the store. Never a transcript.
   useEffect(() => {
     let cancelled = false
     Promise.all([dataStore.getIndex(), dataStore.getScores(), dataStore.getScenarios()])
@@ -26,21 +32,9 @@ export function TranscriptsScreen() {
     return () => { cancelled = true }
   }, [])
 
-    // L052: load ONE transcript, only when a repetition is picked.
-  // Race-safe: a superseded request can never write state.
-  useEffect(() => {
-    setTranscript(null)          // clear now: show "loading", never the old transcript
-    setTranscriptError(null)
-    if (!selectedUnitId) return
-    let cancelled = false
-    dataStore.getConversation(selectedUnitId)
-      .then(data => { if (!cancelled) setTranscript(data) })
-      .catch(err => { if (!cancelled) setTranscriptError(err.message) })
-    return () => { cancelled = true }
-  }, [selectedUnitId])
-
   // A new cell means a new repetition list, so the old pick is cleared.
   function handleSelectCell(cell) {
+    setMode('browse')
     setSelectedCell(cell)
     setSelectedUnitId(null)
   }
@@ -75,27 +69,55 @@ export function TranscriptsScreen() {
             onSelectCell={handleSelectCell}
           />}
 
-          {selectedCell && (
-        <RepetitionList
-          cell={selectedCell}
-          units={data.units}
-          selectedUnitId={selectedUnitId}
-          onSelectUnit={setSelectedUnitId}
-        />
-      )}
+      <div className="mode-toggle" role="group" aria-label="View mode">
+        <button
+          type="button"
+          className={mode === 'browse' ? 'rep rep-selected' : 'rep'}
+          aria-pressed={mode === 'browse'}
+          onClick={() => setMode('browse')}
+        >
+          Browse one
+        </button>
+        <button
+          type="button"
+          className={mode === 'compare' ? 'rep rep-selected' : 'rep'}
+          aria-pressed={mode === 'compare'}
+          onClick={() => setMode('compare')}
+        >
+          Compare two
+        </button>
+      </div>
 
-        {selectedUnitId && (
-        <div className="transcript-panel">
-          {transcriptError
-            ? <p role="alert">Could not load transcript: {transcriptError}</p>
-            : !transcript
-              ? <p>Loading transcript…</p>
-                          : <TranscriptView
-                  transcript={transcript}
-                  setupTurn={getSetupTurn(data.scenarios, selectedCell.conversation_id)}
-                />}
-        </div>
-      )}
+      {mode === 'compare'
+        ? <ComparePanel units={data.units} />
+        : (
+          <>
+            {selectedCell && (
+              <RepetitionList
+                cell={selectedCell}
+                units={data.units}
+                selectedUnitId={selectedUnitId}
+                onSelectUnit={setSelectedUnitId}
+              />
+            )}
+
+            {selectedUnitId && (
+              <div className="transcript-panel">
+                <h3>Transcript: {selectedUnitId}</h3>
+                {transcriptError
+                  ? <p role="alert">Could not load transcript: {transcriptError}</p>
+                  : !transcript
+                    ? <p>Loading transcript…</p>
+                    : mismatch
+                      ? <p role="alert">Mismatch: loaded {transcript.unit_id}, but {selectedUnitId} is selected.</p>
+                      : <TranscriptView
+                          transcript={transcript}
+                          setupTurn={getSetupTurn(data.scenarios, selectedCell.conversation_id)}
+                        />}
+              </div>
+            )}
+          </>
+        )}
     </Shell>
   )
 }
