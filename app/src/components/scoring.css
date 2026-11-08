@@ -20,3 +20,14 @@
 .packet__hidden { background: #f0f4fa; padding: 8px; border-radius: 4px; margin: 10px 0; }
 .packet__scan--ok { color: #1b6e2a; font-weight: bold; }
 .packet__scan--bad { color: #a11; font-weight: bold; }
+
+.scoring__cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); }
+.scoring__modes { display: flex; gap: 8px; margin: 8px 0; }
+.scoring__modes button[aria-pressed="true"] { background: #1a5fd6; color: #fff; }
+.judgment-summary { padding: 8px; border-radius: 4px; background: #f3f3f3; margin-bottom: 12px; }
+.judgment-summary--disagree { background: #fff4e5; border-left: 4px solid #e08a00; }
+.judgment-summary__disputed { color: #a11; font-weight: bold; }
+.demo { border: 3px dashed #c77700; border-radius: 6px; padding: 12px; margin-bottom: 16px;
+  background: repeating-linear-gradient(45deg, #fff8e6, #fff8e6 12px, #ffefc7 12px, #ffefc7 24px); }
+.demo__label { font-weight: bold; font-size: 1.2em; color: #8a4b00; }
+.demo__msg { font-family: monospace; color: #a11; }
