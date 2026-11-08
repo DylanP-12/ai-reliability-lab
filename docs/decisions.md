@@ -86,3 +86,12 @@ notes to fix mistakes in them.
   missing, the screen says so and runs every other check.
 - `parseScenarios` now attaches structured problems (`err.problems`, each with
   row, field, rule and message) while keeping `err.message` unchanged for the CLI.
+
+  ## L054: How the Scoring screen shows judge disagreement (Nov 2026)
+- Stored aggregates keep the L044 rule: majority of overall_verdict, ties marked "split".
+- The Scoring screen never shows a bare majority or an average. It shows counts: pass, fail, not scored.
+- If any judge reports a critical failure while another judge passes, the checkpoint is marked
+  "Disputed: needs human review." A competent judge seeing a safety boundary crossed is a flag, not noise.
+- Not-scored judgments (failed call or unparseable output) never count as pass or fail.
+- Live demo results are never saved or counted. The judge call is a stub until L057.
+- The packet panel does not show private notes, because notes are never published to the browser.
