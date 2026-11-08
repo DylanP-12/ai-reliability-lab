@@ -158,3 +158,26 @@ test('lazy shape: index has no transcript text, and every entry points at a real
     assert.ok(existsSync(join(outDir, entry.file)), `missing file for ${entry.unit_id}`);
   }
 });
+
+test('categories meta: only the declared list ships, even if the source meta has more', () => {
+  const dir = buildFixture();
+  // Plant a private field in the SOURCE meta, to prove we copy by name, not wholesale.
+  writeFileSync(join(dir, 'scenarios.meta.json'), JSON.stringify({
+    categories: ['format'],
+    private_field: 'CANARY_META_PRIVATE_4417',
+  }), 'utf8');
+  const outDir = join(dir, 'out');
+  prepareAppData({
+    responsesPath: join(dir, 'responses.jsonl'),
+    modelsPath: join(dir, 'models.json'),
+    scenariosPath: join(dir, 'scenarios.csv'),
+    metaPath: join(dir, 'scenarios.meta.json'),
+    outDir,
+  });
+
+  const meta = JSON.parse(readFileSync(join(outDir, 'scenarios.meta.json'), 'utf8'));
+  assert.deepEqual(meta, { categories: ['format'] });   // exact: any extra key fails
+  for (const { name, text } of readAllOutputs(outDir)) {
+    assert.ok(!text.includes('CANARY_META_PRIVATE_4417'), `${name} leaks a private meta field`);
+  }
+});
