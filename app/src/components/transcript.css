@@ -1,0 +1,13 @@
+/* L052: transcript view */
+.transcript { list-style: none; padding: 0; max-width: 60rem; }
+.turn { margin: 1rem 0; padding: 0.75rem 1rem; border-left: 4px solid transparent; }
+.turn-checkpoint { border-left-color: #2563eb; background: #f3f6ff; }
+.turn-header { display: flex; gap: 0.5rem; align-items: center; font-size: 0.9rem; color: #555; margin-bottom: 0.5rem; }
+.badge { padding: 0.1rem 0.5rem; border-radius: 999px; font-size: 0.8rem; font-weight: 600; }
+.badge-checkpoint { background: #2563eb; color: #fff; }
+.badge-setup { background: #e5e7eb; color: #111; }
+.bubble { padding: 0.6rem 0.8rem; border-radius: 8px; margin: 0.4rem 0; }
+.bubble-user { background: #eef0f3; }
+.bubble-assistant { background: #fff; border: 1px solid #ddd; }
+.bubble-role { font-weight: 700; font-size: 0.85rem; margin-bottom: 0.25rem; }
+.bubble-text { white-space: pre-wrap; overflow-wrap: anywhere; }

@@ -3,6 +3,7 @@ import { dataStore } from '../lib/dataStore'
 import SearchBox from '../components/SearchBox'
 import { Grid } from '../components/Grid'
 import { RepetitionList } from '../components/RepetitionList'
+import { TranscriptView } from '../components/TranscriptView'
 export function TranscriptsScreen() {
   const [data, setData] = useState(null)   // { units, groups } once loaded
   const [error, setError] = useState(null)
@@ -88,7 +89,7 @@ export function TranscriptsScreen() {
             ? <p role="alert">Could not load transcript: {transcriptError}</p>
             : !transcript
               ? <p>Loading transcript…</p>
-              : <p>Loaded {transcript.unit_id}: {transcript.turns?.length ?? '?'} turns</p>}
+              :   <TranscriptView transcript={transcript} />}
         </div>
       )}
     </Shell>
