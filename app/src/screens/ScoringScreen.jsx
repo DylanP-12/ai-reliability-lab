@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { dataStore } from '../lib/dataStore.js';
 import EvaluationCard from '../components/EvaluationCard.jsx';
+import JudgePacketView from '../components/JudgePacketView.jsx';
 import '../components/scoring.css';
 
 export function ScoringScreen() {
@@ -10,6 +11,7 @@ export function ScoringScreen() {
   const [unitId, setUnitId] = useState('');
   const [turn, setTurn] = useState('');
   const [evals, setEvals] = useState(null);
+  const [conversation, setConversation] = useState(null);
   const [error, setError] = useState(null);
 
   useEffect(() => {
@@ -19,11 +21,14 @@ export function ScoringScreen() {
   }, []);
 
   useEffect(() => {
-    if (!unitId) { setEvals(null); return; }
+    if (!unitId) { setEvals(null); setConversation(null); return; }
     let cancelled = false;
     setEvals(null);
-    dataStore.getEvaluations(unitId)
-      .then((list) => { if (!cancelled) setEvals(list); })
+    setConversation(null);
+    Promise.all([dataStore.getEvaluations(unitId), dataStore.getConversation(unitId)])
+      .then(([list, convo]) => {
+        if (!cancelled) { setEvals(list); setConversation(convo); }
+      })
       .catch((err) => { if (!cancelled) setError(err.message); });
     return () => { cancelled = true; };
   }, [unitId]);
@@ -66,6 +71,16 @@ export function ScoringScreen() {
       </div>
 
       {unitId && turn !== '' && evals === null && <p>Loading judgments…</p>}
+
+      {conversation && turn !== '' && (
+        <JudgePacketView
+          rubric={rubric}
+          conversation={conversation}
+          turnIndex={Number(turn)}
+          identity={[entry.model_id, entry.unit_id]}
+        />
+      )}
+
       {evals && turn !== '' && shown.length === 0 && <p>No judgments recorded for this checkpoint.</p>}
 
       <div className="scoring__cards">

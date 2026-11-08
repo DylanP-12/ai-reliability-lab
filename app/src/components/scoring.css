@@ -12,3 +12,11 @@
 .eval-card__notscored { background: #f3f3f3; padding: 8px; border-left: 4px solid #888; }
 .eval-card__warn { color: #8a5a00; }
 .eval-card__raw pre { white-space: pre-wrap; font-family: monospace; background: #f7f7f7; padding: 8px; overflow-x: auto; }
+
+.packet { border: 2px solid #5b7db1; border-radius: 6px; padding: 12px; margin-bottom: 16px; }
+.packet__source { font-size: 0.85em; color: #555; }
+.packet__msg pre { white-space: pre-wrap; font-family: inherit; background: #f7f7f7; padding: 8px; margin: 4px 0 10px; }
+.packet__criterion { margin: 8px 0; }
+.packet__hidden { background: #f0f4fa; padding: 8px; border-radius: 4px; margin: 10px 0; }
+.packet__scan--ok { color: #1b6e2a; font-weight: bold; }
+.packet__scan--bad { color: #a11; font-weight: bold; }
