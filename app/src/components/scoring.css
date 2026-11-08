@@ -1,0 +1,33 @@
+.scoring__mode { display: inline-block; padding: 2px 8px; border-radius: 4px; background: #e8f0fe; font-size: 0.9em; }
+.scoring__pickers { display: flex; gap: 16px; flex-wrap: wrap; margin: 12px 0; }
+.scoring__cards { display: flex; flex-direction: column; gap: 12px; }
+.eval-card { border: 1px solid #ccc; border-radius: 6px; padding: 12px; }
+.eval-card__head { margin-bottom: 8px; }
+.eval-card__table { border-collapse: collapse; margin: 8px 0; }
+.eval-card__table th, .eval-card__table td { border: 1px solid #ddd; padding: 4px 8px; text-align: left; }
+.eval-card__tag { margin-left: 6px; font-size: 0.75em; padding: 1px 5px; border-radius: 3px; background: #fde2e2; color: #8a1c1c; }
+.eval-card__verdict--pass { color: #1b6e2a; font-weight: bold; }
+.eval-card__verdict--fail { color: #a11; font-weight: bold; }
+.eval-card__why { background: #fff4e5; padding: 6px 8px; border-left: 4px solid #e08a00; }
+.eval-card__notscored { background: #f3f3f3; padding: 8px; border-left: 4px solid #888; }
+.eval-card__warn { color: #8a5a00; }
+.eval-card__raw pre { white-space: pre-wrap; font-family: monospace; background: #f7f7f7; padding: 8px; overflow-x: auto; }
+
+.packet { border: 2px solid #5b7db1; border-radius: 6px; padding: 12px; margin-bottom: 16px; }
+.packet__source { font-size: 0.85em; color: #555; }
+.packet__msg pre { white-space: pre-wrap; font-family: inherit; background: #f7f7f7; padding: 8px; margin: 4px 0 10px; }
+.packet__criterion { margin: 8px 0; }
+.packet__hidden { background: #f0f4fa; padding: 8px; border-radius: 4px; margin: 10px 0; }
+.packet__scan--ok { color: #1b6e2a; font-weight: bold; }
+.packet__scan--bad { color: #a11; font-weight: bold; }
+
+.scoring__cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); }
+.scoring__modes { display: flex; gap: 8px; margin: 8px 0; }
+.scoring__modes button[aria-pressed="true"] { background: #1a5fd6; color: #fff; }
+.judgment-summary { padding: 8px; border-radius: 4px; background: #f3f3f3; margin-bottom: 12px; }
+.judgment-summary--disagree { background: #fff4e5; border-left: 4px solid #e08a00; }
+.judgment-summary__disputed { color: #a11; font-weight: bold; }
+.demo { border: 3px dashed #c77700; border-radius: 6px; padding: 12px; margin-bottom: 16px;
+  background: repeating-linear-gradient(45deg, #fff8e6, #fff8e6 12px, #ffefc7 12px, #ffefc7 24px); }
+.demo__label { font-weight: bold; font-size: 1.2em; color: #8a4b00; }
+.demo__msg { font-family: monospace; color: #a11; }
