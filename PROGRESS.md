@@ -548,3 +548,13 @@ Verdict: continue. M9 complete: the React transcript browser works on real data.
 - Race safety: verified with a temporary 3 s delay, with and without the cancel flag and the immediate clear; unit_id mismatch guard added
 - Integrity: grid still shows the four states; transcripts show full text, unscored turns visible by default
 - Debt: FilterBar left out; search resets on screen change; stray-fetch rule not in check-core-purity.js; Chrome Issues panel form-field hints; index.css unused
+
+### L053 · Scenarios screen (2026-11-08)
+- Scenario table with expandable turns; checkpoint styling shared with Transcripts (transcript.css)
+- CSV import: file picker + paste, live collect-all validation via core parseScenarios,
+  problem table with row numbers, row preview with problem rows marked
+- Export via core serializer; hand round trip passed (6 scenarios, 8 checkpoints, C005 hostile prompt intact)
+- Core: structured err.problems, empty-input guard, no fake gap after duplicate, row numbers count blank lines
+- prepare-app-data publishes scenarios.meta.json (categories only), with leak test
+- CLI/browser equivalence: cli/validate-scenarios.js and the browser report identical problems on l053-three-errors.csv
+- Tests: 206 passing

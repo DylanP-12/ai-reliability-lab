@@ -288,3 +288,50 @@ test('semantic stability: unnecessary quoting in input does not survive text rou
   // Semantic stability IS promised — meaning survives even though bytes changed:
   assert.deepEqual(secondParse, firstParse);
 });
+
+// ---- L053: structured problems for the browser ----
+const HEADER = 'conversation_id,turn_index,prompt_text,evaluation_note,category\n';
+const THREE_ERRORS = HEADER +
+  'C1,1,Hi,,tone\n' +
+  'C1,2,Again,,tone\n' +
+  'C1,2,Dup,SCORE,tone\n' +       // row 4: duplicate
+  'C2,1,Hello,,format\n' +
+  'C2,3,Skip,SCORE,format\n' +    // row 6: gap (no turn 2)
+  'C3,1,Cat,SCORE,tonee\n';       // row 7: undeclared category
+
+function thrownBy(csv, opts) {
+  try { parseScenarios(csv, opts); } catch (err) { return err; }
+  assert.fail('expected parseScenarios to throw');
+}
+
+test('problems are structured objects with row numbers', () => {
+  const err = thrownBy(THREE_ERRORS, { allowedCategories: ['tone', 'format'] });
+  assert.deepEqual(err.problems.map((p) => [p.row, p.rule]),
+    [[4, 'duplicate'], [6, 'gap'], [7, 'category-allowed']]);
+});
+
+test('without allowedCategories, the category check degrades but the rest still run', () => {
+  const err = thrownBy(THREE_ERRORS);
+  assert.deepEqual(err.problems.map((p) => p.rule), ['duplicate', 'gap']);
+});
+
+test('err.message is still the joined text (CLI output unchanged)', () => {
+  const err = thrownBy(THREE_ERRORS, { allowedCategories: ['tone', 'format'] });
+  assert.equal(err.message, err.problems.map((p) => p.message).join('\n'));
+});
+
+test('a duplicate does not also report a fake gap', () => {
+  const err = thrownBy(HEADER + 'C1,1,a,,tone\nC1,2,b,,tone\nC1,2,c,SCORE,tone\n');
+  assert.deepEqual(err.problems.map((p) => p.rule), ['duplicate']);
+});
+
+test('empty input is a validation problem, not a TypeError', () => {
+  const err = thrownBy('');
+  assert.ok(Array.isArray(err.problems));
+  assert.equal(err.problems[0].rule, 'empty');
+});
+
+test('row numbers count blank lines, matching the row a spreadsheet shows', () => {
+  const err = thrownBy(HEADER + 'C1,1,a,,tone\n\nC1,3,b,SCORE,tone\n');  // blank line is row 3
+  assert.deepEqual(err.problems.map((p) => [p.row, p.rule]), [[4, 'gap']]);
+});

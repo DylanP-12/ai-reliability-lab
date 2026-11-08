@@ -268,6 +268,9 @@ export function prepareAppData({
   }).map(toScenarioDisplay);
   writeFileSync(`${outDir}/scenarios.json`, JSON.stringify(scenarios, null, 2), 'utf8');
 
+  // L053: publish ONLY the declared category list (named field, never the whole meta file),
+  // so the browser can run the same category check as the CLI.
+  writeFileSync(`${outDir}/scenarios.meta.json`, JSON.stringify({ categories: meta.categories }, null, 2), 'utf8');
   const evals = latestPerEval(readJsonl(evaluationsPath));
   const scores = buildScores(units, evals);
   writeFileSync(`${outDir}/scores.json`, JSON.stringify(scores, null, 2), 'utf8');

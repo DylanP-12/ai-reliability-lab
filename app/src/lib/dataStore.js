@@ -14,6 +14,7 @@ export function createDataStore({ fetchFn = fetch, basePath = '/data' } = {}) {
   return {
     getIndex:        () => loadJson('index.json'),
     getScenarios:    () => loadJson('scenarios.json'),
+    getScenariosMeta: () => loadJson('scenarios.meta.json'),
     getModels:       () => loadJson('models.json'),
     getScores:       () => loadJson('scores.json'),
     getResults:      () => loadJson('results/degradation.json'),
