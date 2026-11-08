@@ -25,15 +25,32 @@ export function parseCsv(text) {
   return rows;
 }
 
+// One error carrying every problem. err.message keeps the CLI's text unchanged;
+// err.problems gives the browser the structured list (L053).
+function validationError(problems) {
+  const err = new Error(problems.map((p) => p.message).join('\n'));
+  err.problems = problems;
+  return err;
+}
+
 export function parseScenarios(csvText, { allowedCategories } = {}) {
   const EXPECTED_HEADER = 'conversation_id,turn_index,prompt_text,evaluation_note,category';
   const problems = [];
+  const add = (row, field, rule, message, conversation_id = null) =>
+    problems.push({ row, conversation_id, field, rule, message });
+
   const rows = parseCsv(csvText);
+
+  // Empty input: nothing to check, and rows[0] would be undefined below.
+  if (rows.length === 0) {
+    add(1, 'header', 'empty', 'File is empty: expected a header row');
+    throw validationError(problems);
+  }
 
   // Rule 1: header
   const headerLine = rows[0].join(',');
   if (headerLine !== EXPECTED_HEADER) {
-    problems.push(`Header must be "${EXPECTED_HEADER}", found "${headerLine}"`);
+    add(1, 'header', 'header', `Header must be "${EXPECTED_HEADER}", found "${headerLine}"`);
   }
 
   const dataRows = rows.slice(1).filter((r) => !(r.length === 1 && r[0] === ''));
@@ -44,8 +61,8 @@ export function parseScenarios(csvText, { allowedCategories } = {}) {
 
     // Rule 2: field count
     if (r.length !== 5) {
-      problems.push(`Row ${rowNum}: expected 5 fields, found ${r.length}`);
-      return; // can't safely destructure a malformed row — skip further checks on it
+      add(rowNum, 'row', 'field-count', `Row ${rowNum}: expected 5 fields, found ${r.length}`);
+      return; // can't safely destructure a malformed row
     }
 
     const [conversation_id, turnIndexRaw, prompt_text, evaluation_note, category] = r;
@@ -53,13 +70,15 @@ export function parseScenarios(csvText, { allowedCategories } = {}) {
     // Rule 3: turn_index must be a real integer (parseInt('2x') === 2 is the trap)
     const turn_index = Number.parseInt(turnIndexRaw, 10);
     if (!Number.isInteger(turn_index) || String(turn_index) !== turnIndexRaw) {
-      problems.push(`Row ${rowNum}: turn_index "${turnIndexRaw}" is not a valid integer`);
+      add(rowNum, 'turn_index', 'turn-index-integer',
+        `Row ${rowNum}: turn_index "${turnIndexRaw}" is not a valid integer`, conversation_id);
       return;
     }
 
     // Rule 6: blank prompt_text
     if (prompt_text.trim() === '') {
-      problems.push(`Row ${rowNum} (${conversation_id}): prompt_text is blank`);
+      add(rowNum, 'prompt_text', 'blank-prompt',
+        `Row ${rowNum} (${conversation_id}): prompt_text is blank`, conversation_id);
     }
 
     parsed.push({ conversation_id, turn_index, prompt_text, evaluation_note, category, rowNum });
@@ -75,44 +94,52 @@ export function parseScenarios(csvText, { allowedCategories } = {}) {
   const scenarios = [];
 
   for (const [convId, turns] of groups) {
-    // Rule 4: duplicates
+    // Rule 4: duplicates (reported on the row of the repeat)
     const seen = new Set();
     for (const t of turns) {
-      if (seen.has(t.turn_index)) problems.push(`${convId}: duplicate turn_index ${t.turn_index}`);
+      if (seen.has(t.turn_index)) {
+        add(t.rowNum, 'turn_index', 'duplicate', `${convId}: duplicate turn_index ${t.turn_index}`, convId);
+      }
       seen.add(t.turn_index);
     }
 
     const sorted = [...turns].sort((a, b) => a.turn_index - b.turn_index);
 
-    // Rule 5: gaps — note the boundary case: sorted[0] must be exactly 1,
-    // not just "each turn is one more than the last." [3,4,5] is internally
-    // consecutive but never starts at 1 — a real bug if you skip this check.
-    if (sorted.length > 0 && sorted[0].turn_index !== 1) {
-      problems.push(`${convId}: turn_index must start at 1, found ${sorted[0].turn_index}`);
+    // Rule 5: gaps, checked on the FIRST row of each turn_index, so a duplicate
+    // (already reported above) can't also show up as a fake gap.
+    // Boundary case: must start at exactly 1; [3,4,5] is consecutive but wrong.
+    const firstOfEach = sorted.filter((t, i) => i === 0 || t.turn_index !== sorted[i - 1].turn_index);
+    if (firstOfEach.length > 0 && firstOfEach[0].turn_index !== 1) {
+      add(firstOfEach[0].rowNum, 'turn_index', 'gap',
+        `${convId}: turn_index must start at 1, found ${firstOfEach[0].turn_index}`, convId);
     }
-    for (let i = 1; i < sorted.length; i++) {
-      if (sorted[i].turn_index !== sorted[i - 1].turn_index + 1) {
-        problems.push(`${convId}: gap in turn_index — expected ${sorted[i - 1].turn_index + 1}, found ${sorted[i].turn_index}`);
+    for (let i = 1; i < firstOfEach.length; i++) {
+      const expected = firstOfEach[i - 1].turn_index + 1;
+      if (firstOfEach[i].turn_index !== expected) {
+        add(firstOfEach[i].rowNum, 'turn_index', 'gap',
+          `${convId}: gap in turn_index — expected ${expected}, found ${firstOfEach[i].turn_index}`, convId);
       }
     }
 
-    // Rule 7: category non-blank, and — only if allowedCategories was supplied — a member of it
-for (const t of sorted) {
-  if (t.category.trim() === '') {
-    problems.push(`${convId}: category is blank`);
-  }
-  if (allowedCategories && !allowedCategories.includes(t.category)) {
-    problems.push(`${convId}: category "${t.category}" is not in allowed list`);
-  }
-}
+    // Rule 7: category non-blank, and (only if allowedCategories was supplied) a member of it.
+    // `else if`: a blank category is one problem, not also "not in allowed list".
+    for (const t of sorted) {
+      if (t.category.trim() === '') {
+        add(t.rowNum, 'category', 'category-blank', `${convId}: category is blank`, convId);
+      } else if (allowedCategories && !allowedCategories.includes(t.category)) {
+        add(t.rowNum, 'category', 'category-allowed',
+          `${convId}: category "${t.category}" is not in allowed list`, convId);
+      }
+    }
 
-    // Rule 8: consistency — every row in this conversation shares one category
-  const firstCategory = sorted[0]?.category;
-for (const t of sorted) {
-  if (t.category !== firstCategory) {
-    problems.push(`${convId}: inconsistent category — found both "${firstCategory}" and "${t.category}"`);
-  }
-}
+    // Rule 8: consistency, every row in this conversation shares one category
+    const firstCategory = sorted[0]?.category;
+    for (const t of sorted) {
+      if (t.category !== firstCategory) {
+        add(t.rowNum, 'category', 'category-consistency',
+          `${convId}: inconsistent category — found both "${firstCategory}" and "${t.category}"`, convId);
+      }
+    }
 
     const checkpoints = sorted
       .filter((t) => t.evaluation_note.trim() !== '')
@@ -127,10 +154,7 @@ for (const t of sorted) {
     });
   }
 
-  if (problems.length > 0) {
-    throw new Error(problems.join('\n'));
-  }
-
+  if (problems.length > 0) throw validationError(problems);
   return scenarios;
 }
 
