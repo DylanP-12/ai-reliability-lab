@@ -330,3 +330,8 @@ test('empty input is a validation problem, not a TypeError', () => {
   assert.ok(Array.isArray(err.problems));
   assert.equal(err.problems[0].rule, 'empty');
 });
+
+test('row numbers count blank lines, matching the row a spreadsheet shows', () => {
+  const err = thrownBy(HEADER + 'C1,1,a,,tone\n\nC1,3,b,SCORE,tone\n');  // blank line is row 3
+  assert.deepEqual(err.problems.map((p) => [p.row, p.rule]), [[4, 'gap']]);
+});

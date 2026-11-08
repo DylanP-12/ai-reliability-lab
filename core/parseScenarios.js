@@ -53,11 +53,15 @@ export function parseScenarios(csvText, { allowedCategories } = {}) {
     add(1, 'header', 'header', `Header must be "${EXPECTED_HEADER}", found "${headerLine}"`);
   }
 
-  const dataRows = rows.slice(1).filter((r) => !(r.length === 1 && r[0] === ''));
+  // Number rows by position in the file (header = row 1), THEN drop blank lines,
+  // so "row N" is the Nth row a spreadsheet shows, even with blank lines in between.
+  const dataRows = rows
+    .map((r, i) => ({ r, rowNum: i + 1 }))
+    .slice(1)
+    .filter(({ r }) => !(r.length === 1 && r[0] === ''));
   const parsed = [];
 
-  dataRows.forEach((r, idx) => {
-    const rowNum = idx + 2; // header is row 1, data starts at row 2
+  dataRows.forEach(({ r, rowNum }) => {
 
     // Rule 2: field count
     if (r.length !== 5) {

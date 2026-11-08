@@ -72,7 +72,8 @@ function ScenarioRows({ scenario, isOpen, onToggle }) {
                   <li key={t.turn_index} className={scored ? 'turn turn-checkpoint' : 'turn'}>
                     <span className="turn-index">Turn {t.turn_index}</span>
                     {scored && <span className="badge badge-checkpoint">Scored</span>}
-                    <span className="turn-prompt">{t.prompt_text}</span>
+                                      <span className="turn-prompt">{t.prompt_text}</span>
+                    {t.evaluation_note?.trim() && <span className="turn-note">Note: {t.evaluation_note}</span>}
                   </li>
                 )
               })}
