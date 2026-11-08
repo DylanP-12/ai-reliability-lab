@@ -7,6 +7,36 @@ export function unitFile(unitId) {
   return `conversations/${unitId.replaceAll(':', '_')}.json`;
 }
 
+export function evalFile(unitId) {
+  return `evaluations/${unitId.replaceAll(':', '_')}.json`;
+}
+
+// L054: one judge result for the Scoring screen. Copy fields by name (whitelist).
+// Score fields exist ONLY when the judge's answer was parsed. No defaults, ever.
+export function toEvalDisplay(e) {
+  const out = {
+    eval_id: e.eval_id,
+    turn_index: e.turn_index,
+    judge_model_id: e.judge_model_id,
+    judge_repetition: e.judge_repetition,
+    rubric_version: e.rubric_version,
+    status: e.status,
+    parse_ok: e.parse_ok === true,
+    raw_output: e.raw_output ?? null,
+  };
+  if (e.status === 'failed') {
+    out.error_reason = e.error?.classification ?? 'unknown';
+  } else if (e.parse_ok !== true) {
+    out.error_reason = typeof e.error === 'string' ? e.error : 'judge output could not be parsed';
+  } else {
+    out.scores = e.scores;
+    out.weighted_score = e.weighted_score;
+    out.overall_verdict = e.overall_verdict;
+    out.critical_failed = e.critical_failed === true;
+  }
+  return out;
+}
+
 export function readJsonl(path) {
   const text = readFileSync(path, 'utf8');
   return text
@@ -194,6 +224,7 @@ export function toIndexEntry(unit) {
   const entry = {
     unit_id: unit.unit_id,
     file: unitFile(unit.unit_id),
+        eval_file: evalFile(unit.unit_id),
     conversation_id: unit.conversation_id,
     model_id: unit.model_id,
     category: unit.category,
@@ -243,6 +274,7 @@ export function prepareAppData({
   modelsPath = 'config/models.json',
   scenariosPath = 'data/scenarios.csv',
   metaPath = 'data/scenarios.meta.json',
+  rubricPath = 'config/rubric.v1.json',
   outDir = 'app/public/data',
 } = {}) {
   const units = latestPerUnit(readJsonl(responsesPath));
@@ -274,6 +306,15 @@ export function prepareAppData({
   const evals = latestPerEval(readJsonl(evaluationsPath));
   const scores = buildScores(units, evals);
   writeFileSync(`${outDir}/scores.json`, JSON.stringify(scores, null, 2), 'utf8');
+  
+    // L054: per-unit judge details + the rubric, for the Scoring screen
+  mkdirSync(`${outDir}/evaluations`, { recursive: true });
+  for (const unit of units) {
+    const detail = evals.filter((e) => e.unit_id === unit.unit_id).map(toEvalDisplay);
+    writeFileSync(`${outDir}/${evalFile(unit.unit_id)}`, JSON.stringify(detail, null, 2), 'utf8');
+  }
+  const rubric = JSON.parse(readFileSync(rubricPath, 'utf8'));
+  writeFileSync(`${outDir}/rubric.json`, JSON.stringify(rubric, null, 2), 'utf8');
   
   const degradation = buildDegradation(scores);
   mkdirSync(`${outDir}/results`, { recursive: true });

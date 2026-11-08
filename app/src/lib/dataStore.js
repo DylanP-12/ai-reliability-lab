@@ -12,20 +12,26 @@ export function createDataStore({ fetchFn = fetch, basePath = '/data' } = {}) {
   }
 
   return {
-    getIndex:        () => loadJson('index.json'),
-    getScenarios:    () => loadJson('scenarios.json'),
+    getIndex:         () => loadJson('index.json'),
+    getScenarios:     () => loadJson('scenarios.json'),
     getScenariosMeta: () => loadJson('scenarios.meta.json'),
-    getModels:       () => loadJson('models.json'),
-    getScores:       () => loadJson('scores.json'),
-    getResults:      () => loadJson('results/degradation.json'),
-     getConversation: async (unitId) => {
-    
-        const index = await loadJson('index.json');
+    getModels:        () => loadJson('models.json'),
+    getScores:        () => loadJson('scores.json'),
+    getResults:       () => loadJson('results/degradation.json'),
+    getRubric:        () => loadJson('rubric.json'),
+    getConversation:  async (unitId) => {
+      const index = await loadJson('index.json');
       const entry = index.find(u => u.unit_id === unitId);
       if (!entry) throw new Error(`Unknown unit: ${unitId}`);
       return loadJson(entry.file);
     },
-    clearCache:      () => cache.clear(),
+    getEvaluations:   async (unitId) => {
+      const index = await loadJson('index.json');
+      const entry = index.find(u => u.unit_id === unitId);
+      if (!entry) throw new Error(`Unknown unit: ${unitId}`);
+      return loadJson(entry.eval_file);
+    },
+    clearCache:       () => cache.clear(),
   };
 }
 
