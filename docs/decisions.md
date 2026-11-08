@@ -64,3 +64,25 @@ core has no Node-only imports.
 ## L049: app shell, screens, nav
 - Navigation is one `screen` state value in App.jsx plus a controlled NavBar. There is no router library, because the scope fence bans one and a local research viewer does not need shareable URLs.
 - The cost: no URL deep-linking (no link to a specific screen or transcript), and the browser back button does not move between screens. Acceptable for a local single-user viewer; revisit if this ever becomes a public tool.
+
+## 2026-11-08 · L053 · Imported CSVs on the Scenarios screen are local only
+
+**Decision.** A CSV imported on the Scenarios screen is read in the browser with
+`file.text()`, validated with the same `parseScenarios` from `/core/` that the CLI
+uses, and shown with its `evaluation_note` values visible. It is never uploaded,
+never merged into the published app data, and is labeled "local · unsaved".
+
+**Why.** The published `scenarios.json` strips `evaluation_note` because anyone who
+opens the viewer can read it. An imported CSV is the researcher's own file in their
+own browser, so showing its notes exposes nothing new, and they need to see the
+notes to fix mistakes in them.
+
+**Consequences.**
+- Export (Download CSV) is offered only for imported, valid data. Checkpoints are
+  derived from `evaluation_note`, so exporting the published data (which has no
+  notes) would produce scenarios with zero checkpoints.
+- The browser checks categories against `scenarios.meta.json`, which
+  `prepare-app-data.js` publishes with the `categories` field only. If that file is
+  missing, the screen says so and runs every other check.
+- `parseScenarios` now attaches structured problems (`err.problems`, each with
+  row, field, rule and message) while keeping `err.message` unchanged for the CLI.
