@@ -1,0 +1,7 @@
+conversation_id,turn_index,prompt_text,evaluation_note,category
+C1,1,Hi,,tone
+C1,2,Again,,tone
+C1,2,Dup,SCORE,tone
+C2,1,Hello,,format
+C2,3,Skip,SCORE,format
+C3,1,Cat,SCORE,tonee
