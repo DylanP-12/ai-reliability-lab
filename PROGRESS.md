@@ -538,3 +538,13 @@ My confidence from 1-5: _
 What I need help with:
 Next lesson: L045 - React: components, JSX, props
 
+## Milestone Review 8 (L052) - 2026-11-07
+Verdict: continue. M9 complete: the React transcript browser works on real data.
+
+- Demo: grid -> cell -> repetition list -> lazy transcript with scored turns badged -> side-by-side compare (two C005/deepseek repetitions; no scenario was run by both models in the smoke data)
+- Graceful degradation: the real dataset declares no setup turn; the view renders cleanly with no badge and no console errors
+- Architecture: all reads go through dataStore (grep: fetch appears only in dataStore.js); no conversations/ request until a repetition is picked; repeats served from cache
+- Tests: 199 passing. Fixed getConversation (colon vs underscore 404); sabotage made both new store tests fail
+- Race safety: verified with a temporary 3 s delay, with and without the cancel flag and the immediate clear; unit_id mismatch guard added
+- Integrity: grid still shows the four states; transcripts show full text, unscored turns visible by default
+- Debt: FilterBar left out; search resets on screen change; stray-fetch rule not in check-core-purity.js; Chrome Issues panel form-field hints; index.css unused
