@@ -4,6 +4,7 @@ import SearchBox from '../components/SearchBox'
 import { Grid } from '../components/Grid'
 import { RepetitionList } from '../components/RepetitionList'
 import { TranscriptView } from '../components/TranscriptView'
+import { getSetupTurn } from '../lib/setupTurn'
 export function TranscriptsScreen() {
   const [data, setData] = useState(null)   // { units, groups } once loaded
   const [error, setError] = useState(null)
@@ -17,9 +18,9 @@ export function TranscriptsScreen() {
   // Load both small files through the store. Never a transcript.
   useEffect(() => {
     let cancelled = false
-    Promise.all([dataStore.getIndex(), dataStore.getScores()])
-      .then(([units, scores]) => {
-        if (!cancelled) setData({ units, groups: scores.groups })
+    Promise.all([dataStore.getIndex(), dataStore.getScores(), dataStore.getScenarios()])
+      .then(([units, scores, scenarios]) => {
+        if (!cancelled) setData({ units, groups: scores.groups, scenarios })
       })
       .catch(err => { if (!cancelled) setError(err) })
     return () => { cancelled = true }
@@ -89,7 +90,10 @@ export function TranscriptsScreen() {
             ? <p role="alert">Could not load transcript: {transcriptError}</p>
             : !transcript
               ? <p>Loading transcript…</p>
-              :   <TranscriptView transcript={transcript} />}
+                          : <TranscriptView
+                  transcript={transcript}
+                  setupTurn={getSetupTurn(data.scenarios, selectedCell.conversation_id)}
+                />}
         </div>
       )}
     </Shell>
