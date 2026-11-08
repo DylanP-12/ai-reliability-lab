@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { parseCsv, parseScenarios } from '@core/parseScenarios.js'
+import { parseCsv, parseScenarios, serializeScenarios } from '@core/parseScenarios.js'
 import { ScenarioTable } from './ScenarioTable'
 
 // Pure: text in, result out. Called during render (derive, don't store, L047),
@@ -18,6 +18,16 @@ function validate(text, allowedCategories) {
     const problems = [...err.problems].sort((a, b) => a.row - b.row)
     return { status: 'invalid', problems, clean }
   }
+}
+
+// Core serializer + Blob: the quoting rules L029's round-trip tests proved.
+function downloadCsv(scenarios) {
+  const text = serializeScenarios(scenarios)
+  const blob = new Blob([text], { type: 'text/csv;charset=utf-8' })
+  const url = URL.createObjectURL(blob)
+  const a = Object.assign(document.createElement('a'), { href: url, download: 'scenarios-export.csv' })
+  a.click()
+  setTimeout(() => URL.revokeObjectURL(url), 0)   // free the blob once the click is handled
 }
 
 export function CsvImport({ allowedCategories }) {
@@ -77,7 +87,8 @@ function ValidationReport({ result }) {
         <p className="valid-summary">
           ✓ Valid: {result.scenarios.length} scenarios, {checkpoints} checkpoints.
         </p>
-        <ScenarioTable scenarios={result.scenarios} />
+        <button type="button" onClick={() => downloadCsv(result.scenarios)}>Download CSV</button>
+        <ScenarioTable scenarios={result.scenarios} />   
       </>
     )
   }
