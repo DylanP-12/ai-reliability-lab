@@ -5,15 +5,19 @@
   "seed": 20260811,
   "models": [
     "deepseek-v3.1",
-    "qwen3-32b"
+    "qwen3-32b",
+    "gemini-3.8-flash",
+    "claude-haiku-5.5",
+    "gpt-5.4-mini",
+    "mistral-medium-3.5"
   ],
   "repetitions": 10,
   "concurrency": 1,
-  "unit_count": 4,
-  "complete_count": 4,
+  "unit_count": 1,
+  "complete_count": 9,
   "failed_count": 0,
-  "started_at": "2026-10-16T23:21:06.734Z",
-  "finished_at": "2026-10-16T23:22:23.015Z",
+  "started_at": "2026-11-09T04:28:16.324Z",
+  "finished_at": "2026-11-09T04:28:46.123Z",
   "config_snapshot": {
     "run_id": "gen-2026-08-11",
     "dataset_version": "ds-v1",
