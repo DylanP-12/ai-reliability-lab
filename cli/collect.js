@@ -12,7 +12,13 @@ import { dispatch } from './dispatch.js';
 import { sha256 } from '../core/runConversation.js';
 import { buildManifest, writeManifest, tallyResponses } from './writeManifest.js';
 import { validateConfig } from '../core/validateConfig.js';
-
+// Unknown options stop the run (fail closed). A typo must never be silently ignored.
+const KNOWN_FLAGS = new Set(['--go', '--mock', '--max-units', '--models']);
+const unknownFlags = process.argv.slice(2).filter((a) => a.startsWith('--') && !KNOWN_FLAGS.has(a));
+if (unknownFlags.length) {
+  console.error(`Unknown option(s): ${unknownFlags.join(', ')}. Nothing was run.`);
+  process.exit(1);
+}
 // ---------- 1. Load inputs (all file reading happens here, in cli) ----------
 const config = validateConfig(JSON.parse(readFileSync('config/run.config.json', 'utf8')));
 const models = JSON.parse(readFileSync('config/models.json', 'utf8'));
@@ -35,8 +41,20 @@ if (maxIdx !== -1) {
     process.exit(1);
   }
 }
-const schedule = maxUnits ? fullSchedule.slice(0, maxUnits) : fullSchedule;
-
+// --models a,b,c: keep only these models' units. Fails closed on an unknown id.
+const modelsIdx = process.argv.indexOf('--models');
+let onlyModels = null;
+if (modelsIdx !== -1) {
+  onlyModels = (process.argv[modelsIdx + 1] ?? '').split(',').map((s) => s.trim()).filter(Boolean);
+  const known = new Set(models.map((m) => m.model_id));
+  const unknown = onlyModels.filter((id) => !known.has(id));
+  if (onlyModels.length === 0 || unknown.length) {
+    console.error(`--models needs known model ids. Unknown: ${unknown.join(', ') || '(none given)'}`);
+    process.exit(1);
+  }
+}
+const filtered = onlyModels ? fullSchedule.filter((u) => onlyModels.includes(u.model_id)) : fullSchedule;
+const schedule = maxUnits ? filtered.slice(0, maxUnits) : filtered;
 // ---------- 3. Rough cost estimate (assumed sizes, for the plan only) ----------
 const ASSUMED_PROMPT_TOKENS = 40;
 const ASSUMED_REPLY_TOKENS = 200;
