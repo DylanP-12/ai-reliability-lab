@@ -95,3 +95,10 @@ notes to fix mistakes in them.
 - Not-scored judgments (failed call or unparseable output) never count as pass or fail.
 - Live demo results are never saved or counted. The judge call is a stub until L057.
 - The packet panel does not show private notes, because notes are never published to the browser.
+
+## Model roster expanded (Nov 2026)
+- Added four closed-weight models, the cheaper tier of each family: Gemini 3.8 Flash, Claude Haiku 5.5, GPT-5.4 Mini, Mistral Medium 3.5.
+- Each is pinned to its maker's own service (Google Vertex, Anthropic, OpenAI, Mistral), never a "Latest" alias, so the model cannot change mid-study.
+- Prices are the full listed price, never a temporary discount, so the spend cap can only stop early, never late.
+- Judges stay DeepSeek and Qwen (can_judge false for the new four).
+- Open question: Gemini 3.8 Flash shows no "None" reasoning option. To be confirmed with one test call before any study run.
