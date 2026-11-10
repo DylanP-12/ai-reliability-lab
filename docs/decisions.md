@@ -102,3 +102,15 @@ notes to fix mistakes in them.
 - Prices are the full listed price, never a temporary discount, so the spend cap can only stop early, never late.
 - Judges stay DeepSeek and Qwen (can_judge false for the new four).
 - Open question: Gemini 3.8 Flash shows no "None" reasoning option. To be confirmed with one test call before any study run.
+
+## L055: degradation chart honesty settings (2026-11-09)
+
+- Y axis is fixed at 0 to 1, never truncated, so small differences look small. Cost: a real but small change can be hard to see; the numbers table gives exact values.
+- Sparse threshold: n < 5 gives a hollow dot and a dashed line. 5 is a judgment call, not a statistical test.
+- Dot radius comes from sqrt(n) against a fixed reference (full size at n = 30), not the largest n in the data. Scaling to the data's own maximum would make the biggest point in a thin dataset look full-size.
+- Points with n = 0 (every result was a split, had no valid judgment, or came from a failed unit) are not drawn and break the line. The table shows them as n=0. They are never drawn as a rate of 0.
+- No smoothing: straight segments between measured points only.
+- The curve is drawn only when at least one model has 2+ measured points. Otherwise the chart shows a "not enough data to plot" notice and the table.
+- Each model's dots are nudged sideways (12 units in the 800-wide viewBox) so overlapping points stay visible. X is still the turn.
+- Hand-written SVG, no chart library.
+- Known limit: x position is mixed up with scenario. Late turns only come from scenarios long enough to reach them, so a late-turn dip could reflect those scenarios rather than position.

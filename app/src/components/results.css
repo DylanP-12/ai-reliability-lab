@@ -1,0 +1,26 @@
+/* L055: Results screen */
+.results__intro { color: var(--color-muted); max-width: 70ch; }
+
+.chart { max-width: 900px; }
+.chart svg { display: block; height: auto; }
+.chart__grid { stroke: var(--color-muted); stroke-opacity: 0.25; }
+.chart__axis { stroke: var(--color-text); }
+.chart__tick { fill: var(--color-muted); font-size: 12px; }
+.chart__title { fill: var(--color-text); font-size: 13px; }
+.chart circle:focus { outline: none; stroke-width: 4; }
+
+.chart__legend { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 0.5rem 1.25rem; }
+.chart__swatch { display: inline-block; width: 24px; border-top: 3px solid; vertical-align: middle; margin-right: 6px; }
+.chart__muted, .chart__key { color: var(--color-muted); }
+.chart__key { font-size: 0.9rem; max-width: 70ch; }
+
+.chart__notice { padding: 0.75rem 1rem; border-left: 4px solid var(--color-unknown); max-width: 70ch; }
+
+.chart__table-wrap { overflow-x: auto; margin-top: 1rem; }
+.chart__table { border-collapse: collapse; font-size: 0.9rem; }
+.chart__table caption { text-align: left; color: var(--color-muted); padding-bottom: 0.5rem; }
+.chart__table th, .chart__table td { padding: 0.3rem 0.6rem; border-bottom: 1px solid var(--color-muted); text-align: right; }
+.chart__table th[scope="row"] { text-align: left; }
+.chart__table .is-thin { font-style: italic; color: var(--color-muted); }
+.chart__table .is-nodata { color: var(--color-unknown); }
+.chart__table .is-empty { color: var(--color-muted); }
