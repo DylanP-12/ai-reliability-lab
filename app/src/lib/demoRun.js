@@ -3,9 +3,16 @@ import { estimateConversationCostUSD } from '../../../core/cost.js';
 
 export const DEMO_LIMITS = Object.freeze({ maxTurns: 12, maxTokens: 300, maxEstimateUSD: 0.05 });
 
-// Match the field names your runConversation actually reads from config
+// Field names must match what core/runConversation.js reads
 export const DEMO_CONFIG = Object.freeze({
-  temperature: 0, max_tokens: DEMO_LIMITS.maxTokens, timeout_ms: 30000, max_attempts: 2, system_prompt: '',
+  run_id: 'demo',                 // marks the record as demo, not a study run
+  dataset_version: 'demo',
+  temperature: 0,
+  seed: null,
+  max_output_tokens: DEMO_LIMITS.maxTokens,
+  request_timeout_ms: 30000,
+  max_attempts: 2,
+  system_prompt: '',              // if your study config has a system_prompt, copy it here so the demo behaves like the study
 });
 
 const CHARS_PER_TOKEN = 3; // pessimistic on purpose: overestimate, never under

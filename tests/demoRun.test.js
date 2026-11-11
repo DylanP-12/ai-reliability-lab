@@ -1,7 +1,8 @@
 // tests/demoRun.test.js
+import { DEMO_MODELS } from '../app/src/lib/demoModels.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { projectDemoRecord, checkDemoRun, DEMO_LIMITS } from '../app/src/lib/demoRun.js';
+import { projectDemoRecord, checkDemoRun, DEMO_LIMITS, DEMO_CONFIG } from '../app/src/lib/demoRun.js';
 
 const models = [{ model_id: 'm1', price_in_per_m: 1.0, price_out_per_m: 2.0 },
                 { model_id: 'pricey', price_in_per_m: 1000, price_out_per_m: 1000 }];
@@ -30,4 +31,20 @@ test('too many turns blocked', () => {
 
 test('over-budget estimate blocked', () => {
   assert.equal(checkDemoRun({ scenario: scen(2), model: models[1], models }).ok, false);
+});
+
+test('DEMO_CONFIG uses the runner field names, so the token cap reaches the request', () => {
+  assert.equal(DEMO_CONFIG.max_output_tokens, DEMO_LIMITS.maxTokens);
+  assert.equal(DEMO_CONFIG.max_tokens, undefined);
+  assert.ok(DEMO_CONFIG.request_timeout_ms > 0);
+});
+
+test('every demo model can be routed and estimated', () => {
+  assert.ok(DEMO_MODELS.length >= 1);
+  const s = { scenario_id: 'S', turns: [{ prompt_text: 'hi' }] };
+  for (const m of DEMO_MODELS) {
+    assert.ok(m.or_model && m.provider_pin, `${m.model_id} missing routing`);
+    const r = checkDemoRun({ scenario: s, model: m, models: DEMO_MODELS });
+    assert.ok(r.estimateUSD > 0, `${m.model_id} cannot be estimated`);
+  }
 });
