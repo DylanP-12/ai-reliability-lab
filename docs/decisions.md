@@ -114,3 +114,48 @@ notes to fix mistakes in them.
 - Each model's dots are nudged sideways (12 units in the 800-wide viewBox) so overlapping points stay visible. X is still the turn.
 - Hand-written SVG, no chart library.
 - Known limit: x position is mixed up with scenario. Late turns only come from scenarios long enough to reach them, so a late-turn dip could reflect those scenarios rather than position.
+
+## L056 (2026-11-11): Results II, heatmap, spread, agreement
+
+**What each panel may claim.** Curve: trend by scored-turn position. Heatmap: average pass rate per
+scenario x model. Spread: consistency across repetitions. Agreement: how much the judge was checked.
+Each panel's caption says which, so no panel is read as answering another's question.
+
+**Heatmap**
+- Sequential single-hue ramp (light blue = 0, dark blue = 1). No red/green: red already means
+  "crossed" on the Transcripts grid, and red/green fails for colorblind readers.
+- No-data sits outside the ramp: amber hatch + dash, labeled "not run" or "no valid result".
+  `cellColors` throws on anything that is not a rate from 0 to 1, so no-data can never become pale blue.
+- Every cell prints rate, n (checkpoints) and conversations. "Thin" marks n < SPARSE_N (5), the same
+  cutoff as the curve, as text (a paler cell would read as a lower rate).
+- Text is pure black or white, whichever contrasts more. Tested >= 4.5:1 at 101 points on the ramp;
+  the app's near-black (#0f172a) failed at rate 0.62.
+- Only cells with a result take a Tab stop (was 37 stops, now 7). "Not run" stays printed and in the table.
+- Rows and columns come from scenarios.json and models.json; a scored pair missing from them is
+  announced, never silently dropped.
+
+**Spread**
+- Each conversation gets its own rate across its checkpoints; the bar is min to max. No SD bars:
+  2 to 4 repetitions cannot show a distribution's shape.
+- One conversation: hollow dot, no bar, "single observation". Dashed bar under SPARSE_N conversations.
+- Conversations with no valid verdict are counted as "not counted", never rated 0.
+
+**Agreement**
+- Source: data/calibration.json, hand-transcribed from docs/human-agreement.md (L042).
+  prepare-app-data validates it (fail closed) and allowlists it into app/public/data/calibration.json.
+- No source file means `{ status: "none" }`, shown as "No calibration yet" in plain words.
+- Counts, never a bare percentage. Coverage line: checked vs counted on this screen.
+- The limitations are shown directly under the number. Status "practice" today; L060 replaces it
+  with the expert's numbers (status "expert") with no panel code change.
+
+**Accessibility**
+- Charts with focusable parts use svg role="group" with a summary built from the data
+  (fixes L055's role="img", which hid the focusable dots from screen readers).
+- Every chart has a real <table> behind a <details> toggle.
+
+**Where the math lives.** Heatmap and spread summaries are computed in the browser by
+app/src/lib/resultsMath.js: pure and Node-tested, and only re-summing counts already in scores.json.
+If more screens need them, move them into prepare-app-data.
+
+**Still open.** The curve pools scenarios, so turn position is tangled with which scenarios have a
+checkpoint there (L055 problem). The caption now says so and points to the heatmap; it is not fixed.

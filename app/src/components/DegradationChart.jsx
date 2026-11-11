@@ -27,6 +27,17 @@ function describe(modelId, p) {
   return `${modelId}, turn ${p.turn_index}: ${p.pass} of ${p.denominator} passed, rate ${p.rate.toFixed(2)} (n=${p.denominator}). Not counted: ${leftOut}`;
 }
 
+// L056: text alternative for the whole chart: what it shows and how much evidence is behind it.
+// Built from the data, so it can never go stale.
+function summarize(series, turns) {
+  const points = series.flatMap((m) => m.points.filter(measured));
+  const rates = points.map((p) => p.rate);
+  const ns = points.map((p) => p.denominator);
+  return `Pass rate by scored-turn position for ${series.length} models, turns ${turns[0]} to ${turns[turns.length - 1]}. ` +
+    `${points.length} measured points, rates from ${Math.min(...rates).toFixed(2)} to ${Math.max(...rates).toFixed(2)}, ` +
+    `sample sizes from n=${Math.min(...ns)} to n=${Math.max(...ns)}. Exact numbers are in the table below the chart.`;
+}
+
 export function DegradationChart({ models }) {
   // Sort each model's points ourselves rather than trusting file order.
   const series = models.map((m) => ({
@@ -70,8 +81,7 @@ function ChartSvg({ series, turns }) {
   
 const nudge = (i) => (i - (series.length - 1) / 2) * 12;  return (
     <>
-      <svg viewBox={`0 0 ${W} ${H}`} width="100%" role="img"
-           aria-label="Pass rate by scored-turn position, one line per model">
+      <svg viewBox={`0 0 ${W} ${H}`} width="100%" role="group" aria-label={summarize(series, turns)}>
         {Y_TICKS.map((v) => (
           <g key={`y-${v}`}>
             <line className="chart__grid" x1={PAD.left} x2={W - PAD.right} y1={y(v)} y2={y(v)} />
@@ -124,7 +134,7 @@ const nudge = (i) => (i - (series.length - 1) / 2) * 12;  return (
                   <circle key={`pt-${p.turn_index}`}
                     cx={x(p.turn_index) + nudge(i)} cy={y(p.rate)} r={radiusFor(p.denominator)}
                     style={{ stroke: color, fill: thin ? 'var(--color-bg)' : color }}
-                    strokeWidth="2" tabIndex={0} aria-label={text}>
+                    strokeWidth="2" tabIndex={0} role="img" aria-label={text}>
                     <title>{text}</title>
                   </circle>
                 );
