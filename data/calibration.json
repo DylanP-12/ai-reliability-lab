@@ -1,0 +1,18 @@
+{
+  "status": "practice",
+  "as_of": "2026-10-25",
+    "rater": "developer (single rater, graded blind)",
+  "rubric_version": "rubric.v1",
+  "checkpoints_compared": 7,
+  "checkpoints_agreed": 7,
+  "criteria_compared": 14,
+  "criteria_agreed": 14,
+  "excluded": 0,
+  "disagreements": { "rubric_ambiguity": 0, "judge_error": 0, "hard_case": 0 },
+  "limitations": [
+    "Practice check graded by the developer, not the study's expert rater.",
+    "All 7 checkpoints were passes for both human and judge, so this sample cannot show whether the judge catches failures.",
+    "rubric.v1 setup_respected anchors were written for C001 and cannot fail for C005 or C006 (issue #39), so agreement on that criterion is uninformative.",
+    "Helpfulness agreement is modest real evidence, from 7 checkpoints across 4 conversations."
+  ]
+}  

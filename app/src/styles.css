@@ -15,6 +15,13 @@
   --radius: 6px;
   --font-ui: system-ui, sans-serif;
   --font-mono: ui-monospace, monospace;
+    /* L055: one color per model line. Kept away from pass green, fail red, unknown amber. */
+  --series-1: #2563eb;
+  --series-2: #7c3aed;
+  --series-3: #0891b2;
+  --series-4: #db2777;
+  --series-5: #475569;
+  --series-6: #c2410c;
 }
 
 body {

@@ -1,5 +1,5 @@
 // cli/prepare-app-data.js: frozen data to app-sized chunks (L043) + aggregates (L044)
-import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 import { parseScenarios } from '../core/parseScenarios.js';
 
@@ -268,6 +268,39 @@ export function toScenarioDisplay(scenario) {
   };
 }
 
+// L056: judge-calibration summary for the Results screen.
+// No source file -> an explicit { status: 'none' }, never a missing file or a guessed number.
+// Allowlist: only these fields reach the browser. Anything malformed throws (fail closed).
+const CAL_COUNTS = ['checkpoints_compared', 'checkpoints_agreed', 'criteria_compared', 'criteria_agreed', 'excluded'];
+const CAL_BUCKETS = ['rubric_ambiguity', 'judge_error', 'hard_case'];
+
+export function toCalibrationDisplay(raw) {
+  if (raw === null) return { status: 'none' };
+  const need = (ok, message) => { if (!ok) throw new Error(`calibration: ${message}`); };
+  const isCount = (v) => Number.isInteger(v) && v >= 0;
+
+  need(['practice', 'expert'].includes(raw.status), `unknown status "${raw.status}"`);
+  need(/^\d{4}-\d{2}-\d{2}$/.test(raw.as_of ?? ''), 'as_of must be a YYYY-MM-DD date');
+  need(typeof raw.rater === 'string' && typeof raw.rubric_version === 'string', 'rater and rubric_version are required');
+  for (const key of CAL_COUNTS) need(isCount(raw[key]), `${key} must be a whole number`);
+  for (const b of CAL_BUCKETS) need(isCount(raw.disagreements?.[b]), `disagreements.${b} must be a whole number`);
+  need(raw.checkpoints_agreed <= raw.checkpoints_compared, 'checkpoints_agreed exceeds checkpoints_compared');
+  need(raw.criteria_agreed <= raw.criteria_compared, 'criteria_agreed exceeds criteria_compared');
+  const bucketed = CAL_BUCKETS.reduce((total, b) => total + raw.disagreements[b], 0);
+  need(bucketed === raw.checkpoints_compared - raw.checkpoints_agreed, 'every checkpoint disagreement needs exactly one bucket');
+  need(Array.isArray(raw.limitations) && raw.limitations.every((s) => typeof s === 'string'), 'limitations must be a list of sentences');
+
+  return {
+    status: raw.status,
+    as_of: raw.as_of,
+    rater: raw.rater,
+    rubric_version: raw.rubric_version,
+    ...Object.fromEntries(CAL_COUNTS.map((key) => [key, raw[key]])),
+    disagreements: Object.fromEntries(CAL_BUCKETS.map((b) => [b, raw.disagreements[b]])),
+    limitations: [...raw.limitations],
+  };
+}
+
 export function prepareAppData({
   responsesPath = 'data/responses.smoke.jsonl',
   evaluationsPath = 'data/evaluations.smoke.jsonl',
@@ -275,6 +308,7 @@ export function prepareAppData({
   scenariosPath = 'data/scenarios.csv',
   metaPath = 'data/scenarios.meta.json',
   rubricPath = 'config/rubric.v1.json',
+  calibrationPath = 'data/calibration.json',
   outDir = 'app/public/data',
 } = {}) {
   const units = latestPerUnit(readJsonl(responsesPath));
@@ -320,6 +354,12 @@ export function prepareAppData({
   mkdirSync(`${outDir}/results`, { recursive: true });
   writeFileSync(`${outDir}/results/degradation.json`, JSON.stringify(degradation, null, 2), 'utf8');
 
+  
+  const calibration = toCalibrationDisplay(
+    existsSync(calibrationPath) ? JSON.parse(readFileSync(calibrationPath, 'utf8')) : null,
+  );
+  writeFileSync(`${outDir}/calibration.json`, JSON.stringify(calibration, null, 2), 'utf8');
+
   return {
     units: units.length,
     index: index.length,
@@ -327,6 +367,7 @@ export function prepareAppData({
     scenarios: scenarios.length,
     scoreGroups: scores.groups.length,
     degradationModels: degradation.models.length,
+    calibration: calibration.status,
   };
 }
 
@@ -339,4 +380,5 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
   console.log(`wrote scenarios.json with ${r.scenarios} scenarios`);
   console.log(`wrote scores.json with ${r.scoreGroups} groups`);
     console.log(`wrote results/degradation.json with ${r.degradationModels} models`);
+      console.log(`wrote calibration.json (status: ${r.calibration})`);
 }

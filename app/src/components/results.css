@@ -1,0 +1,80 @@
+/* L055: Results screen */
+.results__intro { color: var(--color-muted); max-width: 70ch; }
+
+.chart { max-width: 900px; }
+.chart svg { display: block; height: auto; }
+.chart__grid { stroke: var(--color-muted); stroke-opacity: 0.25; }
+.chart__axis { stroke: var(--color-text); }
+.chart__tick { fill: var(--color-muted); font-size: 12px; }
+.chart__title { fill: var(--color-text); font-size: 13px; }
+.chart circle:focus { outline: none; stroke-width: 4; }
+
+.chart__legend { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 0.5rem 1.25rem; }
+.chart__swatch { display: inline-block; width: 24px; border-top: 3px solid; vertical-align: middle; margin-right: 6px; }
+.chart__muted, .chart__key { color: var(--color-muted); }
+.chart__key { font-size: 0.9rem; max-width: 70ch; }
+
+.chart__notice { padding: 0.75rem 1rem; border-left: 4px solid var(--color-unknown); max-width: 70ch; }
+
+.chart__table-wrap { overflow-x: auto; margin-top: 1rem; }
+.chart__table { border-collapse: collapse; font-size: 0.9rem; }
+.chart__table caption { text-align: left; color: var(--color-muted); padding-bottom: 0.5rem; }
+.chart__table th, .chart__table td { padding: 0.3rem 0.6rem; border-bottom: 1px solid var(--color-muted); text-align: right; }
+.chart__table th[scope="row"] { text-align: left; }
+.chart__table .is-thin { font-style: italic; color: var(--color-muted); }
+.chart__table .is-nodata { color: var(--color-unknown); }
+.chart__table .is-empty { color: var(--color-muted); }
+
+/* L056: heatmap */
+.heatmap__scroll { overflow-x: auto; }
+.heatmap svg { display: block; height: auto; }
+.heatmap__head { fill: var(--color-text); font-size: 12px; }
+.heatmap__row { fill: var(--color-text); font-size: 13px; font-weight: 600; }
+.heatmap__value { font-size: 16px; font-weight: 700; }
+.heatmap__n { font-size: 11px; }
+.heatmap__cell rect { stroke: var(--color-muted); stroke-opacity: 0.5; }
+.heatmap__cell:focus { outline: none; }
+.heatmap__cell:focus rect { stroke: var(--color-text); stroke-opacity: 1; stroke-width: 3; }
+
+.heatmap__legend { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; font-size: 0.9rem; }
+.heatmap__ramp { display: inline-block; width: 160px; height: 14px; border: 1px solid var(--color-muted); }
+.heatmap__swatch { display: inline-block; width: 20px; height: 14px; border: 1px solid var(--color-muted); margin-left: 1rem; }
+.heatmap__swatch--nodata {
+  background: repeating-linear-gradient(45deg, var(--color-bg) 0 3px,
+    color-mix(in srgb, var(--color-unknown) 35%, var(--color-bg)) 3px 5px);
+}
+
+/* L056: show-as-table toggles, shared by all three new panels */
+.chart__details { margin-top: 0.75rem; }
+.chart__details summary { cursor: pointer; }
+.results__panel { margin-top: 2.5rem; }
+
+
+/* L056: spread bars */
+.spread__scroll { overflow-x: auto; }
+.spread svg { display: block; height: auto; }
+.spread__grid { stroke: var(--color-muted); stroke-opacity: 0.25; }
+.spread__tick { fill: var(--color-muted); font-size: 11px; }
+.spread__label, .spread__value { fill: var(--color-text); font-size: 13px; }
+.spread__value.is-muted { fill: var(--color-muted); font-style: italic; }
+.spread__bar { stroke: var(--color-text); stroke-width: 2; }
+.spread__dot { fill: var(--color-text); }
+.spread__dot.is-hollow { fill: var(--color-bg); stroke: var(--color-text); stroke-width: 2; }
+.spread__hit { fill: transparent; }
+.spread__row:focus { outline: none; }
+.spread__row:focus .spread__hit { stroke: var(--color-text); stroke-width: 2; }
+
+/* L056: agreement panel */
+.agreement { border: 1px solid var(--color-muted); border-radius: 6px; padding: 1rem 1.25rem; max-width: 46rem; }
+.agreement--none { border-style: dashed; }
+.agreement__badge {
+  display: inline-block; margin: 0 0 0.5rem; padding: 0.15rem 0.6rem; border-radius: 999px;
+  border: 1px solid var(--color-unknown); color: var(--color-unknown); font-size: 0.85rem; font-weight: 600;
+}
+.agreement__badge.is-expert { border-color: var(--color-text); color: var(--color-text); }
+.agreement__headline { font-size: 1.1rem; font-weight: 700; margin: 0 0 0.75rem; }
+.agreement__facts { display: grid; grid-template-columns: max-content 1fr; gap: 0.25rem 1rem; margin: 0 0 0.75rem; }
+.agreement__facts dt { font-weight: 600; }
+.agreement__facts dd { margin: 0; }
+.agreement__subhead { font-weight: 600; margin: 0.5rem 0 0.25rem; }
+.agreement__limits { margin: 0 0 0.75rem; padding-left: 1.25rem; }

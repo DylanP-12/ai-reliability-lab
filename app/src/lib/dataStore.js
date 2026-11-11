@@ -18,6 +18,7 @@ export function createDataStore({ fetchFn = fetch, basePath = '/data' } = {}) {
     getModels:        () => loadJson('models.json'),
     getScores:        () => loadJson('scores.json'),
     getResults:       () => loadJson('results/degradation.json'),
+    getCalibration:  () => loadJson('calibration.json'),
     getRubric:        () => loadJson('rubric.json'),
     getConversation:  async (unitId) => {
       const index = await loadJson('index.json');
