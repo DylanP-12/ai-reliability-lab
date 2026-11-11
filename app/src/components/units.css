@@ -3,3 +3,4 @@
 .badge { padding: 2px 8px; border-radius: 10px; font-size: 0.85em; color: #fff; }
 .badge-complete { background: var(--color-pass); }
 .badge-failed { background: var(--color-unknown); }
+

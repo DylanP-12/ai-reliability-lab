@@ -54,14 +54,15 @@ export function backoffDelay(attempt, base = 500) {
 export function buildRequest({
   or_model, messages, provider_pin, reasoning_enabled,
   temperature, max_tokens, apiKey,
+  metadata = true,   // L057: false omits X-OpenRouter-Metadata (browser CORS blocks it)
 }) {
   const url = 'https://openrouter.ai/api/v1/chat/completions';
 
   const headers = {
     'Authorization': `Bearer ${apiKey}`,
     'Content-Type': 'application/json',
-    'X-OpenRouter-Metadata': 'enabled',
   };
+  if (metadata) headers['X-OpenRouter-Metadata'] = 'enabled';
 
   const body = {
     model: or_model,
@@ -80,14 +81,14 @@ export function buildRequest({
 
 export async function chatCompletion({
   or_model, messages, provider_pin, reasoning_enabled,
-  temperature, max_tokens, timeout_ms, max_attempts = 1, apiKey,
+  temperature, max_tokens, timeout_ms, max_attempts = 1, apiKey, metadata = true,
   transport = fetch,
   backoffBase = 500,
   sleepFn = (ms) => new Promise(resolve => setTimeout(resolve, ms)),
 }) {
   // Phase 1: build — identical on every attempt, so it happens once, outside the loop
   const { url, options } = buildRequest({
-    or_model, messages, provider_pin, reasoning_enabled, temperature, max_tokens, apiKey,
+    or_model, messages, provider_pin, reasoning_enabled, temperature, max_tokens, apiKey, metadata,
   });
 
   for (let attempt = 1; attempt <= max_attempts; attempt++) {

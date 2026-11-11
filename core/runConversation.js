@@ -66,6 +66,7 @@ const result = await chat({
   max_tokens: config.max_output_tokens,
   timeout_ms: config.request_timeout_ms,
   max_attempts: config.max_attempts,
+  metadata: config.openrouter_metadata ?? true,
   apiKey,
 });
 const response_ts = new Date().toISOString();
