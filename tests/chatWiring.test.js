@@ -36,6 +36,7 @@ test('runConversation passes key and every model/config setting to chat (L037 sm
     max_tokens: 800,
     timeout_ms: 120000,
     max_attempts: 3,
+        metadata: true,
     apiKey: 'test-key',
   });
 });

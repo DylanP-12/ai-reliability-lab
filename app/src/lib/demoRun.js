@@ -12,6 +12,7 @@ export const DEMO_CONFIG = Object.freeze({
   max_output_tokens: DEMO_LIMITS.maxTokens,
   request_timeout_ms: 30000,
   max_attempts: 2,
+  openrouter_metadata: false,     // browser CORS blocks X-OpenRouter-Metadata; demo loses upstream_provider only
   system_prompt: '',              // if your study config has a system_prompt, copy it here so the demo behaves like the study
 });
 

@@ -31,7 +31,7 @@ export function RunScreen() {
     return () => { alive = false; };
   }, []);
 
-  const scenario = scenarios.find((s) => s.scenario_id === scenarioId);
+  const scenario = scenarios.find((s) => s.conversation_id === scenarioId);
   const model = models.find((m) => m.model_id === modelId);
   const check = checkDemoRun({ scenario, model, models });
   const canRun = check.ok && keyState.present && !running;
@@ -91,7 +91,7 @@ export function RunScreen() {
         <label>Scenario{' '}
           <select value={scenarioId} onChange={(e) => setScenarioId(e.target.value)} disabled={running}>
             <option value="">Choose…</option>
-            {scenarios.map((s) => <option key={s.scenario_id} value={s.scenario_id}>{s.scenario_id} ({s.turns.length} turns)</option>)}
+            {scenarios.map((s) => <option key={s.conversation_id} value={s.conversation_id}>{s.conversation_id} ({s.turns.length} turns)</option>)}
           </select>
         </label>
         <label>Model{' '}
