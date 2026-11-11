@@ -159,3 +159,21 @@ If more screens need them, move them into prepare-app-data.
 
 **Still open.** The curve pools scenarios, so turn position is tangled with which scenarios have a
 checkpoint there (L055 problem). The caption now says so and points to the heatmap; it is not fixed.
+
+## 2026-11-11: Run screen (L057)
+CORS: direct browser calls to OpenRouter work only without the X-OpenRouter-Metadata header
+(evidence: docs/cors-verdict.md, including same-day correction). llmClient gained a
+`metadata` switch, default true, so the CLI/study path is unchanged; DEMO_CONFIG sets
+openrouter_metadata: false, so demo records have upstream_provider null.
+
+Model list: Run screen uses app/src/lib/demoModels.js. Study app data stays free of
+or_model/provider_pin (prepareAppData no-secrets test kept). Live browser calls
+necessarily expose or_model in the request itself.
+
+Accepted risk: demo API key in browser localStorage. Any script on the page can read it;
+it persists until cleared. Mitigations: (1) separate demo key with credit limit and 30-day
+expiration, never the study key; (2) warning at the point of entry; (3) Clear key button;
+(4) key never logged, rendered, or put in errors (keyInfo exposes length only; errors
+redacted); (5) rotation: OpenRouter > Keys > revoke, create new (practiced 2026-11-11).
+Bounding: 1 scenario, 1 model, 1 rep, max 12 turns, 300 tokens/reply, estimate under $0.05.
+Ephemeral: no write to responses.jsonl, no aggregates, no save path.
