@@ -78,3 +78,14 @@ export function buildExportPackage({
     units,
   };
 }
+
+// Reads everything the package needs through the store it is given (the app passes dataStore).
+export async function loadExportInput(store) {
+  const [manifest, index, scores, scenarios, rubric] = await Promise.all([
+    store.getManifest(), store.getIndex(), store.getScores(), store.getScenarios(), store.getRubric(),
+  ]);
+  const conversations = await Promise.all(index.map((entry) => store.getConversation(entry.unit_id)));
+  const evalLists = await Promise.all(index.map((entry) => store.getEvaluations(entry.unit_id)));
+  const evaluations = index.map((entry, i) => ({ unit_id: entry.unit_id, evaluations: evalLists[i] }));
+  return { manifest, index, conversations, evaluations, scores, scenarios, rubric };
+}

@@ -1,7 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { buildExportPackage } from '../app/src/lib/exportPackage.js';
-
+import { buildExportPackage, loadExportInput } from '../app/src/lib/exportPackage.js';
 // Adversarial text, written as escapes so no editor can alter it:
 // composed e-acute, decomposed e + combining accent, emoji, quotes, LF, CRLF, trailing spaces.
 const NFC = 'caf\u00e9';
@@ -107,4 +106,19 @@ test('export: manifest is present and complete, and the README says how to check
   const input = makeInput();
   delete input.manifest.dataset_hash;
   assert.throws(() => buildExportPackage(input), /dataset_hash/);
+});
+
+
+test('loader pairs each unit with its own transcript and evaluations', async () => {
+  const input = makeInput();
+  const store = {
+    getManifest: async () => input.manifest, getIndex: async () => input.index,
+    getScores: async () => input.scores, getScenarios: async () => input.scenarios,
+    getRubric: async () => input.rubric,
+    getConversation: async (id) => input.conversations.find((c) => c.unit_id === id),
+    getEvaluations: async (id) => input.evaluations.find((e) => e.unit_id === id).evaluations,
+  };
+  const pkg = buildExportPackage({ ...(await loadExportInput(store)), exportedAt: input.exportedAt });
+  assert.deepEqual(pkg.units.map((u) => u.unit_id), input.index.map((e) => e.unit_id));
+  assert.equal(pkg.units[1].evaluations[0].eval_id, input.evaluations[1].evaluations[0].eval_id);
 });
