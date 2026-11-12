@@ -20,6 +20,8 @@ export function createDataStore({ fetchFn = fetch, basePath = '/data' } = {}) {
     getResults:       () => loadJson('results/degradation.json'),
     getCalibration:  () => loadJson('calibration.json'),
     getRubric:        () => loadJson('rubric.json'),
+    getManifest:      () => loadJson('manifest.json'),
+    getManifest:      () => loadJson('manifest.json'),
     getConversation:  async (unitId) => {
       const index = await loadJson('index.json');
       const entry = index.find(u => u.unit_id === unitId);

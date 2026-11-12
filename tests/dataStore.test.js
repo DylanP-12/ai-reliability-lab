@@ -101,3 +101,13 @@ test('getConversation fails closed on a unit the index does not list', async () 
   await assert.rejects(store.getConversation('run:C999:m1:r01'), /Unknown unit: run:C999:m1:r01/);
   assert.deepEqual(calls, ['/data/index.json']);   // it never guessed a path
 });
+
+test('getManifest loads and returns JSON', async () => {
+  const { fakeFetch, calls } = makeFakeFetch({ run_id: 'r1' });
+  const store = createDataStore({ fetchFn: fakeFetch });
+
+  const result = await store.getManifest();
+
+  assert.deepEqual(result, { run_id: 'r1' });
+  assert.deepEqual(calls, ['/data/manifest.json']);
+});
