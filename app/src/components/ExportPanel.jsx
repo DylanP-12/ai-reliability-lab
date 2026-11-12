@@ -11,7 +11,7 @@ function downloadJson(pkg, filename) {
   document.body.appendChild(link);
   link.click();
   link.remove();
-  URL.revokeObjectURL(url);
+   setTimeout(() => URL.revokeObjectURL(url), 0);   // free the blob once the click is handled
 }
 
 export function ExportPanel() {
