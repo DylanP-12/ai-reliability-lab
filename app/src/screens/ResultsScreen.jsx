@@ -7,7 +7,7 @@ import { DegradationChart } from '../components/DegradationChart.jsx';
 import { Heatmap } from '../components/Heatmap.jsx';
 import { SpreadBars } from '../components/SpreadBars.jsx';
 import { AgreementPanel } from '../components/AgreementPanel.jsx';
-
+import { ExportPanel } from '../components/ExportPanel.jsx';
 export function ResultsScreen() {
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
@@ -66,6 +66,10 @@ export function ResultsScreen() {
       <section className="results__panel" aria-labelledby="agreement-title">
         <h3 id="agreement-title">How far to trust the judge</h3>
         <AgreementPanel calibration={data.calibration} scores={data.scores} />
+      </section>
+            <section className="results__panel" aria-labelledby="export-title">
+        <h3 id="export-title">Export the research package</h3>
+        <ExportPanel />
       </section>
     </section>
   );

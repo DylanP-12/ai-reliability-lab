@@ -300,6 +300,24 @@ export function toCalibrationDisplay(raw) {
     limitations: [...raw.limitations],
   };
 }
+// L058: the run manifest for the export package. Allowlist: named fields only.
+// config_snapshot is deliberately NOT copied. A missing required field fails closed.
+const MANIFEST_REQUIRED = [
+  'run_id', 'dataset_version', 'dataset_hash', 'seed', 'models', 'repetitions',
+  'unit_count', 'complete_count', 'failed_count', 'started_at', 'finished_at',
+];
+const MANIFEST_OPTIONAL = ['concurrency', 'code_version'];
+
+export function toManifestDisplay(raw) {
+  const missing = MANIFEST_REQUIRED.filter((key) => raw[key] === undefined);
+  if (missing.length > 0) throw new Error(`manifest: missing ${missing.join(', ')}`);
+  const out = Object.fromEntries(MANIFEST_REQUIRED.map((key) => [key, raw[key]]));
+  for (const key of MANIFEST_OPTIONAL) {
+    if (raw[key] !== undefined) out[key] = raw[key];
+  }
+  return out;
+}
+
 
 export function prepareAppData({
   responsesPath = 'data/responses.smoke.jsonl',
@@ -309,6 +327,7 @@ export function prepareAppData({
   metaPath = 'data/scenarios.meta.json',
   rubricPath = 'config/rubric.v1.json',
   calibrationPath = 'data/calibration.json',
+  manifestPath = 'data/manifest.smoke.json',   // <-- the new line
   outDir = 'app/public/data',
 } = {}) {
   const units = latestPerUnit(readJsonl(responsesPath));
@@ -349,7 +368,8 @@ export function prepareAppData({
   }
   const rubric = JSON.parse(readFileSync(rubricPath, 'utf8'));
   writeFileSync(`${outDir}/rubric.json`, JSON.stringify(rubric, null, 2), 'utf8');
-  
+    const manifest = toManifestDisplay(JSON.parse(readFileSync(manifestPath, 'utf8')));
+  writeFileSync(`${outDir}/manifest.json`, JSON.stringify(manifest, null, 2), 'utf8');
   const degradation = buildDegradation(scores);
   mkdirSync(`${outDir}/results`, { recursive: true });
   writeFileSync(`${outDir}/results/degradation.json`, JSON.stringify(degradation, null, 2), 'utf8');
