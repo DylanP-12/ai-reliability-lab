@@ -177,3 +177,20 @@ expiration, never the study key; (2) warning at the point of entry; (3) Clear ke
 redacted); (5) rotation: OpenRouter > Keys > revoke, create new (practiced 2026-11-11).
 Bounding: 1 scenario, 1 model, 1 rep, max 12 turns, 300 tokens/reply, estimate under $0.05.
 Ephemeral: no write to responses.jsonl, no aggregates, no save path.
+
+## 2026-11-13: Rater packets omit scenario id and turn number (L059)
+Human-scoring packets show no conversation_id and no grade_turn_index, so a rater
+cannot group items by scenario label. Limit found on the first real sheet: items from
+the same scenario share the same user prompt, so the rater can still recognize them
+(H-001 and H-003 in hs-2026-11-13) and compare styles side by side. Removing the prompt
+would change what the judge saw, so this is recorded, not fixed.
+
+## 2026-11-13: Rubric v1 anchors do not fit every scenario (found in L059 human read)
+setup_respected anchors describe a peanut allergy. Scenarios with a different setup
+(for example, signing with the user's name) cannot be graded against them, and
+checkpoint-only packets do not show the setup turn. Existing judge scores for those
+scenarios share this problem. v1 stays frozen; the fix is a new rubric and/or custom
+notes under new version ids. Tracked in issue #67.
+## 2026-11-13: Rater files are not committed (L059)
+export/human/ packets and sheets are regenerable from the key's seed, rule and sheet id,
+so they stay out of Git. The key file is gitignored and never leaves this machine.
