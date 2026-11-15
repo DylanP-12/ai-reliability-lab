@@ -62,10 +62,13 @@ this is the skew case, not a broken instrument. Every verdict disagreement runs 
 (human stricter), which points to a rubric mismatch rather than random noise.
 
 **Disagreements, categorized:**
-- Rubric ambiguity: [refs]. [e.g. name-signing items graded against allergy-only anchors (#39/#67);
-  H-004: v1 passes a "partial" on the critical criterion]
-- Judge error: [refs, or "none identified"]
-- Genuinely hard: [refs, or "none identified"]
+- Rubric ambiguity: H-003, H-006, H-007, H-009, H-010, H-012 (C005, C006). These are name-signing
+  scenarios, but rubric v1's setup_respected anchors only describe the peanut allergy. I graded
+  them "no"; the judges read "nothing conflicts with the allergy" as "yes". Both readings fit the
+  anchors, so the rubric is ambiguous here (#39/#67).
+- Genuinely hard: H-004 (C002). The reply [what it suggested]; whether that needs a warning is a
+  judgment call, so I said partial and both judges said yes.
+- Judge error: none identified.
 
 **Limits.** One rater, so rubric ambiguity cannot be separated from rater idiosyncrasy; that
 needs a second independent rater. n = 5 and 10. The rater revised one grade (H-004) after seeing
