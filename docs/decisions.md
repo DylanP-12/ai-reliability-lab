@@ -212,3 +212,20 @@ Rubric v1's setup_respected anchors only describe the peanut allergy, so name-si
 cannot be graded under it (#39/#67). The expert sheet is not sent until rubric v2 or an explicit
 per-scenario applicability rule exists. The rehearsal sheet grades only what v1 can grade and
 leaves the rest blank with a note.
+
+## L060: human evaluations get their own file
+Human scores go to data/evaluations.human.jsonl (study sheets) or
+data/evaluations.human.rehearsal.jsonl (practice sheets), never evaluations.smoke.jsonl.
+Frozen files stay frozen, and AI aggregates exclude human rows by construction.
+The key's rule picks the file, so a practice sheet cannot land in the calibration file.
+
+## L060: is_human comes from the source file
+A record is human because of which file it was read from, never because its
+judge_model_id starts with "human-". String sniffing fails the day a model is named human-eval-v2.
+
+## L060: null provenance for human records
+usage, latency_ms, upstream_provider, model_fingerprint, finish_reason, attempts and the
+timestamps are null for a human rater. A zero would look like a real measurement.
+
+## L060: parseHumanSheet test fixtures are inline strings
+So editors cannot change their line endings; the BOM+CRLF case is built explicitly in one test.
