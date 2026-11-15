@@ -7,7 +7,7 @@ import { parseHumanSheet } from '../core/parseHumanSheet.js';
 import { buildHumanEvalRecord } from '../core/buildHumanEvalRecord.js';
 import { appendRecord, loadCompleteEvalIds } from './appendRecord.js';
 import { readJsonl } from './prepare-app-data.js';
-
+import { buildAgreementReport } from '../core/agreementReport.js';
 // The key decides the destination, so a practice sheet can never land in the calibration file.
 const OUT_BY_RULE = {
   'rehearsal-all': 'evaluations.human.rehearsal.jsonl',
@@ -43,9 +43,12 @@ export function importHumanScores({ sheetPath, keyPath, rubricPath, responsesPat
 
 function parseArgs(argv) {
   const args = {};
-  for (let i = 0; i < argv.length; i += 2) {
-    if (!argv[i].startsWith('--') || argv[i + 1] === undefined) throw new Error(`bad argument near "${argv[i]}"`);
-    args[argv[i].slice(2)] = argv[i + 1];
+  for (let i = 0; i < argv.length; i++) {
+    if (!argv[i].startsWith('--')) throw new Error(`bad argument near "${argv[i]}"`);
+    const next = argv[i + 1];
+    if (next === undefined || next.startsWith('--')) { args[argv[i].slice(2)] = true; continue; }
+    args[argv[i].slice(2)] = next;
+    i++;
   }
   return args;
 }
@@ -66,7 +69,28 @@ export function main(argv = process.argv.slice(2)) {
   console.log(`  skipped: ${r.skipped.length}${r.skipped.map(s => `\n    ${s.blind_ref}: ${s.reason}`).join('')}`);
   console.log(`  not on the sheet: ${r.missing.length}${r.missing.length ? ' (' + r.missing.join(', ') + ')' : ''}`);
   console.log(`  typed verdict differs from derived: ${r.mismatches.length}${r.mismatches.length ? ' (' + r.mismatches.join(', ') + ')' : ''}`);
+
+    if (!a.report) return;
+  const key = JSON.parse(readFileSync(`export/human/human-key-${id}.json`, 'utf8'));
+  const rubric = JSON.parse(readFileSync(a.rubric ?? 'config/rubric.v1.json', 'utf8'));
+  const humanEvals = readJsonl(r.outPath).filter(e => e.score_run_id === `score-human-${id}`);
+  const aiEvals = readJsonl(a.evals ?? 'data/evaluations.smoke.jsonl');
+  const fmt = x => (x === null ? 'undefined (one label only)' : x.toFixed(2));
+  const counts = s => `${s.agreed} of ${s.n} agreed (human stricter ${s.aStricter}, judge stricter ${s.bStricter})`;
+
+  console.log(`\nAGREEMENT, sheet ${id}, rule ${key.rule}${key.rule === 'rehearsal-all' ? ': PRACTICE GRADES, NOT CALIBRATION' : ''}`);
+  console.log(`human items: ${humanEvals.length}; skipped on the sheet: ${r.skipped.length}; one rater (human-r1)`);
+  const report = buildAgreementReport({ humanEvals, aiEvals, rubric });
+  if (report.length === 0) console.log('no AI evaluations to compare against');
+  for (const j of report) {
+    console.log(`\n${j.judge}  (excluded: ${j.excluded.not_judged} not judged, ${j.excluded.unparseable} unparseable)`);
+    console.log(`  verdict: ${counts(j.verdict)}; kappa ${fmt(j.verdict.kappa)}, AC1 ${fmt(j.verdict.ac1)}`);
+    for (const [cid, s] of Object.entries(j.criteria)) {
+      console.log(`  ${cid}: ${counts(s)}; weighted kappa ${fmt(s.kappaWeighted)}, AC1 ${fmt(s.ac1)}`);
+    }
+  }
 }
+
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   try { main(); } catch (e) { console.error(e.message); process.exitCode = 1; }

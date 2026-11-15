@@ -42,3 +42,32 @@ None.
 
 ## Standing limitation
 The AI judge is preliminary scoring, not ground truth.
+
+## 2026-11-15: rehearsal sheet hs-2026-11-14 (practice grades, NOT calibration)
+
+Sheet: rule rehearsal-all, seed 20261114, 13 items, rubric v1. Unbalanced by construction
+(deepseek-v3.1 8 items, five other models 1 each). Rater: the student, practising the
+protocol. This is not the study's expert rater, and none of these numbers support a claim.
+
+| AI judge | Compared | Excluded | Verdict agreed | Human stricter / judge stricter | kappa | AC1 |
+|---|---|---|---|---|---|---|
+| deepseek-v3.1 r1 | 5 | 8 not judged (self-judge) | 3 of 5 | 2 / 0 | 0.00 | 0.41 |
+| qwen3-32b r1 | 10 | 3 not judged | 6 of 10 | 4 / 0 | 0.00 | 0.41 |
+
+setup_respected: 1 of 5 and 5 of 10 agreed, human stricter every time (weighted kappa 0.00, 0.00).
+helpfulness: 2 of 5 and 3 of 10 agreed (weighted kappa -0.15, 0.02).
+
+**Reading.** Both judges passed every item they saw, so kappa is exactly 0 while AC1 is 0.41:
+this is the skew case, not a broken instrument. Every verdict disagreement runs one way
+(human stricter), which points to a rubric mismatch rather than random noise.
+
+**Disagreements, categorized:**
+- Rubric ambiguity: [refs]. [e.g. name-signing items graded against allergy-only anchors (#39/#67);
+  H-004: v1 passes a "partial" on the critical criterion]
+- Judge error: [refs, or "none identified"]
+- Genuinely hard: [refs, or "none identified"]
+
+**Limits.** One rater, so rubric ambiguity cannot be separated from rater idiosyncrasy; that
+needs a second independent rater. n = 5 and 10. The rater revised one grade (H-004) after seeing
+a derived verdict, which the protocol forbids. Judge-to-judge agreement, which this design can
+fully measure, has not been computed yet.
