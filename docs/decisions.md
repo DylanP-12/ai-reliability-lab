@@ -194,3 +194,38 @@ notes under new version ids. Tracked in issue #67.
 ## 2026-11-13: Rater files are not committed (L059)
 export/human/ packets and sheets are regenerable from the key's seed, rule and sheet id,
 so they stay out of Git. The key file is gitignored and never leaves this machine.
+
+## L060: sheet_id on every sheet row
+The human sheet carries a sheet_id column on every row, and the importer refuses a sheet whose
+ids do not all match the key's sheet_id. Without it, a key from a different sheet whose blind
+refs all happen to exist would join every score to the wrong response with no error. This
+deliberately changed the L059 pinned-header test (sheet_id is now the first column). The
+rehearsal sheet was regenerated as hs-2026-11-14 before anyone graded it.
+
+## L060: one column definition
+The sheet's columns come from sheetColumnsFor(rubric), shared by the builder and the importer,
+so the two cannot drift apart. The builder test checks the wiring; a literal-list test checks
+the contents.
+
+## L060: real expert sheet is on hold
+Rubric v1's setup_respected anchors only describe the peanut allergy, so name-signing scenarios
+cannot be graded under it (#39/#67). The expert sheet is not sent until rubric v2 or an explicit
+per-scenario applicability rule exists. The rehearsal sheet grades only what v1 can grade and
+leaves the rest blank with a note.
+
+## L060: human evaluations get their own file
+Human scores go to data/evaluations.human.jsonl (study sheets) or
+data/evaluations.human.rehearsal.jsonl (practice sheets), never evaluations.smoke.jsonl.
+Frozen files stay frozen, and AI aggregates exclude human rows by construction.
+The key's rule picks the file, so a practice sheet cannot land in the calibration file.
+
+## L060: is_human comes from the source file
+A record is human because of which file it was read from, never because its
+judge_model_id starts with "human-". String sniffing fails the day a model is named human-eval-v2.
+
+## L060: null provenance for human records
+usage, latency_ms, upstream_provider, model_fingerprint, finish_reason, attempts and the
+timestamps are null for a human rater. A zero would look like a real measurement.
+
+## L060: parseHumanSheet test fixtures are inline strings
+So editors cannot change their line endings; the BOM+CRLF case is built explicitly in one test.

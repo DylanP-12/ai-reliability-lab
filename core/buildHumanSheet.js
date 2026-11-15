@@ -5,6 +5,10 @@
 import { buildJudgePacket } from './buildJudgePacket.js';
 import { shuffle } from './seededRandom.js';
 
+export function sheetColumnsFor(rubric) {
+  return ['sheet_id', 'blind_ref', ...rubric.criteria.map(c => c.id), 'verdict', 'rater_note'];
+}
+
 export const SHEET_RULES = ['study-r01', 'rehearsal-all'];
 
 // Later lines win, matching prepare-app-data's latestPerUnit.
@@ -59,9 +63,9 @@ export function buildHumanSheet({ records, scenarios, rubric, sheetId, seed, rul
   }
 
   // 3. A fixed order first (independent of file order), then the seeded shuffle.
-const shuffled = shuffle([...items].sort(byUnitThenTurn), seed);
+  const shuffled = shuffle([...items].sort(byUnitThenTurn), seed);
   // 4. Blind refs are assigned AFTER the shuffle.
-  const sheetColumns = ['blind_ref', ...rubric.criteria.map(c => c.id), 'verdict', 'rater_note'];
+  const sheetColumns = sheetColumnsFor(rubric);
   const packets = [];
   const sheetRows = [];
   const keyItems = {};
@@ -72,7 +76,8 @@ const shuffled = shuffle([...items].sort(byUnitThenTurn), seed);
     });
     if (p.transcript.length !== 2) throw new Error(`${blind_ref}: checkpoint turn not found in record`);
     packets.push({ blind_ref, grade_turn_index: p.grade_turn_index, private_note: p.private_note, transcript: p.transcript });
-    sheetRows.push(Object.fromEntries(sheetColumns.map(c => [c, c === 'blind_ref' ? blind_ref : ''])));
+    const filled = { sheet_id: sheetId, blind_ref };
+    sheetRows.push(Object.fromEntries(sheetColumns.map(c => [c, filled[c] ?? ''])));
     keyItems[blind_ref] = { unit_id: item.record.unit_id, turn_index: item.turn_index };
   });
 

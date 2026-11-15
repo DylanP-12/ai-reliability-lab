@@ -1,8 +1,7 @@
 // tests/buildHumanSheet.test.js
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { buildHumanSheet } from '../core/buildHumanSheet.js';
-
+import { buildHumanSheet, sheetColumnsFor } from '../core/buildHumanSheet.js';
 const RUN = 'CANARY-RUN';
 const MODELS = ['CANARY-MODEL-A', 'CANARY-MODEL-B'];
 
@@ -89,8 +88,8 @@ test('blind refs are opaque, sequential, and shared by packets and rows', () => 
 
 test('score columns come from the rubric, and every cell after blind_ref starts blank', () => {
   const { sheetColumns, sheetRows } = build();
-  assert.deepEqual(sheetColumns, ['blind_ref', 'c_one', 'c_two', 'c_three', 'verdict', 'rater_note']);
-  for (const row of sheetRows) for (const c of sheetColumns.slice(1)) assert.equal(row[c], '');
+   assert.deepEqual(sheetColumns, ['sheet_id', 'blind_ref', 'c_one', 'c_two', 'c_three', 'verdict', 'rater_note']);
+ for (const row of sheetRows) for (const c of sheetColumns.slice(2)) assert.equal(row[c], '');
 });
 
 test('study-r01: repetition 1 only, equal items per model', () => {
@@ -146,4 +145,13 @@ test('aggregate blinding: blind_ref order does not cluster by model', () => {
   const firstHalf = models.slice(0, models.length / 2);
   assert.ok(switches >= 4, `only ${switches} model switches across ${models.length} refs: ${models.join(' ')}`);
   assert.ok(MODELS.every(m => firstHalf.includes(m)), 'the first half of the sheet is a single model');
+});
+
+
+test('every sheet row carries the sheet id, and the columns come from sheetColumnsFor', () => {
+  const { sheetColumns, sheetRows, key } = build();
+  assert.deepEqual(sheetColumns, sheetColumnsFor(rubric));
+  assert.ok(sheetRows.length > 0);
+  assert.match(key.sheet_id, /^hs-/);
+  for (const row of sheetRows) assert.equal(row.sheet_id, key.sheet_id);
 });

@@ -122,3 +122,10 @@ retried and the retry is appended (the failed line stays).
 | overall_verdict | pass or fail, computed by our code, not the judge | parseJudge (our code) |
 | raw_output | judge text exactly as returned, always kept | judge API |
 | usage, latency_ms, attempts, finish_reason, upstream_provider, model_fingerprint, request_ts, response_ts | call provenance | llmClient |
+
+### Evaluation producers
+Two producers write evaluations, each to its own append-only file:
+`cli/score.js` (AI judges) writes `data/evaluations*.jsonl` runs such as `evaluations.smoke.jsonl`;
+`cli/importHumanScores.js` (human raters) writes `data/evaluations.human.jsonl` (study sheets) or
+`data/evaluations.human.rehearsal.jsonl` (practice sheets), chosen by the sheet key's rule.
+A record is human because of the file it came from. AI aggregates never include human rows.
