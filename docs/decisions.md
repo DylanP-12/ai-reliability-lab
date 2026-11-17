@@ -229,3 +229,28 @@ timestamps are null for a human rater. A zero would look like a real measurement
 
 ## L060: parseHumanSheet test fixtures are inline strings
 So editors cannot change their line endings; the BOM+CRLF case is built explicitly in one test.
+
+## 2026-11-16: Manual ingest (L061)
+
+- Filename separator is "__": <conversation_id>__<model_id>__<rNN>.txt.
+  Model ids contain hyphens, so a single hyphen is ambiguous, and ":"
+  (the unit_id separator) is illegal in Windows filenames.
+- Ingest files contain responses only. Prompts come from scenarios.csv,
+  so prompt transcription errors are impossible by construction.
+- usage, latency_ms, attempts and model_fingerprint are null on manual
+  records, never zero. upstream_provider is "manual". prompt_hash is
+  computed from the dataset prompt.
+- Manual records live in data/responses.manual.jsonl under their own
+  run_id. responses.jsonl is never written.
+- "Manual" is derived from the source file and upstream_provider, never
+  from a hardcoded model list.
+- manual/*.txt (raw transcripts) and export/ are gitignored.
+  manual/session-log.csv is tracked.
+- Collectors are E and H. One collector runs a unit start to finish.
+  The study uses meta-ai and character-ai, one surface per model.
+- Meta AI memory cannot be turned off. Accepted and documented as a
+  confound rather than avoided.
+  - Character.AI character is Lily by @landon. Chosen because its public
+  description is a general "friendly AI assistant" with no roleplay role,
+  and chosen from the description alone, before any study prompts were
+  run. It still carries a persona; this is stated in the protocol.
