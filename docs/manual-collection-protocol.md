@@ -8,7 +8,7 @@ interface. This document replaces the guarantees that
 verbatim capture) with steps a person follows and can check off.
 
 ## 2. Who collects
-Collectors: E and H. Anyone else who collects is added here by name
+Collectors: E, H and D. Anyone else who collects is added here by name
 before they run a unit.
 
 - Each collector follows the checklist in section 3.

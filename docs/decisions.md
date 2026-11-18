@@ -246,7 +246,7 @@ So editors cannot change their line endings; the BOM+CRLF case is built explicit
   from a hardcoded model list.
 - manual/*.txt (raw transcripts) and export/ are gitignored.
   manual/session-log.csv is tracked.
-- Collectors are E and H. One collector runs a unit start to finish.
+- Collectors are E, H and D. One collector runs a unit start to finish.
   The study uses meta-ai and character-ai, one surface per model.
 - Meta AI memory cannot be turned off. Accepted and documented as a
   confound rather than avoided.
