@@ -1,0 +1,2 @@
+session_id,conversation_id,model_id,repetition,surface,collected_at_utc,collector,anomalies
+S001,C004,meta-ai,r01,web,2026-11-18T00:03:40.380Z,E,"Meta AI memory cannot be turned off; reply copied with the copy button"

@@ -23,3 +23,6 @@ app/public/data/
 
 # L059: private human-scoring key (maps blind refs to unit_ids, which contain model ids)
 export/human/human-key-*.json
+
+export/
+manual/*.txt
