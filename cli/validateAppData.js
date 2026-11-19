@@ -56,24 +56,41 @@ export function checkSecretsAndNotes(dir) {
   return problems;
 }
 
-// Check 3: every response_text in the app data is exactly the text in the frozen file.
-export function checkByteIdentity(dir, index, frozenResponsesPath) {
-  if (!frozenResponsesPath) {
-    return ['byte-identity: no frozen responses path given, so nothing could be compared'];
-  }
+function readFrozenRecords(path) {
   const frozen = new Map();
-  const lines = readFileSync(frozenResponsesPath, 'utf8').split('\n').filter((line) => line.trim() !== '');
+  const lines = readFileSync(path, 'utf8').split('\n').filter((line) => line.trim() !== '');
   for (const line of lines) {
     const record = JSON.parse(line);
     frozen.set(record.unit_id, record);
   }
+  return frozen;
+}
+
+// Check 3: every response_text in the app data is exactly the text in its own frozen file.
+// L062: there are now two frozen sources. Each unit is looked up in the file its collection names.
+// The manual file is optional (gitignored), but a manual unit with no manual source still fails:
+// text with no frozen source is exactly what this check exists to catch.
+export function checkByteIdentity(dir, index, frozenResponsesPath, frozenManualResponsesPath) {
+  if (!frozenResponsesPath) {
+    return ['byte-identity: no frozen responses path given, so nothing could be compared'];
+  }
+  const sources = {
+    api: { records: readFrozenRecords(frozenResponsesPath), name: 'the frozen file' },
+    manual: {
+      records: frozenManualResponsesPath && existsSync(frozenManualResponsesPath)
+        ? readFrozenRecords(frozenManualResponsesPath)
+        : new Map(),
+      name: 'the manual frozen file',
+    },
+  };
 
   const problems = [];
   for (const entry of index) {
     if (!existsSync(join(dir, entry.file))) continue; // already reported by checkOrphans
-    const source = frozen.get(entry.unit_id);
+    const { records, name } = entry.collection === 'manual' ? sources.manual : sources.api;
+    const source = records.get(entry.unit_id);
     if (!source) {
-      problems.push(`byte-identity: ${entry.unit_id} does not exist in the frozen file`);
+      problems.push(`byte-identity: ${entry.unit_id} does not exist in ${name}`);
       continue;
     }
     const convo = readJson(dir, entry.file);
@@ -153,21 +170,66 @@ export function checkScores(dir, index) {
   return problems;
 }
 
-export function validateAppData(dir, { frozenResponsesPath } = {}) {
+// Check 5 (L062): every unit and group carries a valid collection, the two agree,
+// and no manual model reaches the comparison chart.
+const COLLECTIONS = ['api', 'manual'];
+
+export function checkCollections(dir, index) {
+  const problems = [];
+  const indexById = new Map(index.map((entry) => [entry.unit_id, entry]));
+
+  for (const entry of index) {
+    if (!COLLECTIONS.includes(entry.collection)) {
+      problems.push(`collection: ${entry.unit_id} has invalid collection "${entry.collection}" in index.json`);
+    }
+  }
+
+  const scores = readJson(dir, 'scores.json');
+  for (const g of scores.groups) {
+    const where = `${g.conversation_id}/${g.model_id}`;
+    if (!COLLECTIONS.includes(g.collection)) {
+      problems.push(`collection: group ${where} has invalid collection "${g.collection}"`);
+    }
+    for (const u of g.units) {
+      const entry = indexById.get(u.unit_id);
+      if (entry && entry.collection !== g.collection) {
+        problems.push(`collection: ${u.unit_id} is "${entry.collection}" in index.json but its group ${where} is "${g.collection}"`);
+      }
+    }
+  }
+
+  const manualModels = new Set(scores.groups.filter((g) => g.collection === 'manual').map((g) => g.model_id));
+  const degradation = readJson(dir, 'results/degradation.json');
+  for (const m of degradation.models) {
+    if (manualModels.has(m.model_id)) {
+      problems.push(`collection: manual model ${m.model_id} appears in the degradation chart`);
+    }
+  }
+  const manualUnits = index.filter((entry) => entry.collection === 'manual').length;
+  if (degradation.excluded_manual?.units !== manualUnits) {
+    problems.push(`collection: degradation.json excluded_manual.units is not the ${manualUnits} manual unit(s) in index.json`);
+  }
+  return problems;
+}
+
+export function validateAppData(dir, { frozenResponsesPath, frozenManualResponsesPath } = {}) {
   const index = readJson(dir, 'index.json');
   return [
     ...checkOrphans(dir, index),
     ...checkSecretsAndNotes(dir),
-    ...checkByteIdentity(dir, index, frozenResponsesPath),
+    ...checkByteIdentity(dir, index, frozenResponsesPath, frozenManualResponsesPath),
     ...checkScores(dir, index),
+    ...checkCollections(dir, index),
   ];
 }
 
-// Run only when started directly: node cli/validateAppData.js [dataDir] [frozenResponsesPath]
+// Run only when started directly:
+// node cli/validateAppData.js [dataDir] [frozenResponsesPath] [frozenManualResponsesPath]
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const dir = process.argv[2] ?? 'app/public/data';
   const frozenResponsesPath = process.argv[3] ?? 'data/responses.smoke.jsonl';
-  const problems = validateAppData(dir, { frozenResponsesPath });
+  const frozenManualResponsesPath = process.argv[4] ?? 'data/responses.manual.jsonl';
+  const problems = validateAppData(dir, { frozenResponsesPath, frozenManualResponsesPath });
   if (problems.length > 0) {
     console.error(`FAIL: ${problems.length} problem(s) in ${dir}`);
     for (const p of problems) console.error(`  - ${p}`);
