@@ -254,3 +254,23 @@ So editors cannot change their line endings; the BOM+CRLF case is built explicit
   description is a general "friendly AI assistant" with no roleplay role,
   and chosen from the description alone, before any study prompts were
   run. It still carries a persona; this is stated in the protocol.
+
+  ## L061: ingest design
+- manual/*.txt uses marker lines "--- RESPONSE N ---", numbered 1..N in order.
+  CRLF becomes LF (the only change). One newline separates blocks and is not
+  part of a response. Everything else is kept verbatim.
+- ingestManual builds every record before writing any: one bad file means
+  nothing is written.
+- run_id is fixed for the whole manual study (gen-manual-2026-11-16), passed
+  with --run-id and never defaulted. A date default would change unit_ids and
+  break resume.
+- collected_at_utc comes from manual/session-log.csv and becomes started_at.
+  A file with no log row is refused. finished_at is null (unknown).
+- More than usage is null on manual records: or_model, provider_pin,
+  temperature, seed, max_output_tokens, reasoning_enabled, system_prompt_hash,
+  and per turn finish_reason, reasoning_text, refusal_signal, request_ts,
+  response_ts.
+- score.js scores manual responses with no code change. Output goes to
+  data/evaluations.manual.jsonl; evaluations.smoke.jsonl stays frozen.
+- cost.js throws on manual turns (no usage). Anything that sums cost must skip
+  manual records (L062).

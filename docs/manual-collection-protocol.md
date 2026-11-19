@@ -14,7 +14,7 @@ before they run a unit.
 - Each collector follows the checklist in section 3.
 - One collector runs a unit from start to finish. Never hand a
   conversation to the other person partway through.
-- Each session-log row records who ran it (E or H).
+- Each session-log row records who ran it (E, H or D).
 - Collectors do not choose which conversations to keep. Every unit that
   is run is ingested. A unit is never re-run because the answer was
   unwelcome. If a real fault interrupts a unit (UI crash, lost
@@ -52,7 +52,7 @@ One row per unit in `manual/session-log.csv`. The file is append-only.
 | repetition | Which repetition, e.g. r01 |
 | surface | Which product and entry point, not just the model family |
 | collected_at_utc | Models change over time, so each unit is dated |
-| collector | E or H, so collection can be audited later |
+| collector | E, H or D, so collection can be audited later |
 | anomalies | Free text: refusals, crashes, regenerates, popups, anything unusual |
 
 `anomalies` is free text on purpose. It records what a person noticed

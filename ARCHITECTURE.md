@@ -129,3 +129,8 @@ Two producers write evaluations, each to its own append-only file:
 `cli/importHumanScores.js` (human raters) writes `data/evaluations.human.jsonl` (study sheets) or
 `data/evaluations.human.rehearsal.jsonl` (practice sheets), chosen by the sheet key's rule.
 A record is human because of the file it came from. AI aggregates never include human rows.
+
+Two producers write responses: cli/collect.js (API) writes responses.*.jsonl,
+and cli/ingestManual.js (hand-collected files in manual/) writes
+data/responses.manual.jsonl. Each is its own file under its own run_id. score.js
+is pointed at one responses file per run and writes the matching evaluations file.
