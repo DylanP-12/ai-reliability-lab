@@ -2,6 +2,7 @@
 import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 import { parseScenarios } from '../core/parseScenarios.js';
+import { buildAgreementReport } from '../core/agreementReport.js';
 
 export function unitFile(unitId) {
   return `conversations/${unitId.replaceAll(':', '_')}.json`;
@@ -366,6 +367,45 @@ export function tagGroups(groups, units) {
   });
 }
 
+// L062: human/judge agreement, COMPUTED from the study's human grades, never hand-typed.
+// No human file -> { status: 'none' }, and the Results panel keeps its empty state.
+// Counts first; statistics ride along and may be null when they are undefined.
+export function toAgreementDisplay({ humanEvals, aiEvals, rubric }) {
+  if (humanEvals.length === 0) return { status: 'none' };
+  for (const e of aiEvals) {
+    if (e.is_human === true) throw new Error('agreement: a human evaluation is in the AI evaluation files');
+  }
+  const keys = new Set(humanEvals.map((h) => `${h.unit_id}#${h.turn_index}`));
+  const versions = new Set([
+    ...humanEvals.map((h) => h.rubric_version),
+    ...aiEvals.filter((e) => keys.has(`${e.unit_id}#${e.turn_index}`)).map((e) => e.rubric_version),
+  ]);
+  if (versions.size !== 1) {
+    throw new Error(`agreement: human and AI grades must share one rubric_version, found ${[...versions].join(', ')}`);
+  }
+  const report = buildAgreementReport({ humanEvals, aiEvals, rubric });
+  return {
+    status: 'computed',
+    rubric_version: [...versions][0],
+    human_items: humanEvals.length,
+    judges: report.map((r) => ({
+      judge: r.judge,
+      not_judged: r.excluded.not_judged,
+      unparseable: r.excluded.unparseable,
+      verdict: {
+        compared: r.verdict.n,
+        agreed: r.verdict.agreed,
+        disagreed: r.verdict.disagreed,
+        human_stricter: r.verdict.aStricter,
+        judge_stricter: r.verdict.bStricter,
+        skipped: r.verdict.excluded,
+        kappa: r.verdict.kappa,
+        ac1: r.verdict.ac1,
+      },
+    })),
+  };
+}
+
 export const MANUAL_EXCLUSION_RULE =
   'manual units were collected through a consumer UI (system prompt, memory and sampling not controlled), ' +
   'so they appear in Transcripts, badged, but are kept out of comparison charts';
@@ -382,6 +422,8 @@ export function prepareAppData({
   rubricPath = 'config/rubric.v1.json',
   calibrationPath = 'data/calibration.json',
   manifestPath = 'data/manifest.smoke.json',
+  // L062: the STUDY file only. evaluations.human.rehearsal.jsonl is practice and never reaches the app.
+  humanEvaluationsPath = 'data/evaluations.human.jsonl',
   outDir = 'app/public/data',
 } = {}) {
   const units = mergeUnitSources(readJsonl(responsesPath), readJsonlIfPresent(manualResponsesPath));
@@ -444,6 +486,13 @@ export function prepareAppData({
     existsSync(calibrationPath) ? JSON.parse(readFileSync(calibrationPath, 'utf8')) : null,
   );
   writeFileSync(`${outDir}/calibration.json`, JSON.stringify(calibration, null, 2), 'utf8');
+
+  const agreement = toAgreementDisplay({
+    humanEvals: latestPerEval(readJsonlIfPresent(humanEvaluationsPath)),
+    aiEvals: evals,
+    rubric,
+  });
+  writeFileSync(`${outDir}/results/agreement.json`, JSON.stringify(agreement, null, 2), 'utf8');
 
   return {
     units: units.length,

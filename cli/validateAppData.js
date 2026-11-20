@@ -211,7 +211,27 @@ export function checkCollections(dir, index) {
   }
   return problems;
 }
-
+// Check 6 (L062): the computed agreement block reconciles with its own counts.
+// Every human item is accounted for exactly once: compared, skipped, not judged, or unparseable.
+export function checkAgreement(dir) {
+  const file = 'results/agreement.json';
+  if (!existsSync(join(dir, file))) return [`agreement: ${file} is missing (it must exist, even as { "status": "none" })`];
+  const a = readJson(dir, file);
+  if (a.status === 'none') return [];
+  if (a.status !== 'computed') return [`agreement: unknown status "${a.status}"`];
+  const problems = [];
+  if (typeof a.rubric_version !== 'string') problems.push('agreement: rubric_version is missing');
+  for (const j of a.judges) {
+    const v = j.verdict;
+    const at = `agreement ${j.judge}`;
+    if (v.agreed + v.disagreed !== v.compared) problems.push(`${at}: agreed + disagreed is not compared`);
+    if (v.human_stricter + v.judge_stricter !== v.disagreed) problems.push(`${at}: disagreement directions do not add up`);
+    if (v.compared + v.skipped + j.not_judged + j.unparseable !== a.human_items) {
+      problems.push(`${at}: counts do not reconcile with the ${a.human_items} human items`);
+    }
+  }
+  return problems;
+}
 export function validateAppData(dir, { frozenResponsesPath, frozenManualResponsesPath } = {}) {
   const index = readJson(dir, 'index.json');
   return [
@@ -220,6 +240,7 @@ export function validateAppData(dir, { frozenResponsesPath, frozenManualResponse
     ...checkByteIdentity(dir, index, frozenResponsesPath, frozenManualResponsesPath),
     ...checkScores(dir, index),
     ...checkCollections(dir, index),
+        ...checkAgreement(dir),
   ];
 }
 
