@@ -134,3 +134,14 @@ Two producers write responses: cli/collect.js (API) writes responses.*.jsonl,
 and cli/ingestManual.js (hand-collected files in manual/) writes
 data/responses.manual.jsonl. Each is its own file under its own run_id. score.js
 is pointed at one responses file per run and writes the matching evaluations file.
+
+### App integration of Phase R (L062)
+
+    responses.smoke.jsonl ─┐                              ┌─ index.json (collection per unit)
+    responses.manual.jsonl ┴─ mergeUnitSources ─┐         ├─ scores.json (collection per group)
+    evaluations.smoke.jsonl ┐                   ├─ prepare-app-data ─┼─ results/degradation.json (api only + excluded_manual)
+    evaluations.manual.jsonl┴───────────────────┤         └─ results/agreement.json
+    evaluations.human.jsonl ── buildAgreementReport ┘
+
+Manual and human files are optional. Absent, every unit is 'api' and agreement is { status: 'none' }.
+The app reads all of it through dataStore; screens decide badges and exclusions from `collection` alone.
