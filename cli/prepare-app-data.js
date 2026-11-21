@@ -2,6 +2,7 @@
 import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 import { parseScenarios } from '../core/parseScenarios.js';
+import { buildAgreementReport } from '../core/agreementReport.js';
 
 export function unitFile(unitId) {
   return `conversations/${unitId.replaceAll(':', '_')}.json`;
@@ -318,19 +319,114 @@ export function toManifestDisplay(raw) {
   return out;
 }
 
+// L062: Phase R integration. Every function above stays unchanged; these wrap them.
+
+// A missing optional file means "no data of that kind", never an error.
+// Phase R files are gitignored, so every clone is in this state.
+export function readJsonlIfPresent(path) {
+  return existsSync(path) ? readJsonl(path) : [];
+}
+
+// Which collection path produced a record, derived from the data itself
+// (ingestManual writes upstream_provider 'manual'), never from a list of model names.
+// Nulls are ignored: a failed API turn has no provider, and that is not "manual".
+export function collectionOf(record) {
+  const marks = [record.upstream_provider, ...(record.turns ?? []).map((t) => t.upstream_provider)]
+    .filter((v) => v !== undefined && v !== null);
+  const manual = marks.filter((v) => v === 'manual').length;
+  if (manual === 0) return 'api';
+  if (manual === marks.length) return 'manual';
+  throw new Error(`collectionOf: ${record.unit_id} mixes manual and API turns`);
+}
+
+// Two signals must agree: the file a record came from, and the record's own marker.
+// If they disagree, something was ingested or appended to the wrong file. Fail closed.
+export function mergeUnitSources(apiRecords, manualRecords) {
+  const api = latestPerUnit(apiRecords);
+  const manual = latestPerUnit(manualRecords);
+  for (const u of api) {
+    if (collectionOf(u) !== 'api') throw new Error(`${u.unit_id}: manual record found in the API responses file`);
+  }
+  for (const u of manual) {
+    if (collectionOf(u) !== 'manual') throw new Error(`${u.unit_id}: API record found in the manual responses file`);
+  }
+  const apiIds = new Set(api.map((u) => u.unit_id));
+  const clash = manual.find((u) => apiIds.has(u.unit_id));
+  if (clash) throw new Error(`${clash.unit_id} appears in both response files`);
+  return [...api, ...manual];
+}
+
+// Tag each score group with its collection. A group mixing both paths is a defect:
+// its numbers would silently blend a consumer UI with a pinned API.
+export function tagGroups(groups, units) {
+  const collection = new Map(units.map((u) => [u.unit_id, collectionOf(u)]));
+  return groups.map((g) => {
+    const kinds = new Set(g.units.map((u) => collection.get(u.unit_id)));
+    if (kinds.size !== 1) throw new Error(`${g.conversation_id}|${g.model_id}: mixes api and manual units`);
+    return { ...g, collection: [...kinds][0] };
+  });
+}
+
+// L062: human/judge agreement, COMPUTED from the study's human grades, never hand-typed.
+// No human file -> { status: 'none' }, and the Results panel keeps its empty state.
+// Counts first; statistics ride along and may be null when they are undefined.
+export function toAgreementDisplay({ humanEvals, aiEvals, rubric }) {
+  if (humanEvals.length === 0) return { status: 'none' };
+  for (const e of aiEvals) {
+    if (e.is_human === true) throw new Error('agreement: a human evaluation is in the AI evaluation files');
+  }
+  const keys = new Set(humanEvals.map((h) => `${h.unit_id}#${h.turn_index}`));
+  const versions = new Set([
+    ...humanEvals.map((h) => h.rubric_version),
+    ...aiEvals.filter((e) => keys.has(`${e.unit_id}#${e.turn_index}`)).map((e) => e.rubric_version),
+  ]);
+  if (versions.size !== 1) {
+    throw new Error(`agreement: human and AI grades must share one rubric_version, found ${[...versions].join(', ')}`);
+  }
+  const report = buildAgreementReport({ humanEvals, aiEvals, rubric });
+  return {
+    status: 'computed',
+    rubric_version: [...versions][0],
+    human_items: humanEvals.length,
+    judges: report.map((r) => ({
+      judge: r.judge,
+      not_judged: r.excluded.not_judged,
+      unparseable: r.excluded.unparseable,
+      verdict: {
+        compared: r.verdict.n,
+        agreed: r.verdict.agreed,
+        disagreed: r.verdict.disagreed,
+        human_stricter: r.verdict.aStricter,
+        judge_stricter: r.verdict.bStricter,
+        skipped: r.verdict.excluded,
+        kappa: r.verdict.kappa,
+        ac1: r.verdict.ac1,
+      },
+    })),
+  };
+}
+
+export const MANUAL_EXCLUSION_RULE =
+  'manual units were collected through a consumer UI (system prompt, memory and sampling not controlled), ' +
+  'so they appear in Transcripts, badged, but are kept out of comparison charts';
+
 
 export function prepareAppData({
   responsesPath = 'data/responses.smoke.jsonl',
   evaluationsPath = 'data/evaluations.smoke.jsonl',
+  manualResponsesPath = 'data/responses.manual.jsonl',
+  manualEvaluationsPath = 'data/evaluations.manual.jsonl',
   modelsPath = 'config/models.json',
   scenariosPath = 'data/scenarios.csv',
   metaPath = 'data/scenarios.meta.json',
   rubricPath = 'config/rubric.v1.json',
   calibrationPath = 'data/calibration.json',
-  manifestPath = 'data/manifest.smoke.json',   // <-- the new line
+  manifestPath = 'data/manifest.smoke.json',
+  // L062: the STUDY file only. evaluations.human.rehearsal.jsonl is practice and never reaches the app.
+  humanEvaluationsPath = 'data/evaluations.human.jsonl',
   outDir = 'app/public/data',
 } = {}) {
-  const units = latestPerUnit(readJsonl(responsesPath));
+  const units = mergeUnitSources(readJsonl(responsesPath), readJsonlIfPresent(manualResponsesPath));
 
   mkdirSync(`${outDir}/conversations`, { recursive: true });
   for (const unit of units) {
@@ -341,7 +437,7 @@ export function prepareAppData({
     );
   }
 
-  const index = units.map(toIndexEntry);
+  const index = units.map((u) => ({ ...toIndexEntry(u), collection: collectionOf(u) }));
   writeFileSync(`${outDir}/index.json`, JSON.stringify(index, null, 2), 'utf8');
 
   const models = JSON.parse(readFileSync(modelsPath, 'utf8')).map(toModelDisplay);
@@ -356,10 +452,14 @@ export function prepareAppData({
   // L053: publish ONLY the declared category list (named field, never the whole meta file),
   // so the browser can run the same category check as the CLI.
   writeFileSync(`${outDir}/scenarios.meta.json`, JSON.stringify({ categories: meta.categories }, null, 2), 'utf8');
-  const evals = latestPerEval(readJsonl(evaluationsPath));
-  const scores = buildScores(units, evals);
+  const evals = [
+    ...latestPerEval(readJsonl(evaluationsPath)),
+    ...latestPerEval(readJsonlIfPresent(manualEvaluationsPath)),
+  ];
+  const built = buildScores(units, evals);
+  const scores = { ...built, groups: tagGroups(built.groups, units) };
   writeFileSync(`${outDir}/scores.json`, JSON.stringify(scores, null, 2), 'utf8');
-  
+
     // L054: per-unit judge details + the rubric, for the Scoring screen
   mkdirSync(`${outDir}/evaluations`, { recursive: true });
   for (const unit of units) {
@@ -370,15 +470,29 @@ export function prepareAppData({
   writeFileSync(`${outDir}/rubric.json`, JSON.stringify(rubric, null, 2), 'utf8');
     const manifest = toManifestDisplay(JSON.parse(readFileSync(manifestPath, 'utf8')));
   writeFileSync(`${outDir}/manifest.json`, JSON.stringify(manifest, null, 2), 'utf8');
-  const degradation = buildDegradation(scores);
+  const manualGroups = scores.groups.filter((g) => g.collection === 'manual');
+  const degradation = {
+    ...buildDegradation({ ...scores, groups: scores.groups.filter((g) => g.collection === 'api') }),
+    excluded_manual: {
+      units: manualGroups.reduce((n, g) => n + g.units_total, 0),
+      reason: MANUAL_EXCLUSION_RULE,
+    },
+  };
   mkdirSync(`${outDir}/results`, { recursive: true });
   writeFileSync(`${outDir}/results/degradation.json`, JSON.stringify(degradation, null, 2), 'utf8');
 
-  
+
   const calibration = toCalibrationDisplay(
     existsSync(calibrationPath) ? JSON.parse(readFileSync(calibrationPath, 'utf8')) : null,
   );
   writeFileSync(`${outDir}/calibration.json`, JSON.stringify(calibration, null, 2), 'utf8');
+
+  const agreement = toAgreementDisplay({
+    humanEvals: latestPerEval(readJsonlIfPresent(humanEvaluationsPath)),
+    aiEvals: evals,
+    rubric,
+  });
+  writeFileSync(`${outDir}/results/agreement.json`, JSON.stringify(agreement, null, 2), 'utf8');
 
   return {
     units: units.length,

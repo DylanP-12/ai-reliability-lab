@@ -19,6 +19,7 @@ export function createDataStore({ fetchFn = fetch, basePath = '/data' } = {}) {
     getScores:        () => loadJson('scores.json'),
     getResults:       () => loadJson('results/degradation.json'),
     getCalibration:  () => loadJson('calibration.json'),
+        getAgreement:     () => loadJson('results/agreement.json'),
     getRubric:        () => loadJson('rubric.json'),
     getManifest:      () => loadJson('manifest.json'),
     getManifest:      () => loadJson('manifest.json'),

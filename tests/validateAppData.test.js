@@ -8,7 +8,7 @@ import { prepareAppData } from '../cli/prepare-app-data.js';
 import { validateAppData } from '../cli/validateAppData.js';
 
 const FROZEN = 'data/responses.smoke.jsonl';
-
+const FROZEN_MANUAL = 'data/responses.manual.jsonl';
 function makeGoodData() {
   const dir = mkdtempSync(join(tmpdir(), 'appdata-'));
   prepareAppData({ outDir: dir });
@@ -26,8 +26,7 @@ function writeJson(dir, file, value) {
 test('good data: the validator reports no problems', () => {
   const dir = makeGoodData();
   try {
-    assert.deepEqual(validateAppData(dir, { frozenResponsesPath: FROZEN }), []);
-  } finally {
+    assert.deepEqual(validateAppData(dir, { frozenResponsesPath: FROZEN, frozenManualResponsesPath: FROZEN_MANUAL }), []);  } finally {
     rmSync(dir, { recursive: true, force: true });
   }
 });

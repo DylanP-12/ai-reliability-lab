@@ -1,5 +1,5 @@
 import { OutcomeCell } from './OutcomeCell'
-
+import { ManualBadge } from './ManualBadge'
 // units        = unit list from index.json
 // groups       = the "groups" array from scores.json
 // selectedCell = { conversation_id, model_id } of the clicked cell, or null
@@ -36,7 +36,7 @@ export function Grid({ units, groups, selectedCell = null, onSelectCell = () => 
                 const isSelected =
                   selectedCell?.conversation_id === c && selectedCell?.model_id === m
                 return (
-                  <td key={key}>
+                                   <td key={key}>
                     <OutcomeCell
                       group={groupByKey.get(key)}
                       unitsForPair={unitsForPair}
@@ -44,6 +44,7 @@ export function Grid({ units, groups, selectedCell = null, onSelectCell = () => 
                       isSelected={isSelected}
                       onSelect={() => onSelectCell({ conversation_id: c, model_id: m })}
                     />
+                    {unitsForPair.some(u => u.collection === 'manual') && <ManualBadge />}
                   </td>
                 )
               })}

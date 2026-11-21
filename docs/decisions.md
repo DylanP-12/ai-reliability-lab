@@ -274,3 +274,45 @@ So editors cannot change their line endings; the BOM+CRLF case is built explicit
   data/evaluations.manual.jsonl; evaluations.smoke.jsonl stays frozen.
 - cost.js throws on manual turns (no usage). Anything that sums cost must skip
   manual records (L062).
+  ## L062: Phase R integration (2026-11-21)
+
+**Manual units in the app (decisions A and B).** Manual units appear in Transcripts with a MANUAL badge
+(grid cell, transcript header, legend; tooltip states the confound) and keep their AI judge scores on the
+unit. They are kept out of every comparison view: degradation curve, heatmap, spread bars, and the
+checkpoint count in the agreement box. Results shows "N manual units not shown", with N read from
+`degradation.json` `excluded_manual`. The badge and the exclusion come from `collection` ('api' | 'manual'),
+derived from `upstream_provider` on each turn, never from a list of model names.
+
+**The manual-collection confound.** Manual units are typed by a human into a consumer app (Meta AI web,
+Character.AI). System prompt, memory between chats (Meta AI memory cannot be turned off), model version,
+and sampling settings are not controlled or recorded. A manual result is therefore not comparable to a
+pinned API result, and no test can detect memory carry-over. See docs/limitations.md.
+
+**Agreement panel reads study data only (decision C).** `prepare-app-data` computes `results/agreement.json`
+from `data/evaluations.human.jsonl` (study grades) with `buildAgreementReport`. The rehearsal file
+`evaluations.human.rehearsal.jsonl` never reaches the app. Today there are no study grades, so the panel
+shows its empty state. Rehearsal (2026-11-15, 13 items, rubric.v1, graded by the developer): deepseek 3 of 5,
+qwen 6 of 10, all 9 disagreements human-stricter, all from v1 setup_respected anchors (#67). Recorded in
+docs/human-agreement.md, not shown in the app.
+
+**Hand-typed calibration retired.** `data/calibration.json` (2026-10-25, practice, 7 of 7) contradicted the
+later rehearsal, so it moved to `data/archive/`. A future expert summary may return there for what cannot
+be computed (rater, disagreement categories, limitations); its counts must match the computed block.
+
+**Validator.** byte-identity now checks each unit against its own frozen file (smoke or manual); a manual
+unit with no manual file still fails. New checks: valid and consistent `collection`, no manual model on
+the curve, `excluded_manual` matches the index, and every human item counted exactly once in agreement.
+`tests/validateAppData.test.js` "good data" was changed on purpose to name the manual frozen file, because
+prepare-app-data gained that input.
+
+**Three Phase R commands.** `cli/exportHumanSheet.js` (blind sheet + private key), `cli/importHumanScores.js`
+(filled sheet to human evals file), `cli/ingestManual.js --run-id <fixed id>` (manual transcript to
+responses.manual.jsonl). Each writes only its own file.
+
+**Reproducibility.** Human and manual data are gitignored research data. A fresh clone shows no badges and
+an empty agreement panel; that is correct, not a bug. A third party cannot regenerate the agreement number
+from the repo alone (L066: developer guide and reproducibility notes must say so).
+`tests/absentPhaseR.test.js` runs the whole pipeline in that state.
+
+**cost.js.** It throws on manual turns (no usage), which is correct fail-closed behaviour. No current code
+sums cost over manual responses; any future consumer must skip them explicitly.

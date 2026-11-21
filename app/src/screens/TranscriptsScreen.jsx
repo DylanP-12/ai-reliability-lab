@@ -7,7 +7,7 @@ import { Grid } from '../components/Grid'
 import { RepetitionList } from '../components/RepetitionList'
 import { TranscriptView } from '../components/TranscriptView'
 import { ComparePanel } from '../components/ComparePanel'
-
+import { ManualBadge } from '../components/ManualBadge'
 export function TranscriptsScreen() {
   const [data, setData] = useState(null)   // { units, groups, scenarios } once loaded
   const [error, setError] = useState(null)
@@ -103,7 +103,10 @@ export function TranscriptsScreen() {
 
             {selectedUnitId && (
               <div className="transcript-panel">
-                <h3>Transcript: {selectedUnitId}</h3>
+                               <h3>
+                  Transcript: {selectedUnitId}
+                  {data.units.find(u => u.unit_id === selectedUnitId)?.collection === 'manual' && <ManualBadge />}
+                </h3>
                 {transcriptError
                   ? <p role="alert">Could not load transcript: {transcriptError}</p>
                   : !transcript
@@ -144,6 +147,9 @@ function Legend() {
           {text}
         </span>
       ))}
+      <span>
+        <ManualBadge /> Collected by hand in a consumer app, not the pinned API: not directly comparable
+      </span>
     </div>
   )
 }
