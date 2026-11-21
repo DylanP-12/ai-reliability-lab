@@ -4,6 +4,10 @@ Copy this file into your project repository as `PROGRESS.md` during Lesson 9.
 Check items off as you go. At each milestone, paste the evidence link (PR, tag,
 or test output).
 
+Lesson numbering follows the 66-lesson guide (updated 08/19/26): Phase R
+(L059–L062) sits before Phase Q (L063–L066). Milestones: M11 = Phase R,
+M12 = acceptance tests, M13 = deployed and documented.
+
 ## End-of-lesson record (copy this at the end of every lesson chat)
 
 ```text
@@ -78,80 +82,86 @@ Phase G — LLM client
    CONFIRMED/CORRECTED rows; M3 milestone closed on GitHub (2/2 issues)
 
 Phase H — Scenario CSV
-- [ ] L027 Parsing scenarios.csv — date: ___ conf: _/5
-- [ ] L028 Validating scenarios — date: ___ conf: _/5
-- [ ] L029 Round-trips and the sample dataset — date: ___ conf: _/5
+- [x] L027 Parsing scenarios.csv — date: ___ conf: _/5
+- [x] L028 Validating scenarios — date: ___ conf: _/5
+- [x] L029 Round-trips and the sample dataset — date: ___ conf: 4/5
 
 Phase I — Conversation runner
-- [ ] L030 Conversation history on paper — date: ___ conf: _/5
-- [ ] L031 Build runConversation.js — date: ___ conf: _/5
-- [ ] L032 History-isolation tests + Review 3 — date: ___ conf: _/5
+- [x] L030 Conversation history on paper — date: ___ conf: _/5
+- [x] L031 Build runConversation.js — date: ___ conf: _/5
+- [x] L032 History-isolation tests + Review 3 — date: ___ conf: _/5
 
 Phase J — Batch collection
-- [x] L033 collect.js part 1: units and scheduling - date: 2026-10-10 conf: 3/5
-- [ ] L034 collect.js part 2 — date: ___ conf: _/5
-- [ ] L035 collect.js part 3 — date: ___ conf: _/5
-- [ ] L036 Kill it and resume it + Review 4 — date: ___ conf: _/5
+- [x] L033 collect.js part 1: units and scheduling — date: 2026-10-10 conf: 3/5
+- [x] L034 collect.js part 2 — date: ___ conf: _/5
+- [x] L035 collect.js part 3 — date: ___ conf: _/5
+- [x] L036 Kill it and resume it + Review 4 — date: ___ conf: _/5
 
 Phase K — Smoke run
-- [ ] L037 The smoke run — date: ___ conf: _/5
+- [x] L037 The smoke run — date: ___ conf: _/5
 
 Phase L — Blinded scoring
-- [ ] L038 Rubrics — date: ___ conf: _/5
-- [ ] L039 buildJudgePacket.js — date: ___ conf: _/5
-- [ ] L040 parseJudge.js — date: ___ conf: _/5
-- [ ] L041 cli/score.js — date: ___ conf: _/5
-- [x ] L042 Mock → real judge + Review 5 — date: ___ conf: _/5
+- [x] L038 Rubrics — date: ___ conf: _/5
+- [x] L039 buildJudgePacket.js — date: ___ conf: _/5
+- [x] L040 parseJudge.js — date: ___ conf: _/5
+- [x] L041 cli/score.js — date: ___ conf: _/5
+- [x] L042 Mock → real judge + Review 5 — date: ___ conf: _/5
 
 Phase M — App data
-- [ ] L043 prepare-app-data part 1 — date: ___ conf: _/5
-- [ ] L044 prepare-app-data part 2 + Review 6 — date: ___ conf: _/5
+- [x] L043 prepare-app-data part 1 — date: ___ conf: _/5
+- [x] L044 prepare-app-data part 2 + Review 6 — date: 2026-10-28 conf: _/5
 
 Phase N — React foundations
-- [ ] L045 Components, JSX, props — date: ___ conf: _/5
-- [ ] L046 State, events, lists — date: ___ conf: _/5
-- [ ] L047 Forms and lifting state — date: ___ conf: _/5
-Review 7 ✓ — 2026-11-03, evidence: PR #48 (M9 continues through L052)
+- [x] L045 Components, JSX, props — date: ___ conf: _/5
+- [x] L046 State, events, lists — date: ___ conf: _/5
+- [x] L047 Forms and lifting state — date: ___ conf: _/5
+- [x] L048 useEffect and async data + Review 7 — date: 2026-11-03 conf: _/5
+  Review 7 ✓ — 2026-11-03, evidence: PR #48 (M9 continues through L052)
 
 Phase O — Shell & data layer
-- [ ] L049 App shell — date: ___ conf: _/5
-- [ ] L050 dataStore.js — date: ___ conf: _/5
+- [x] L049 App shell — date: ___ conf: _/5
+- [x] L050 dataStore.js — date: ___ conf: _/5
 
 Phase P — Screens
-- [ ] L051 Transcripts I — date: ___ conf: _/5
-- [ ] L052 Transcripts II + Review 8 — date: ___ conf: _/5
-- [ ] L053 Scenarios screen — date: ___ conf: _/5
-- [ ] L054 Scoring screen — date: ___ conf: _/5
-- [ ] L055 Results I — date: ___ conf: _/5
-- [ ] L056 Results II — date: ___ conf: _/5
-- [ ] L057 Run screen — date: ___ conf: _/5
-- [ ] L058 Export + Review 9 — date: ___ conf: _/5
+- [x] L051 Transcripts I — date: ___ conf: _/5
+- [x] L052 Transcripts II + Review 8 — date: 2026-11-07 conf: _/5
+- [x] L053 Scenarios screen — date: 2026-11-08 conf: _/5
+- [x] L054 Scoring screen — date: ___ conf: _/5
+- [x] L055 Results I — date: ___ conf: _/5
+- [x] L056 Results II — date: ___ conf: _/5
+- [x] L057 Run screen — date: ___ conf: _/5
+- [x] L058 Export + Review 9 — date: ___ conf: _/5
 
-Phase Q — Completion
-- [ ] L059 Acceptance-test sweep — date: ___ conf: _/5
-- [ ] L060 Security review + CI — date: ___ conf: _/5
-- [ ] L061 Build, deploy, release — date: ___ conf: _/5
-- [ ] L062 Docs, defense + Review 10 — date: ___ conf: _/5
+Phase R — Calibration and manual collection (skippable; taken)
+- [x] L059 Blind human-scoring export — date: ___ conf: _/5
+- [x] L060 Importing human scores — date: 2026-11-15 conf: _/5
+- [x] L061 Manual transcript ingest — date: 2026-11-18 conf: _/5
+- [x] L062 Phase R integration + Review 10 — date: 2026-11-21 conf: _/5
+
+Phase Q — Hardening and release
+- [ ] L063 Acceptance-test sweep — date: ___ conf: _/5
+- [ ] L064 Security review + CI — date: ___ conf: _/5
+- [ ] L065 Build, deploy, release — date: ___ conf: _/5
+- [ ] L066 Docs, defense + Review 11 — date: ___ conf: _/5
 
 ## Milestones
 
 - [x] M1 Project + GitHub repo created — evidence: PR #1, Milestone Review 1 passed at L012
 - [x] M2 Shared utilities tested — evidence: PR #13, Milestone Review 2 passed at L022, 25/25 tests passing
 - [x] M3 First safe API smoke test — evidence: PR merged (`cli/smoke-call` → `main` @ f41db95); real call validated (upstream_provider: "DeepInfra", finish_reason: "stop", attempts: 1); reasoning_tokens extraction bug found + fixed (62/62 tests green); M3 closed on GitHub
-- [ ] M4 Scenario parser working — evidence: ___
-- [x] M5 Conversation runner tested - evidence: PR #23 merged (main @ 948e7d0), tests "§11-1" to "§11-6", 92/92 passing. Review 3: "what breaks if" round done, four beats restated after review. Follow-up: six-rule recall and why test 3 shares one client, revisit at start of L033.  Follow-up revisited 2026-10-10 at start of L033: six rules reviewed (1 recalled unaided, then regrouped as in / isolated / never out), test 3 reasoning reached with a hint.
-- [ ] M6 Collection CLI resumable — evidence: ___
-- - [x] M7 Scoring pipeline working — evidence: PR #40; read-only hashes identical (3x) on responses.smoke.jsonl; agreement 7/7 (uninformative on setup, #39); Review 5 passed at L042
-- [x ] M8 App data prepared — evidence: ___
-- [ ] M9 Transcript browser working — evidence: ___
-- [ ] M10 All screens working — evidence: ___
-- [ ] M11 Acceptance tests passing — evidence: ___
-- [ ] M12 Deployed and documented — evidence: ___
+- [x] M4 Scenario parser working — evidence: L029; parse, validate, serialize all round-trip-proven (see L029 notes below)
+- [x] M5 Conversation runner tested — evidence: PR #23 merged (main @ 948e7d0), tests "§11-1" to "§11-6", 92/92 passing. Review 3: "what breaks if" round done, four beats restated after review. Follow-up: six-rule recall and why test 3 shares one client, revisit at start of L033. Follow-up revisited 2026-10-10 at start of L033: six rules reviewed (1 recalled unaided, then regrouped as in / isolated / never out), test 3 reasoning reached with a hint.
+- [x] M6 Collection CLI resumable — evidence: Review 4 at L036; kill/resume drill passed (see M6 notes below)
+- [x] M7 Scoring pipeline working — evidence: PR #40; read-only hashes identical (3x) on responses.smoke.jsonl; Review 5 passed at L042. (Its 7/7 practice agreement was later superseded by the L060 rehearsal: 9 disagreements, all from v1 setup_respected anchors, #67.)
+- [x] M8 App data prepared — evidence: PR #43, validator PASS, Review 6 passed at L044
+- [x] M9 Transcript browser working — evidence: Review 8 passed at L052 (see notes below)
+- [x] M10 All screens working — evidence: five screens + export, Review 9 passed at L058 (PR #__)
+- [x] M11 Calibration + manual collection (Phase R) — evidence: PR #75 (merge 2f64c1d), Review 10 passed at L062: continue
+- [ ] M12 Acceptance tests passing — evidence: ___
+- [ ] M13 Deployed and documented — evidence: ___
 
 
-# PROGRESS — AI Reliability Lab
-
-## End-of-lesson records
+# End-of-lesson records
 
 Lesson: L001
 Completed: Yes
@@ -453,6 +463,22 @@ My confidence from 1-5: 3/5
 What I need help with:
 Next lesson: L026
 
+## L028 — Validating scenarios
+- parseScenarios written from scratch: all 8 validation rules, collect-all error reporting, checkpoint derivation, sidecar-driven category validation with graceful degradation
+- 10 fixtures, including a real bug you found and fixed (the swapped bad-gap/bad-blank-prompt bodies) and the boundary case from §9 (bad-gap-start.csv)
+- 12 tests written, 80/80 passing, zero regressions on L027's work
+- Student checkpoint and full knowledge check both completed
+- Committed, pushed, PR'd, merged, branch deleted, main pulled
+
+## L029 — Round-trips and the sample dataset
+- csvField + serializeScenarios written and tested (quoting rules, round-trip Direction 1, semantic stability)
+- Fixed a real CRLF bug in tests/parseScenarios.test.js via .gitattributes + editor EOL conversion
+- Authored ds-v1: 6 scenarios, 8 checkpoints, 1 single-turn scenario, 1 custom evaluation_note
+- Caught and fixed a second CRLF bug (data/scenarios.csv) and an empty dataset-notes.md, both after merge
+- Milestone 4 (Phase H) complete: parse, validate, serialize — all round-trip-proven
+- Confidence: 4/5 (CSV mechanics: 3/5, dataset design: 4/5)
+- Next: L030 — Conversation history on paper
+
 Lesson: L032
 Completed: yes (explain-back partial, resume point: six rules + test 3 reasoning)
 Concepts I can explain: aliasing (reference vs snapshot), four beats, deepEqual vs includes, sabotage checks
@@ -467,56 +493,6 @@ Problems still open: none in code; recall of the six rules and the shared-client
 My confidence from 1-5: _
 What I need help with: why tests must be able to fail; the six rules
 Next lesson: L033 collect.js part 1
-
-
-
-parseScenarios written from scratch: all 8 validation rules, collect-all error reporting, checkpoint derivation, sidecar-driven category validation with graceful degradation
-10 fixtures, including a real bug you found and fixed (the swapped bad-gap/bad-blank-prompt bodies) and the boundary case from §9 (bad-gap-start.csv)
-12 tests written, 80/80 passing, zero regressions on L027's work
-Student checkpoint and full knowledge check both completed
-Committed, pushed, PR'd, merged, branch deleted, main pulled
-
-## Lessons checklist
-
-Phase A
-[x] L001  [x] L002  [x] L003  [x] L004  [x] L005
-
-Phase B
-[x] L006  [x] L007  [x] L008
-
-Phase C
-[x] L009  [x] L010  [x] L011  [x] L012
-
-Phase D
-[x] L013  [x] L014  [x] L015  [x] L016  [x] L017
-
-Phase E
-[x] L018 (2026-08-22)  [x] L019
-
-Phase F
-[x] L020  [x] L021  [x] L022 (2026-08-27) - Milestone Review 2 passed
-
-Phase G
-[x] L023  [x] L024  [x] L025  [x] L026 (2026-08-31) — Milestone 3 passed
-
-Phase H - Q
-All remaining lessons L027-L062: [ ] not started
-
-## Milestones
-
-[x] M1 Project + GitHub repo created - evidence: PR #1, Milestone Review 1 passed at L012
-[x] M2 Shared utilities tested - evidence: PR #13, Milestone Review 2 passed at L022, 25/25 tests passing
-[x] M3 First safe API call - evidence: PR merged (cli/smoke-call → main @ f41db95); real call to deepseek-v3.1 validated all provenance fields; reasoning_tokens extraction bug found + fixed (62/62 tests green); M3 milestone closed on GitHub
-[ ] M4 through M12 - not started
-
-## L029 — Round-trips and the sample dataset
-- csvField + serializeScenarios written and tested (quoting rules, round-trip Direction 1, semantic stability)
-- Fixed a real CRLF bug in tests/parseScenarios.test.js via .gitattributes + editor EOL conversion
-- Authored ds-v1: 6 scenarios, 8 checkpoints, 1 single-turn scenario, 1 custom evaluation_note
-- Caught and fixed a second CRLF bug (data/scenarios.csv) and an empty dataset-notes.md, both after merge
-- Milestone 4 (Phase H) complete: parse, validate, serialize — all round-trip-proven
-- Confidence: 4/5 (CSV mechanics: 3/5, dataset design: 4/5)
-- Next: L030 — Conversation history on paper
 
 ## M6: Collection CLI resumable (Review 4, L036)
 - Verdict: continue, with repairs before L037: explain-back of schedule/run/persist/account/pace; #27 config validation before first paid run
@@ -558,3 +534,22 @@ Verdict: continue. M9 complete: the React transcript browser works on real data.
 - prepare-app-data publishes scenarios.meta.json (categories only), with leak test
 - CLI/browser equivalence: cli/validate-scenarios.js and the browser report identical problems on l053-three-errors.csv
 - Tests: 206 passing
+
+## L060 — Importing human scores (2026-11-15)
+- Key join (not positional), blank != zero, separate append-only human evals file, agreement with denominators
+- 291 passing; PR #71 merged
+- Rehearsal (practice grades, not calibration): deepseek 3 of 5, qwen 6 of 10; all 9 disagreements human-stricter, all from v1 setup_respected anchors (#39/#67)
+
+## L061 — Manual transcript ingest (2026-11-18)
+- buildManualRecord, parseManualFile, ingestManual; collection protocol and limitations docs
+- 308 passing; PR #73 merged; one real unit (C004, meta-ai, r01), judged unchanged by score.js
+- Frozen hashes unchanged: responses.smoke CAC292DE...8624, evaluations.smoke 88C105FB...B88
+
+## L062 — Phase R integration + Review 10 (2026-11-21)
+- Manual units in the app with a data-derived collection flag: MANUAL badge on grid, transcript header, legend, and Compare view; kept out of curve, heatmap, spread
+- Computed agreement block (results/agreement.json) from study human grades only; empty state today
+- Stale hand-typed calibration (7/7) moved to data/archive/
+- Validator: byte-identity per frozen source, collection checks, agreement reconciliation; absent-file pipeline test
+- 323 passing (308 before); frozen hashes unchanged; PR #75 merged (2f64c1d)
+- Review 10 verdict: continue (review questions explained by tutor). M11 complete.
+- Next: L063 — Acceptance-test sweep
