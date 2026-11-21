@@ -3,6 +3,7 @@
 // Both sides load through the same race-safe hook as the main viewer.
 import { useState } from 'react'
 import { useTranscript } from '../lib/useTranscript'
+import { ManualBadge } from './ManualBadge'
 import './transcript.css'
 
 function unitLabel(u) {
@@ -35,8 +36,11 @@ export function ComparePanel({ units }) {
       {label}{' '}
       <select value={value} onChange={e => setValue(e.target.value)} disabled={!scenarioId}>
         <option value="">Choose…</option>
-        {options.map(u => <option key={u.unit_id} value={u.unit_id}>{unitLabel(u)}</option>)}
-      </select>
+        {options.map(u => (
+          <option key={u.unit_id} value={u.unit_id}>
+            {unitLabel(u)}{u.collection === 'manual' ? ' (manual)' : ''}
+          </option>
+        ))}      </select>
     </label>
   )
 
@@ -103,13 +107,19 @@ function CompareBody({ left, right, leftUnit, rightUnit }) {
 
   return (
     <div className="compare-wrap">
+            {leftUnit.collection !== rightUnit.collection && (
+        <p className="compare-note" role="note">
+          One side was collected by hand in a consumer app and the other through the pinned API, so a
+          difference between them may come from how they were collected, not only from the model.
+        </p>
+      )}
       <table className="compare-table">
         <thead>
           <tr>
             <th scope="col" className="col-turn">Turn</th>
             <th scope="col">User (same script for both)</th>
-            <th scope="col">Left: {unitLabel(leftUnit)}</th>
-            <th scope="col">Right: {unitLabel(rightUnit)}</th>
+            <th scope="col">Left: {unitLabel(leftUnit)} {leftUnit.collection === 'manual' && <ManualBadge />}</th>
+            <th scope="col">Right: {unitLabel(rightUnit)} {rightUnit.collection === 'manual' && <ManualBadge />}</th>
           </tr>
         </thead>
         <tbody>
