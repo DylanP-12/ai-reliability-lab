@@ -1,13 +1,16 @@
 // L055-L056: Results screen. Each panel makes one claim and says which:
 //   trend by turn (L055 curve), average per scenario x model (heatmap),
 //   consistency across repetitions (spread), how far to trust the judge (agreement).
+// L062: manual units stay out of the comparison views (decision A); human agreement is computed (2b).
 import { useEffect, useState } from 'react';
 import { dataStore } from '../lib/dataStore.js';
 import { DegradationChart } from '../components/DegradationChart.jsx';
 import { Heatmap } from '../components/Heatmap.jsx';
 import { SpreadBars } from '../components/SpreadBars.jsx';
 import { AgreementPanel } from '../components/AgreementPanel.jsx';
+import { HumanAgreement } from '../components/HumanAgreement.jsx';
 import { ExportPanel } from '../components/ExportPanel.jsx';
+
 export function ResultsScreen() {
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
@@ -19,9 +22,10 @@ export function ResultsScreen() {
       dataStore.getScenarios(),
       dataStore.getModels(),
       dataStore.getCalibration(),
+      dataStore.getAgreement(),
     ])
-      .then(([degradation, scores, scenarios, models, calibration]) =>
-        setData({ degradation, scores, scenarios, models, calibration }))
+      .then(([degradation, scores, scenarios, models, calibration, agreement]) =>
+        setData({ degradation, scores, scenarios, models, calibration, agreement }))
       .catch((err) => setError(err.message));
   }, []);
 
@@ -32,6 +36,10 @@ export function ResultsScreen() {
   const curveModels = [...data.degradation.models].sort((a, b) => a.model_id.localeCompare(b.model_id));
   const anyPoints = curveModels.some((m) => m.points.length > 0);
 
+  // L062: comparison views get API groups only. The rule comes from the data's collection flag.
+  const apiScores = { ...data.scores, groups: data.scores.groups.filter((g) => g.collection === 'api') };
+  const excluded = data.degradation.excluded_manual;
+
   return (
     <section className="results">
       <h2>Results</h2>
@@ -40,6 +48,12 @@ export function ResultsScreen() {
         position, where does it hold or break, how consistent are the repetitions, and how far can the
         judge be trusted.
       </p>
+      {excluded?.units > 0 && (
+        <p className="chart__notice">
+          {excluded.units} manual unit{excluded.units === 1 ? ' is' : 's are'} not shown in the three
+          comparison views below: {excluded.reason}. See Transcripts.
+        </p>
+      )}
 
       <section className="results__panel" aria-labelledby="curve-title">
         <h3 id="curve-title">Trend by scored turn</h3>
@@ -55,19 +69,21 @@ export function ResultsScreen() {
 
       <section className="results__panel" aria-labelledby="heatmap-title">
         <h3 id="heatmap-title">Average by scenario and model</h3>
-        <Heatmap scores={data.scores} scenarios={data.scenarios} models={data.models} />
+        <Heatmap scores={apiScores} scenarios={data.scenarios} models={data.models} />
       </section>
-      
+
       <section className="results__panel" aria-labelledby="spread-title">
         <h3 id="spread-title">Consistency across repetitions</h3>
-        <SpreadBars scores={data.scores} models={data.models} />
+        <SpreadBars scores={apiScores} models={data.models} />
       </section>
-      
+
       <section className="results__panel" aria-labelledby="agreement-title">
         <h3 id="agreement-title">How far to trust the judge</h3>
         <AgreementPanel calibration={data.calibration} scores={data.scores} />
+        <HumanAgreement agreement={data.agreement} />
       </section>
-            <section className="results__panel" aria-labelledby="export-title">
+
+      <section className="results__panel" aria-labelledby="export-title">
         <h3 id="export-title">Export the research package</h3>
         <ExportPanel />
       </section>
