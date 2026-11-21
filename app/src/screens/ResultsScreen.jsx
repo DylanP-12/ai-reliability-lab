@@ -79,8 +79,8 @@ export function ResultsScreen() {
 
       <section className="results__panel" aria-labelledby="agreement-title">
         <h3 id="agreement-title">How far to trust the judge</h3>
-        <AgreementPanel calibration={data.calibration} scores={data.scores} />
-        <HumanAgreement agreement={data.agreement} />
+        <AgreementPanel calibration={data.calibration} scores={apiScores} />
+                <HumanAgreement agreement={data.agreement} />
       </section>
 
       <section className="results__panel" aria-labelledby="export-title">
