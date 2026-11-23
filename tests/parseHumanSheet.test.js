@@ -45,7 +45,7 @@ test('good sheet: every row joins to its unit through the key', () => {
   assert.ok(Math.abs(r['H-003'].weighted_score - 0.5 / 1.3) < 1e-9);
 });
 
-test('sorted sheet: same rows in a different order give an identical result (key join, not positional)', () => {
+test('ACCEPT/calibration: sorted sheet: same rows in a different order give an identical result (key join, not positional)', () => {
   const sorted = sheet(
     'hs-2026-01-01,H-003,partial,no,,',
     'hs-2026-01-01,H-001,yes,yes,pass,',
@@ -59,7 +59,7 @@ test('BOM and CRLF from an Excel "CSV UTF-8" save parse the same as plain LF', (
   assert.deepEqual(byRef(parse(excel).rows), byRef(parse(GOOD).rows));
 });
 
-test('blank row: skipped with a reason, never a zero, and the note is kept', () => {
+test('ACCEPT/calibration: blank row: skipped with a reason, never a zero, and the note is kept', () => {
   const { rows, skipped } = parse(sheet(
     'hs-2026-01-01,H-001,yes,yes,pass,',
     'hs-2026-01-01,H-003,,,,ran out of time',

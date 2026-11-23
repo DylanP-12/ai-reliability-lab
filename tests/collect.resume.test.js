@@ -71,7 +71,7 @@ test('fresh run: one valid line per unit, ids match the schedule', async () => {
   }
 });
 
-test('re-run on a complete file adds zero records and makes zero calls', async () => {
+test('ACCEPT/run: re-run on a complete file adds zero records and makes zero calls', async () => {
   const { scenarios, models, config, schedule, dir, outPath } = setup();
   try {
     const first = countingChat();
@@ -90,7 +90,7 @@ test('re-run on a complete file adds zero records and makes zero calls', async (
   }
 });
 
-test('resume completes exactly the missing units', async () => {
+test('ACCEPT/run: resume completes exactly the missing units', async () => {
   const { scenarios, models, config, schedule, dir, outPath } = setup();
   try {
     // Pretend a run was killed after 3 units: write their records by hand.

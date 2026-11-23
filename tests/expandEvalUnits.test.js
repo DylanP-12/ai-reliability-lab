@@ -22,7 +22,7 @@ const baseConfig = {
   judge_repetitions: 3,
 };
 
-test('self-judge excluded when flag is on: 18 units', () => {
+test('ACCEPT/scoring: self-judge excluded when flag is on: 18 units', () => {
   const units = expandEvalUnits(records, { ...baseConfig, exclude_self_judge: true });
   assert.equal(units.length, 18);
   const selfPairs = units.filter(u => u.judge_model_id === u.model_id);

@@ -77,7 +77,7 @@ const readEvals = (p) => existsSync(p)
 const noSleep = async () => {};
 
 // ---------- tests ----------
-test('read-only proof: responses.jsonl hash is identical before and after scoring', async () => {
+test('ACCEPT/scoring: read-only proof: responses.jsonl hash is identical before and after scoring', async () => {
   const { responsesPath, evaluationsPath, records } = setup();
   const before = hashFile(responsesPath);
 
@@ -89,7 +89,7 @@ test('read-only proof: responses.jsonl hash is identical before and after scorin
   assert.equal(readEvals(evaluationsPath).length, units.length);
 });
 
-test('write-target proof: every append goes to the evaluations path, nowhere else', async () => {
+test('ACCEPT/scoring: write-target proof: every append goes to the evaluations path, nowhere else', async () => {
   const { evaluationsPath, records } = setup();
   const paths = [];
   const spyAppend = (path, rec) => { paths.push(path); appendRecord(path, rec); };
@@ -136,7 +136,7 @@ test('resume: a partial run judges only the missing eval_ids', async () => {
   assert.equal(new Set(ids).size, ids.length);   // no eval judged twice
 });
 
-test('preservation: garbage judge output is kept with parse_ok false, raw intact, no scores', async () => {
+test('ACCEPT/scoring: preservation: garbage judge output is kept with parse_ok false, raw intact, no scores', async () => {
   const { evaluationsPath, records } = setup();
   const units = expandEvalUnits(records, config);
   const GARBAGE = 'Sure! Looks good to me.';

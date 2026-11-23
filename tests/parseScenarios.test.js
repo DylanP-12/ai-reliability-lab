@@ -79,7 +79,7 @@ test('ALL_TRAPS: quoted comma + embedded newline + escaped quotes together', () 
 
 const GOOD_TWO_SCENARIOS = readFileSync('tests/fixtures/good-two-scenarios.csv', 'utf8');
 
-test('GOOD_TWO_SCENARIOS: two valid scenarios, checkpoints derived correctly', () => {
+test('ACCEPT/dataset: GOOD_TWO_SCENARIOS: two valid scenarios, checkpoints derived correctly', () => {
   assert.deepEqual(parseScenarios(GOOD_TWO_SCENARIOS, { allowedCategories: ['alpha', 'beta'] }), [
     {
   conversation_id: "C001",
@@ -144,7 +144,7 @@ test('BAD_FIELD_COUNT: wrong number of fields throws', () => {
 
 const BAD_DUPLICATE_TURN = readFileSync('tests/fixtures/bad-duplicate-turn.csv', 'utf8');
 
-test('BAD_DUPLICATE_TURN: repeated turn_index throws', () => {
+test('ACCEPT/dataset: BAD_DUPLICATE_TURN: repeated turn_index throws', () => {
   assert.throws(
     () => parseScenarios(BAD_DUPLICATE_TURN, { allowedCategories: ['alpha', 'beta'] }),
     (err) => {
@@ -156,7 +156,7 @@ test('BAD_DUPLICATE_TURN: repeated turn_index throws', () => {
 
 const BAD_GAP = readFileSync('tests/fixtures/bad-gap.csv', 'utf8');
 
-test('BAD_GAP: non-contiguous turn_index throws', () => {
+test('ACCEPT/dataset: BAD_GAP: non-contiguous turn_index throws', () => {
   assert.throws(
     () => parseScenarios(BAD_GAP, { allowedCategories: ['alpha', 'beta'] }),
     (err) => {
@@ -206,7 +206,7 @@ test('BAD_MULTI_ERROR: collect-all reports all three problems at once', () => {
 
 const BAD_GAP_START = readFileSync('tests/fixtures/bad-gap-start.csv', 'utf8');
 
-test('BAD_GAP_START: scenario not starting at turn_index 1 throws', () => {
+test('ACCEPT/dataset: BAD_GAP_START: scenario not starting at turn_index 1 throws', () => {
   assert.throws(
     () => parseScenarios(BAD_GAP_START, { allowedCategories: ['alpha', 'beta'] }),
     (err) => {
@@ -217,7 +217,7 @@ test('BAD_GAP_START: scenario not starting at turn_index 1 throws', () => {
 });
 
 
-test('round-trip: object -> csv -> object preserves data with commas, quotes, newlines', () => {
+test('ACCEPT/dataset: round-trip: object -> csv -> object preserves data with commas, quotes, newlines', () => {
   const original = [
     {
       conversation_id: 'C001',

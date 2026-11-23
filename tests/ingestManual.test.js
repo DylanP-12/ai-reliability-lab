@@ -25,7 +25,7 @@ function setup(files, rows = logRows) {
 }
 const sha = (p) => createHash('sha256').update(readFileSync(p)).digest('hex');
 
-test('response text goes through a real file unchanged (emoji, quote, trailing space)', async () => {
+test('ACCEPT/manual: response text goes through a real file unchanged (emoji, quote, trailing space)', async () => {
   const { args } = setup({ 'C001__meta-ai__r01.txt': good });
   await ingestManual(args);
   const rec = JSON.parse(readFileSync(args.outPath, 'utf8').trim());
@@ -44,7 +44,7 @@ test('re-running adds zero records', async () => {
   assert.strictEqual(readFileSync(args.outPath, 'utf8').trim().split('\n').length, 1);
 });
 
-test('read-only proof: a frozen responses file is byte-identical and only the manual file is written', async () => {
+test('ACCEPT/manual: read-only proof: a frozen responses file is byte-identical and only the manual file is written', async () => {
   const { args, outDir } = setup({ 'C001__meta-ai__r01.txt': good });
   const frozen = join(outDir, 'responses.jsonl');
   writeFileSync(frozen, '{"unit_id":"x"}\n');

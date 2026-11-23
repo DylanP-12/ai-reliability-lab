@@ -316,3 +316,4 @@ from the repo alone (L066: developer guide and reproducibility notes must say so
 
 **cost.js.** It throws on manual turns (no usage), which is correct fail-closed behaviour. No current code
 sums cost over manual responses; any future consumer must skip them explicitly.
+- L063 (2026-11-22): acceptance tests are tagged in place with an ACCEPT/<section>: name prefix instead of being moved into tests/acceptance/, so fixtures and assertions stay untouched. New cross-cutting acceptance tests live in tests/acceptance/. npm run acceptance runs only the tagged tests.

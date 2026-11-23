@@ -73,7 +73,7 @@ test('re-running an import adds zero records', () => {
   assert.equal(sha(second.outPath), before);
 });
 
-test('read-only proof: frozen files are byte-identical, and the human file is the only new file', () => {
+test('ACCEPT/calibration: read-only proof: frozen files are byte-identical, and the human file is the only new file', () => {
   const p = setup();
   const frozenEvals = join(p.dataDir, 'evaluations.smoke.jsonl');
   const hashes = { evals: sha(frozenEvals), responses: sha(p.responsesPath) };

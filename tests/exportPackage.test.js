@@ -52,7 +52,7 @@ function makeInput() {
   };
 }
 
-test('Export response text byte-identical', () => {
+test('ACCEPT/export: Export response text byte-identical', () => {
   assert.notEqual(NFC, NFD);   // guard the fixture: the two forms must stay different
   const input = makeInput();
   const pkg = buildExportPackage(input);
@@ -68,7 +68,7 @@ test('Export response text byte-identical', () => {
   assert.ok(reread.units[0].turns[0].response_text.endsWith('   '));       // trailing spaces kept
 });
 
-test('Exported IDs match source exactly', () => {
+test('ACCEPT/export: Exported IDs match source exactly', () => {
   const input = makeInput();
   const pkg = buildExportPackage(input);
 
@@ -87,12 +87,12 @@ test('export fails closed when an indexed unit has no transcript', () => {
   assert.throws(() => buildExportPackage(input), /no transcript for/);
 });
 
-test('export: no secret anywhere in the package', () => {
+test('ACCEPT/integrity: export: no secret anywhere in the package', () => {
   const text = JSON.stringify(buildExportPackage(makeInput()));
   assert.equal(text.includes('CANARY'), false);
 });
 
-test('export: no private evaluation_note anywhere in the package', () => {
+test('ACCEPT/integrity: export: no private evaluation_note anywhere in the package', () => {
   const text = JSON.stringify(buildExportPackage(makeInput()));
   assert.equal(text.includes(NOTE), false);
   assert.equal(text.includes('"evaluation_note"'), false);   // a leaked field, not a mention in prose

@@ -66,12 +66,12 @@ function modelsInRefOrder(sheet, records) {
   return Object.keys(sheet.key.items).sort().map(ref => byUnit.get(sheet.key.items[ref].unit_id));
 }
 
-test('human packets contain no model, provider, run or unit identity', () => {
+test('ACCEPT/calibration: human packets contain no model, provider, run or unit identity', () => {
   const records = makeRecords();
   assertNoIdentity(build({ records }).packets, records);
 });
 
-test('score sheet columns and rows contain no identity', () => {
+test('ACCEPT/calibration: score sheet columns and rows contain no identity', () => {
   const records = makeRecords();
   const sheet = build({ records });
   assertNoIdentity(sheet.sheetColumns, records);
@@ -122,7 +122,7 @@ test('latest record per unit wins, and units that never completed are not sample
   assert.equal(sheet.packets.length, 18);
 });
 
-test('same seed gives the same sheet; a different seed gives a different order', () => {
+test('ACCEPT/calibration: same seed gives the same sheet; a different seed gives a different order', () => {
   const a = build(), b = build(), c = build({ seed: 7 });
   assert.deepEqual(a.key.items, b.key.items);
   assert.deepEqual(a.packets, b.packets);
@@ -138,7 +138,7 @@ test('a string seed is refused, not silently coerced', () => {
   assert.throws(() => build({ seed: '20261113' }), /seed must be an integer/);
 });
 
-test('aggregate blinding: blind_ref order does not cluster by model', () => {
+test('ACCEPT/calibration: aggregate blinding: blind_ref order does not cluster by model', () => {
   const records = makeRecords();
   const models = modelsInRefOrder(build({ records }), records);
   const switches = models.slice(1).filter((m, i) => m !== models[i]).length;

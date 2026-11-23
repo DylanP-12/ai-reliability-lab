@@ -18,7 +18,7 @@ test('FROZEN: rubric.v1.json says rubric_version v1', () => {
   assert.equal(json.rubric_version, 'v1');
 });
 
-test('FROZEN: rubric.v1 criteria match the pinned hash', () => {
+test('ACCEPT/scoring: FROZEN: rubric.v1 criteria match the pinned hash', () => {
   assert.equal(hashOf(json.criteria), PINNED_CRITERIA_HASH);
 });
 
