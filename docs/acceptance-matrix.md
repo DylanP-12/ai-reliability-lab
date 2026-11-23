@@ -4,7 +4,7 @@ Status key: AUTO (file › test name) · MANUAL (evidence + date) · GAP
 
 Every automated acceptance test has a name starting with `ACCEPT/<section>:`.
 Run only these: `npm run acceptance`. Run everything: `npm test`.
-Count check: `npm run acceptance | Select-String "ACCEPT/[a-z]+:" | Measure-Object` must equal the number of test names in the AUTO rows below (46 at the start of L063).
+Count check: `npm run acceptance | Select-String "ACCEPT/[a-z]+:" | Measure-Object` must equal the number of test names in the AUTO rows below (51 after L063: 46 tagged in place + 5 in tests/acceptance/).
 Node also lists each file that has no acceptance tests as one line, so the summary total is higher than this count.
 
 ## Part 1: Handoff §11/§12 promises
@@ -39,8 +39,8 @@ Node also lists each file that has no acceptance tests as one line, so the summa
 | Integrity | All timestamps ISO-8601 UTC | all records | AUTO · acceptance/timestamps.test.js › every timestamp in a conversation record is ISO-8601 UTC; core/ and cli/ only ever make times with new Date().toISOString() |
 | Integrity | Failed/missing units carry reason end to end, never zero-filled | runner → prep | AUTO · acceptance/failedUnit.test.js › a failed unit keeps its reason from runner to index and scores, and is never counted as a zero |
 | Integrity | A retried record replaces the earlier one, by one shared rule | core/latest.js and its 4 consumers | AUTO · acceptance/latest.test.js › a retried unit or eval is represented by its last record only; every consumer takes the latest record from core/latest.js |
-| Manual | CORS verdict | Run screen | MANUAL · evidence: ______ (date ______) |
-| Manual | Human–judge agreement | judge | MANUAL · evidence: ______ (date ______) |
+| Manual | CORS verdict | Run screen | MANUAL · evidence: docs/cors-verdict.md (2026-11-11) |
+| Manual | Human–judge agreement | judge | MANUAL · evidence: docs/human-agreement.md (2026-11-15). Study human grades not collected yet, so the app shows the empty state; the calculation is proven by fixture tests |
 | Manual | Deployed app loads real data | deploy | MANUAL · pending L065 |
 
 ## Part 2: Added by this project (Phase R)
@@ -58,3 +58,7 @@ These are not handoff §11 tests. They apply the same rules to the two data path
 | Manual collection | Manual response text byte-identical through ingest | buildManualRecord, ingestManual | AUTO · buildManualRecord.test.js › response text survives byte-identical; ingestManual.test.js › response text goes through a real file unchanged |
 | Manual collection | Ingest never writes responses.jsonl | ingestManual | AUTO · ingestManual.test.js › read-only proof: a frozen responses file is byte-identical |
 | Manual collection | App works unchanged when human/manual files are absent | prepare-app-data + screens | AUTO · absentPhaseR.test.js › absent Phase R files |
+
+## Mutation drill (L063, 2026-11-22)
+
+Four guarantees were broken on purpose, one at a time. Each turned its acceptance test red, and the code was restored afterwards: latest-record rule keeps the first record (caught); started_at written in local time (caught by both timestamp tests); failure reason dropped from the index (caught); failed units zero-filled into the pass rate (caught).
