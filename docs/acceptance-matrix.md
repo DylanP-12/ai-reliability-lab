@@ -38,7 +38,7 @@ Node also lists each file that has no acceptance tests as one line, so the summa
 | Integrity | No secret-shaped strings in derived output | prepare-app-data, validator, export | AUTO · prepareAppData.test.js › no secrets; validateAppData.test.js › no secrets; exportPackage.test.js › no secret anywhere |
 | Integrity | All timestamps ISO-8601 UTC | all records | GAP (Chunk 2) |
 | Integrity | Failed/missing units carry reason end to end, never zero-filled | runner → prep | GAP (Chunk 2) |
-| Integrity | All consumers pick the same latest record per unit | 3 copies (open problem 5) | GAP (Chunk 2) |
+| Integrity | A retried record replaces the earlier one, by one shared rule | core/latest.js and its 4 consumers | AUTO · acceptance/latest.test.js › a retried unit or eval is represented by its last record only; every consumer takes the latest record from core/latest.js |
 | Manual | CORS verdict | Run screen | MANUAL · evidence: ______ (date ______) |
 | Manual | Human–judge agreement | judge | MANUAL · evidence: ______ (date ______) |
 | Manual | Deployed app loads real data | deploy | MANUAL · pending L065 |

@@ -2,6 +2,7 @@
 // Pure: human evals + AI evals in, one agreement block per AI judge out.
 // Never pools judges into one statistic, and every exclusion carries a reason.
 import { agreementStats } from './agreement.js';
+import { latestPerEval } from './latest.js';
 
 const VERDICTS = ['pass', 'fail'];   // lenient -> strict
 
@@ -10,11 +11,10 @@ export function buildAgreementReport({ humanEvals, aiEvals, rubric }) {
   const values = rubric.criteria[0].values;
   const scale = [...rubric.scale].sort((x, y) => values[y] - values[x]);
 
-  const latest = new Map();                                    // a retried eval: the last record wins
-  for (const e of aiEvals) if (e.status === 'complete') latest.set(e.eval_id, e);
+  const latest = latestPerEval(aiEvals).filter((e) => e.status === 'complete'); // latest first, then complete only
 
   const byJudge = new Map();                                   // "qwen3-32b r1" -> Map("unit#turn" -> eval)
-  for (const e of latest.values()) {
+  for (const e of latest) {
     const judge = `${e.judge_model_id} r${e.judge_repetition}`;
     if (!byJudge.has(judge)) byJudge.set(judge, new Map());
     byJudge.get(judge).set(`${e.unit_id}#${e.turn_index}`, e);

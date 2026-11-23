@@ -11,12 +11,7 @@ export function sheetColumnsFor(rubric) {
 
 export const SHEET_RULES = ['study-r01', 'rehearsal-all'];
 
-// Later lines win, matching prepare-app-data's latestPerUnit.
-function latestPerUnit(records) {
-  const byUnit = new Map();
-  for (const r of records) byUnit.set(r.unit_id, r);
-  return [...byUnit.values()];
-}
+import { latestPerUnit } from './latest.js'; // later lines win (L063: one shared rule)
 
 // Plain < comparison: the same order on every machine, unlike localeCompare.
 function byUnitThenTurn(a, b) {

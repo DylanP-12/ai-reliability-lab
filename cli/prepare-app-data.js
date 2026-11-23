@@ -3,6 +3,7 @@ import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 import { parseScenarios } from '../core/parseScenarios.js';
 import { buildAgreementReport } from '../core/agreementReport.js';
+import { latestPerUnit, latestPerEval } from '../core/latest.js';
 
 export function unitFile(unitId) {
   return `conversations/${unitId.replaceAll(':', '_')}.json`;
@@ -46,21 +47,7 @@ export function readJsonl(path) {
     .map((line) => JSON.parse(line));
 }
 
-export function latestPerUnit(records) {
-  const byUnit = new Map();
-  for (const record of records) {
-    byUnit.set(record.unit_id, record);
-  }
-  return [...byUnit.values()];
-}
-
-export function latestPerEval(records) {
-  const byEval = new Map();
-  for (const record of records) {
-    byEval.set(record.eval_id, record);
-  }
-  return [...byEval.values()];
-}
+export { latestPerUnit, latestPerEval }; // moved to core/latest.js in L063
 
 export function combineJudgments(evals) {
   const judgments = evals.map((e) => {
