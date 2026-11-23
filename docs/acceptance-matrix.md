@@ -37,7 +37,7 @@ Node also lists each file that has no acceptance tests as one line, so the summa
 | Integrity | No evaluation_note in any derived output | prepare-app-data, validator, export | AUTO · prepareAppData.test.js › no private notes; validateAppData.test.js › no private notes; exportPackage.test.js › no private evaluation_note |
 | Integrity | No secret-shaped strings in derived output | prepare-app-data, validator, export | AUTO · prepareAppData.test.js › no secrets; validateAppData.test.js › no secrets; exportPackage.test.js › no secret anywhere |
 | Integrity | All timestamps ISO-8601 UTC | all records | AUTO · acceptance/timestamps.test.js › every timestamp in a conversation record is ISO-8601 UTC; core/ and cli/ only ever make times with new Date().toISOString() |
-| Integrity | Failed/missing units carry reason end to end, never zero-filled | runner → prep | GAP (Chunk 2) |
+| Integrity | Failed/missing units carry reason end to end, never zero-filled | runner → prep | AUTO · acceptance/failedUnit.test.js › a failed unit keeps its reason from runner to index and scores, and is never counted as a zero |
 | Integrity | A retried record replaces the earlier one, by one shared rule | core/latest.js and its 4 consumers | AUTO · acceptance/latest.test.js › a retried unit or eval is represented by its last record only; every consumer takes the latest record from core/latest.js |
 | Manual | CORS verdict | Run screen | MANUAL · evidence: ______ (date ______) |
 | Manual | Human–judge agreement | judge | MANUAL · evidence: ______ (date ______) |
