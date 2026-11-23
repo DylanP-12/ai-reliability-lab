@@ -10,7 +10,7 @@ import { validateAppData } from '../cli/validateAppData.js';
 
 const readJson = (dir, file) => JSON.parse(readFileSync(join(dir, file), 'utf8'));
 
-test('absent Phase R files: every unit is api, nothing excluded, agreement none, validator clean', () => {
+test('ACCEPT/manual: absent Phase R files: every unit is api, nothing excluded, agreement none, validator clean', () => {
   const dir = mkdtempSync(join(tmpdir(), 'absent-'));
   const missing = 'data/__absent_on_purpose__.jsonl';
   try {

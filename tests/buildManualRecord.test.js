@@ -23,7 +23,7 @@ const base = {
   collectedAt: '2026-11-16T00:00:00Z',
 };
 
-test('schema drift guard: manual record keys match a live runConversation record', async () => {
+test('ACCEPT/manual: schema drift guard: manual record keys match a live runConversation record', async () => {
   const mockChat = async () => ({
     text: 'ok', usage: { prompt_tokens: 1, completion_tokens: 1 }, latency_ms: 1,
     reasoning_text: null, refusal_signal: null, upstream_provider: 'x',
@@ -43,7 +43,7 @@ test('schema drift guard: manual record keys match a live runConversation record
   assert.deepEqual(Object.keys(manual.turns[0]).sort(), Object.keys(live.turns[0]).sort());
 });
 
-test('response text survives byte-identical (emoji, quote, newline, trailing space)', async () => {
+test('ACCEPT/manual: response text survives byte-identical (emoji, quote, newline, trailing space)', async () => {
   const nasty = 'Hi \u{1F44B} she said "ok"\nline two with a trailing space ';
   const rec = await buildManualRecord({ ...base, responses: [nasty, nasty] });
   assert.strictEqual(rec.turns[0].response_text, nasty);
@@ -68,7 +68,7 @@ test('wrong response count throws, stating expected vs found', async () => {
     /expected 2.*found 1/
   );
 });
-test('unmeasured fields are null, never zero, and the provider is manual', async () => {
+test('ACCEPT/manual: unmeasured fields are null, never zero, and the provider is manual', async () => {
   const t = (await buildManualRecord(base)).turns[0];
   assert.strictEqual(t.usage, null);
   assert.strictEqual(t.latency_ms, null);

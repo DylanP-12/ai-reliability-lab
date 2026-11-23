@@ -58,7 +58,7 @@ function setupPriced() {
 }
 
 // ---- tests ----
-test('cap halts: $1 per unit, $3 cap, exactly 3 units run', async () => {
+test('ACCEPT/run: cap halts: $1 per unit, $3 cap, exactly 3 units run', async () => {
   const { scenarios, models, config, schedule, dir, outPath } = setupPriced();
   const { chat, calls } = countingChat();
   try {
@@ -71,7 +71,7 @@ test('cap halts: $1 per unit, $3 cap, exactly 3 units run', async () => {
   }
 });
 
-test('cap fails closed: unknown model stops the run before any call', async () => {
+test('ACCEPT/run: cap fails closed: unknown model stops the run before any call', async () => {
   const { scenarios, config, dir, outPath } = setupPriced();
 
   // The schedule names a model, m9, that we never give to dispatch.
@@ -88,7 +88,7 @@ test('cap fails closed: unknown model stops the run before any call', async () =
   }
 });
 
-test('failure isolation: unit 2 of 5 fails, all 5 still run', async () => {
+test('ACCEPT/run: failure isolation: unit 2 of 5 fails, all 5 still run', async () => {
   const { scenarios, models, config, schedule, dir, outPath } = setupPriced();
   const roomyConfig = { ...config, spend_cap_usd: 100 };   // so the cap does not interfere
   const five = schedule.slice(0, 5);

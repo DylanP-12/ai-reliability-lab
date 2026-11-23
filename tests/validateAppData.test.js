@@ -44,7 +44,7 @@ test('orphan: an index entry with no transcript file is caught', () => {
   }
 });
 
-test('no secrets: a planted API key in any data file is caught', () => {
+test('ACCEPT/integrity: no secrets: a planted API key in any data file is caught', () => {
   const dir = makeGoodData();
   try {
     const fakeKey = 'sk-or-v1-' + 'a'.repeat(40);
@@ -59,7 +59,7 @@ test('no secrets: a planted API key in any data file is caught', () => {
   }
 });
 
-test('no private notes: an evaluation_note in scenarios.json is caught', () => {
+test('ACCEPT/integrity: no private notes: an evaluation_note in scenarios.json is caught', () => {
   const dir = makeGoodData();
   try {
     const scenarios = readJson(dir, 'scenarios.json');

@@ -1,5 +1,6 @@
 // cli/scoreDispatch.js - the resumable scoring loop (Node-only: writes via appendRecord)
 // Reads responses only as in-memory records. Its ONLY write is append(evaluationsPath, ...).
+import { latestPerUnit } from '../core/latest.js';
 import { buildJudgePacket } from '../core/buildJudgePacket.js';
 import { buildJudgePrompt } from '../core/buildJudgePrompt.js';
 import { parseJudge } from '../core/parseJudge.js';
@@ -23,7 +24,7 @@ export async function scoreDispatch({
   append = appendRecord, sleepFn = realSleep, shouldStop = () => false,
 }) {
   const done = loadCompleteEvalIds(evaluationsPath);
-  const byUnitId = new Map(records.map((r) => [r.unit_id, r]));
+  const byUnitId = new Map(latestPerUnit(records).map((r) => [r.unit_id, r]));
   let ran = 0;
   let skipped = 0;
   let spent = 0;

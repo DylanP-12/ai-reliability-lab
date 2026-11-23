@@ -2,13 +2,13 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { mulberry32, shuffle } from '../core/seededRandom.js';
 
-test('shuffle is deterministic for the same seed', () => {
+test('ACCEPT/run: shuffle is deterministic for the same seed', () => {
   const a = shuffle([1,2,3,4,5,6,7,8,9,10], 123);
   const b = shuffle([1,2,3,4,5,6,7,8,9,10], 123);
   assert.deepEqual(a, b);
 });
 
-test('shuffle matches the golden value for seed 20260811', () => {
+test('ACCEPT/run: shuffle matches the golden value for seed 20260811', () => {
   const result = shuffle([1,2,3,4,5,6,7,8,9,10], 20260811);
   assert.deepEqual(result, [8, 5, 9, 2, 3, 6, 1, 7, 10, 4]); // golden: locks cross-version determinism
 });

@@ -73,7 +73,7 @@ test('wiring check: capturing client sees one call per turn', async () => {
   assert.equal(capture.sent.length, 3);
 });
 
-test('§11-1 exact composition: each turn sends exactly the prior history plus the new prompt', async () => {
+test('ACCEPT/conversation: §11-1 exact composition: each turn sends exactly the prior history plus the new prompt', async () => {
   const capture = capturingChat();
   await runConversation({
     scenario: makeScenario(['P1', 'P2', 'P3']),
@@ -92,7 +92,7 @@ test('§11-1 exact composition: each turn sends exactly the prior history plus t
 });
 
 
-test('§11-2 no cross-model contamination', async () => {
+test('ACCEPT/conversation: §11-2 no cross-model contamination', async () => {
   const captureA = capturingChat('A');
   const captureB = capturingChat('B');
   const scenario = makeScenario(['P1', 'P2']);
@@ -111,7 +111,7 @@ test('§11-2 no cross-model contamination', async () => {
    assert.ok(!trafficB.includes('A-R1'), 'model-b traffic must not contain model-a replies');
 });
 
-test('§11-3 no cross-repetition contamination (shared client)', async () => {
+test('ACCEPT/conversation: §11-3 no cross-repetition contamination (shared client)', async () => {
   const shared = capturingChat();
   const scenario = makeScenario(['P1', 'P2']);
   const model = makeModel('model-a');
@@ -125,7 +125,7 @@ test('§11-3 no cross-repetition contamination (shared client)', async () => {
   assert.ok(!rep2Traffic.includes('R1'), 'rep 2 traffic must not contain rep 1 replies');
 });
 
-test('§11-4 single-turn scenario, no special case', async () => {
+test('ACCEPT/conversation: §11-4 single-turn scenario, no special case', async () => {
   const capture = capturingChat();
   const record = await runConversation({
     scenario: makeScenario(['P1']),
@@ -141,7 +141,7 @@ test('§11-4 single-turn scenario, no special case', async () => {
 });
 
 
-test('§11-5 reasoning_text never enters outgoing history', async () => {
+test('ACCEPT/conversation: §11-5 reasoning_text never enters outgoing history', async () => {
   const capture = capturingChat();
   await runConversation({
     scenario: makeScenario(['P1', 'P2']),
@@ -155,7 +155,7 @@ test('§11-5 reasoning_text never enters outgoing history', async () => {
   assert.ok(!traffic.includes('SECRET-THOUGHT'), 'reasoning_text must never appear in outgoing messages');
 });
 
-test('§11-6 evaluation_note never enters outgoing history', async () => {
+test('ACCEPT/conversation: §11-6 evaluation_note never enters outgoing history', async () => {
   const capture = capturingChat();
   await runConversation({
     scenario: makeScenario(['P1', 'P2'], { notes: ['secret-note-A', 'secret-note-B'] }),

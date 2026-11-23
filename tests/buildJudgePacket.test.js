@@ -46,7 +46,7 @@ function assertNoIdentity(packet, record) {
   }
 }
 
-test('no judge packet contains model or provider identity', () => {
+test('ACCEPT/scoring: no judge packet contains model or provider identity', () => {
   const { record, packet } = build();
   assertNoIdentity(packet, record);
 });
@@ -56,7 +56,7 @@ test('transcript uses only generic User/Assistant labels', () => {
   assert.ok(packet.transcript.every(e => e.role === 'User' || e.role === 'Assistant'));
 });
 
-test('a judge packet contains only the checkpoint turn', () => {
+test('ACCEPT/scoring: a judge packet contains only the checkpoint turn', () => {
   const { packet } = build();
   assert.equal(packet.transcript.length, 2);
   const text = JSON.stringify(packet.transcript);

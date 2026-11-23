@@ -24,3 +24,7 @@ Under construction, built lesson by lesson.
 
 ## License
 MIT
+
+## Acceptance tests
+
+Every promise the system makes is listed in [docs/acceptance-matrix.md](docs/acceptance-matrix.md), each one either an automated test or a documented manual check. Run them all with: npm run acceptance

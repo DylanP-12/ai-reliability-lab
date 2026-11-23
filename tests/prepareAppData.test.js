@@ -93,7 +93,7 @@ test('byte-identity: derived response_text === frozen source, character for char
   assert.equal(convo.turns[1].response_text, TRICKY);
 });
 
-test('no secrets: a planted key (env, frozen record, models config) appears in no output file', () => {
+test('ACCEPT/integrity: no secrets: a planted key (env, frozen record, models config) appears in no output file', () => {
   const saved = process.env.OPENROUTER_API_KEY;
   process.env.OPENROUTER_API_KEY = FAKE_KEY;
   try {
@@ -114,7 +114,7 @@ test('no secrets: a planted key (env, frozen record, models config) appears in n
   }
 });
 
-test('no private notes: scenarios.json has no evaluation_note field and no canary text anywhere', () => {
+test('ACCEPT/integrity: no private notes: scenarios.json has no evaluation_note field and no canary text anywhere', () => {
   const outDir = runPrep();
   const scenarios = JSON.parse(readFileSync(join(outDir, 'scenarios.json'), 'utf8'));
   assert.equal(scenarios.length, 1);
