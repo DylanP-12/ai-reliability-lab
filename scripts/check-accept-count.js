@@ -4,7 +4,7 @@
 // Lives in scripts/, not core/, so node:child_process is allowed here.
 import { spawnSync } from 'node:child_process';
 
-const MIN = 51;
+const MIN = 52;
 
 const run = spawnSync(
   process.execPath,
