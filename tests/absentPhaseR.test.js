@@ -7,14 +7,18 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { prepareAppData } from '../cli/prepare-app-data.js';
 import { validateAppData } from '../cli/validateAppData.js';
+import { buildFixture, fixturePaths } from './helpers/appDataFixture.js';
 
 const readJson = (dir, file) => JSON.parse(readFileSync(join(dir, file), 'utf8'));
 
 test('ACCEPT/manual: absent Phase R files: every unit is api, nothing excluded, agreement none, validator clean', () => {
   const dir = mkdtempSync(join(tmpdir(), 'absent-'));
   const missing = 'data/__absent_on_purpose__.jsonl';
+  const src = buildFixture();
+  const paths = fixturePaths(src);
   try {
     prepareAppData({
+      ...paths,
       outDir: dir,
       manualResponsesPath: missing,
       manualEvaluationsPath: missing,
@@ -27,8 +31,9 @@ test('ACCEPT/manual: absent Phase R files: every unit is api, nothing excluded, 
     assert.equal(readJson(dir, 'results/degradation.json').excluded_manual.units, 0);
     assert.deepEqual(readJson(dir, 'results/agreement.json'), { status: 'none' });
     assert.deepEqual(readJson(dir, 'calibration.json'), { status: 'none' });
-    assert.deepEqual(validateAppData(dir, { frozenResponsesPath: 'data/responses.smoke.jsonl' }), []);
+    assert.deepEqual(validateAppData(dir, { frozenResponsesPath: paths.responsesPath }), []);
   } finally {
     rmSync(dir, { recursive: true, force: true });
+    rmSync(src, { recursive: true, force: true });
   }
 });

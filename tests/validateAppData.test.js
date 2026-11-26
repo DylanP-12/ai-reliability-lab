@@ -1,17 +1,23 @@
 // tests/validateAppData.test.js: the validator must pass good data and catch each planted problem (L044)
-import { test } from 'node:test';
+import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtempSync, readFileSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { prepareAppData } from '../cli/prepare-app-data.js';
 import { validateAppData } from '../cli/validateAppData.js';
+import { buildFixture, fixturePaths } from './helpers/appDataFixture.js';
 
-const FROZEN = 'data/responses.smoke.jsonl';
-const FROZEN_MANUAL = 'data/responses.manual.jsonl';
+// One fake input set for every test in this file. Never the real data/ (L064).
+const SRC = buildFixture();
+const PATHS = fixturePaths(SRC);
+const FROZEN = PATHS.responsesPath;
+const FROZEN_MANUAL = PATHS.manualResponsesPath;
+after(() => rmSync(SRC, { recursive: true, force: true }));
+
 function makeGoodData() {
   const dir = mkdtempSync(join(tmpdir(), 'appdata-'));
-  prepareAppData({ outDir: dir });
+  prepareAppData({ ...PATHS, outDir: dir });
   return dir;
 }
 
@@ -125,7 +131,12 @@ test('degradation: a point whose rate does not match its counts is caught', () =
   const dir = makeGoodData();
   try {
     const degradation = readJson(dir, 'results/degradation.json');
-    degradation.models[0].points[0].rate = 0.5;
+    const point = degradation.models[0].points[0];
+    const realRate = point.rate;
+    // Plant a rate that is guaranteed to differ from the real one,
+    // whatever the fixture's counts happen to be.
+    point.rate = realRate > 0.5 ? 0.1 : 0.9;
+    assert.notEqual(point.rate, realRate, 'the planted rate must actually change something');
     writeJson(dir, 'results/degradation.json', degradation);
     const problems = validateAppData(dir, { frozenResponsesPath: FROZEN });
     assert.ok(problems.some((p) => p.includes('rate wrong: degradation')), problems.join('\n'));
