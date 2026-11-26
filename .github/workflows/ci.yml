@@ -1,0 +1,26 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Least privilege: this job only needs to read the code.
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          cache: 'npm'
+      - run: npm ci
+      - name: Gates 1 and 2 - core purity, then full test suite
+        run: npm test
+      - name: Gate 2b - acceptance matrix has not shrunk
+        run: npm run acceptance:count
+      # Gate 3 (data validator): added once we decide how CI gets app data.
