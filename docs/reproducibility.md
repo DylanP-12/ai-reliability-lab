@@ -100,14 +100,20 @@ repetitions increase.
 - Sheet `hs-2026-11-14`, rule `rehearsal-all`, seed 20261114, 13 items,
   rubric v1. The seed and rule regenerate the same sample in the same order.
 - This sheet is a rehearsal, not calibration (`docs/human-agreement.md`).
-- Human scores and the blind key are not distributed. They are gitignored and
-  stored per installation.
+- Individual human grades, rater packets and blind keys are not distributed.
+  They are gitignored and stay in `export/` on the researcher's machine.
+- One counts-only summary is tracked:
+  `data/archive/calibration.practice-2026-10-25.json` (the L042 practice
+  check, 7 of 7 checkpoints). It holds totals and limitations only, with no
+  grades or blind references.
 
 ## Manual collection
 
 - 1 unit, collected under `docs/manual-collection-protocol.md`.
-- Raw manual transcripts and the session log stay in `data/manual/` and are not
-  in the repository.
+- The session log is tracked at `manual/session-log.csv`. It records the
+  session, scenario, model, surface, time, collector by initial, and
+  anomalies, nothing personal.
+- Raw manual transcripts (`manual/*.txt`) are not in the repository.
 - A manual unit cannot be reproduced by re-running anything: the consumer
   interface's hidden settings are unknown (see `docs/limitations.md`, section 9).
 

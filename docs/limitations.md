@@ -37,9 +37,12 @@ does not support a claim, the project does not make it.
   the study's rater, and supports no claim. Every disagreement ran one way (human
   stricter), which points at the rubric rather than at noise.
 - **Expert calibration:** not yet collected.
-- Calibration scores are stored per installation and are gitignored. They are
-  not in the repository, and the live site shows "no calibration data." A third
-  party cannot regenerate any agreement number from the repo alone.
+- Individual human grades and blind keys are stored per installation and are
+  gitignored, so a third party cannot regenerate any agreement number from the
+  repo alone. The only calibration file in the repository is a counts-only
+  summary of the L042 practice check
+  (`data/archive/calibration.practice-2026-10-25.json`). The live site shows
+  "No calibration yet."
 
 ## 4. One rater bounds the calibration
 
