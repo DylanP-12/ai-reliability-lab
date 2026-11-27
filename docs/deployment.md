@@ -1,67 +1,81 @@
 # Deployment
 
-**Status (2026-11-26): not deployed.** The production build is verified
-locally. Publishing the derived data is on hold pending mentor review
-(see Data policy). Nothing in this repo is published to a host yet.
+**Host:** GitHub Pages, deployed by GitHub Actions.
+**URL:** https://dylanp-12.github.io/ai-reliability-lab/
+**Status:** set up in L065 (2026-11-26). See "Verification" for live checks.
 
-## Build and preview
+## How a deploy happens
+
+Every push to `main` runs `.github/workflows/ci.yml`:
+
+1. `test`: core purity, the full suite, and the acceptance-count gate.
+2. `build`: `npm ci` and `npm run build` in `app/`, producing `app/dist/`.
+   This job also runs on pull requests, so a broken build fails the PR.
+3. `deploy`: uploads `app/dist/` to GitHub Pages. Only from `main`, and only
+   if `test` and `build` passed. Only this job has Pages permissions.
+
+Branch protection requires a green PR to reach `main`, so nothing deploys
+without review and CI. To redeploy without a code change, run the workflow
+by hand from the Actions tab (workflow_dispatch).
+
+One-time setup: repo Settings, Pages, Source = **GitHub Actions**.
+
+## Build and preview locally
 
     cd app
     npm run build      # writes app/dist/ (gitignored)
-    npm run preview    # serves dist/ at http://localhost:4173/
+    npm run preview    # http://localhost:4173/ai-reliability-lab/
 
 Always test the build with `preview`, not just `npm run dev`. Users get
 `dist/`, and anything that only worked because of the dev server breaks here.
-Verified 2026-11-26: all five screens load from the production build.
 
 ## Base path
 
-Hosts that serve the app from a subdirectory (GitHub Pages project sites,
-`https://<user>.github.io/ai-reliability-lab/`) need Vite's `base` set to
-that subdirectory. Otherwise absolute paths like `/data/index.json` resolve
-to the domain root and return 404.
+GitHub Pages serves this project from a subdirectory, so
+`app/vite.config.js` sets `base: '/ai-reliability-lab/'`.
 
-- **JS/CSS:** Vite rewrites asset paths from `base` automatically.
+- **JS/CSS:** Vite rewrites asset paths from `base`.
 - **Data:** `app/src/lib/dataStore.js` builds its path from
-  `import.meta.env.BASE_URL`, so data follows `base` too. It used to be
-  hardcoded to `/data`.
+  `import.meta.env.BASE_URL`. It used to hardcode `/data`, which 404s under
+  a subdirectory.
 
-Verified 2026-11-26: built and previewed with
-`--base=/ai-reliability-lab/`. Before the dataStore fix, `index.json`
-returned 404. After it, every data file returned 200/304 from
-`/ai-reliability-lab/data/`.
+Verified 2026-11-26: with the old hardcoded `/data`, a subdirectory build
+loaded the app shell but `index.json` returned 404. After the fix, every
+data file returned 200/304. If the app moves to a root-domain host, set
+`base: '/'`.
 
-`base` is **not yet set** in `app/vite.config.js`. Set it once the host is
-chosen: `/ai-reliability-lab/` for GitHub Pages, `/` for a root-domain host
-such as Netlify.
+## Data policy
 
-## Data policy (decision pending)
+`app/public/data/` is committed (since L065) so the deployed site has it.
+It contains the **sample dataset only** (C001 to C006, 10 units: 9 API and
+1 manual), not data from the real study.
 
-`app/public/data/` is gitignored (`.gitignore`: derived app data). Git
-tracks 0 files there, so a deploy built from the repo would contain no
-data. The validator passed on the real data on 2026-11-26
-(`node cli/validateAppData.js app/public/data`): consistent, no secrets,
-no private notes, byte-identical to the frozen files.
+Before committing it (2026-11-26):
 
-What would be published: the full text of every model response, including
-one manual (consumer-UI) unit. The repository is public, so committing the
-data puts it in history permanently, and any deployed URL serves it to
-anyone. Because the results are headed for ISEF and a journal paper, this
-decision goes to the mentor first. Options:
+- `node cli/validateAppData.js app/public/data` passed: consistent, no
+  secrets, no private notes, byte-identical to the frozen files.
+- The one manual (Meta AI) unit was read in full: no personal or account
+  details.
+- `calibration.json` and `results/agreement.json` hold counts only (the
+  calibration allowlist test proves this): no blind refs, no rater identity.
 
-1. Commit `app/public/data/` and deploy everything.
-2. Deploy API units only (leave the manual unit out).
-3. Deploy real data without committing it (build locally, upload `dist/`).
-4. Hold publication; tag v1.0.0 later.
+CI cannot run the validator on this data, because the byte-identity check
+needs the gitignored frozen files. So: **re-run the validator locally
+before every commit that changes `app/public/data/`.**
 
-Never published under any option: `export/` (the human-scoring key files)
-and `manual/*.txt` (raw manual transcripts). Both stay gitignored.
+Never committed or deployed: `export/` (human-scoring key files),
+`manual/*.txt` (raw manual transcripts), `data/*.jsonl` (frozen run files).
+
+**Before publishing data from the real study:** decide again. That data is
+the sensitive set and is headed for ISEF and a journal paper. Options:
+keep the public site on the sample dataset, publish API units only, or
+publish after the paper. Get mentor sign-off first.
 
 ## Run screen in production
 
 The Run screen calls OpenRouter from the browser (CORS verdict:
 `docs/cors-verdict.md`). On a public URL, anyone can enter a key, so the
-on-screen localStorage warning and the demo limits (1 scenario, 1 model,
+localStorage warning and the demo limits (1 scenario, 1 model,
 1 repetition, 12 turns, 300 tokens per reply, estimate under $0.05) are the
 security controls. Demo output is ephemeral and never part of the study.
 
@@ -71,15 +85,12 @@ JS and CSS filenames are content-hashed, so a new build gets new names and
 browsers never serve stale code. Data files under `data/` keep the same
 names, so a browser or host cache can serve an old copy after the data is
 regenerated. Confirm with a hard refresh (Ctrl+Shift+R), then fix it
-properly with cache headers or a cache-busting query rather than asking
-users to hard-refresh.
+properly (cache headers or a cache-busting query) rather than asking users
+to hard-refresh.
 
-## Remaining steps (after the mentor decision)
+## Verification
 
-1. Choose the host; set `base` in `app/vite.config.js`.
-2. Apply the data policy chosen above.
-3. Deploy `dist/` (GitHub Pages: add a deploy job to `.github/workflows/ci.yml`).
-4. Open the live URL on another device; click all five screens; confirm
-   `data/index.json` returns 200 from the deployed path.
-5. Tag `v1.0.0` and publish release notes (what it is, limitations, URL,
-   how to reproduce from `manifest.json`: run_id, dataset_version, seed).
+- 2026-11-26: production build and preview, all five screens OK.
+- 2026-11-26: subdirectory build via `vite.config.js` base, grid loads.
+- Live URL on another device, all five screens, `data/index.json` 200:
+  (fill in after the first deploy).

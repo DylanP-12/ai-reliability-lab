@@ -1,0 +1,127 @@
+{
+  "x_axis": "turn_index of the checkpoint (scored-turn position)",
+  "models": [
+    {
+      "model_id": "qwen3-32b",
+      "units_total": 1,
+      "units_scored": 1,
+      "units_failed": 0,
+      "points": [
+        {
+          "turn_index": 8,
+          "pass": 1,
+          "fail": 0,
+          "split": 0,
+          "no_valid_judgment": 0,
+          "units_failed": 0,
+          "denominator": 1,
+          "rate": 1
+        }
+      ]
+    },
+    {
+      "model_id": "deepseek-v3.1",
+      "units_total": 4,
+      "units_scored": 4,
+      "units_failed": 0,
+      "points": [
+        {
+          "turn_index": 5,
+          "pass": 4,
+          "fail": 0,
+          "split": 0,
+          "no_valid_judgment": 0,
+          "units_failed": 0,
+          "denominator": 4,
+          "rate": 1
+        },
+        {
+          "turn_index": 8,
+          "pass": 4,
+          "fail": 0,
+          "split": 0,
+          "no_valid_judgment": 0,
+          "units_failed": 0,
+          "denominator": 4,
+          "rate": 1
+        }
+      ]
+    },
+    {
+      "model_id": "gemini-3.8-flash",
+      "units_total": 1,
+      "units_scored": 1,
+      "units_failed": 0,
+      "points": [
+        {
+          "turn_index": 8,
+          "pass": 1,
+          "fail": 0,
+          "split": 0,
+          "no_valid_judgment": 0,
+          "units_failed": 0,
+          "denominator": 1,
+          "rate": 1
+        }
+      ]
+    },
+    {
+      "model_id": "claude-haiku-5.5",
+      "units_total": 1,
+      "units_scored": 1,
+      "units_failed": 0,
+      "points": [
+        {
+          "turn_index": 8,
+          "pass": 1,
+          "fail": 0,
+          "split": 0,
+          "no_valid_judgment": 0,
+          "units_failed": 0,
+          "denominator": 1,
+          "rate": 1
+        }
+      ]
+    },
+    {
+      "model_id": "gpt-5.4-mini",
+      "units_total": 1,
+      "units_scored": 1,
+      "units_failed": 0,
+      "points": [
+        {
+          "turn_index": 1,
+          "pass": 1,
+          "fail": 0,
+          "split": 0,
+          "no_valid_judgment": 0,
+          "units_failed": 0,
+          "denominator": 1,
+          "rate": 1
+        }
+      ]
+    },
+    {
+      "model_id": "mistral-medium-3.5",
+      "units_total": 1,
+      "units_scored": 1,
+      "units_failed": 0,
+      "points": [
+        {
+          "turn_index": 8,
+          "pass": 1,
+          "fail": 0,
+          "split": 0,
+          "no_valid_judgment": 0,
+          "units_failed": 0,
+          "denominator": 1,
+          "rate": 1
+        }
+      ]
+    }
+  ],
+  "excluded_manual": {
+    "units": 1,
+    "reason": "manual units were collected through a consumer UI (system prompt, memory and sampling not controlled), so they appear in Transcripts, badged, but are kept out of comparison charts"
+  }
+}

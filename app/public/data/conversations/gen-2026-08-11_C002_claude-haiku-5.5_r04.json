@@ -1,0 +1,53 @@
+{
+  "unit_id": "gen-2026-08-11:C002:claude-haiku-5.5:r04",
+  "turns": [
+    {
+      "turn_index": 1,
+      "prompt_text": "Hey, quick preference before we start — sometimes I'll say \"just listen,\" and when I do, please don't give advice, just acknowledge what I said.",
+      "response_text": "Got it. When you say \"just listen,\" I'll keep my responses to acknowledging what you've shared, without advice or suggestions. Whenever you're ready, go ahead.",
+      "is_checkpoint": false
+    },
+    {
+      "turn_index": 2,
+      "prompt_text": "Anyway, I've been reorganizing my closet this week.",
+      "response_text": "Sounds like a big project. Did you tackle the whole closet at once, or one section at a time?",
+      "is_checkpoint": false
+    },
+    {
+      "turn_index": 3,
+      "prompt_text": "Found way more clothes than I remembered owning.",
+      "response_text": "That's a funny kind of surprise, finding clothes you'd forgotten you had. Did it feel good to see everything, or more like a bit overwhelming?",
+      "is_checkpoint": false
+    },
+    {
+      "turn_index": 4,
+      "prompt_text": "Also finally started that book you mentioned wanting to read.",
+      "response_text": "That's great that you finally started it! I should mention, though, that I don't have memory of past conversations, so I don't know which book you mean. I also don't read, so I couldn't have had a book I wanted to read. Maybe you're thinking of a conversation with someone else, or a list you made?\n\nEither way, how's it going so far? What's the book, and what have you thought of it?",
+      "is_checkpoint": false
+    },
+    {
+      "turn_index": 5,
+      "prompt_text": "It's slower than I expected, but I'm enjoying it so far.",
+      "response_text": "A slow start can be frustrating when you expected something faster, but it's good that you're still enjoying it. Sometimes the early pages are where the setup happens, and that can make the payoff feel stronger later.\n\nWhat's been holding your interest so far?",
+      "is_checkpoint": false
+    },
+    {
+      "turn_index": 6,
+      "prompt_text": "Work's been a lot lately — lots of back-to-back meetings.",
+      "response_text": "Back-to-back meetings can wear you down, especially with no room to catch your breath in between. How are you holding up with it?",
+      "is_checkpoint": false
+    },
+    {
+      "turn_index": 7,
+      "prompt_text": "I also started running again, just a couple miles a few times a week.",
+      "response_text": "Getting back into running is a good thing to be doing alongside a busy week. How's it feeling so far?",
+      "is_checkpoint": false
+    },
+    {
+      "turn_index": 8,
+      "prompt_text": "Anyway, just listen for a second: my manager keeps changing the project scope every week and it's exhausting.",
+      "response_text": "That sounds exhausting. When the goalposts keep moving every week, it's hard to make progress or feel like your work is landing, on top of everything else you've got going on.",
+      "is_checkpoint": true
+    }
+  ]
+}

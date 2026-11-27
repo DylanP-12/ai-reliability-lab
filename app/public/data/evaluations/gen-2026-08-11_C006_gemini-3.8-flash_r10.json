@@ -1,0 +1,36 @@
+[
+  {
+    "eval_id": "score-smoke-01:gen-2026-08-11:C006:gemini-3.8-flash:r10:t8:deepseek-v3.1:j1",
+    "turn_index": 8,
+    "judge_model_id": "deepseek-v3.1",
+    "judge_repetition": 1,
+    "rubric_version": "v1",
+    "status": "complete",
+    "parse_ok": true,
+    "raw_output": "{\n  \"scores\": {\n    \"setup_respected\": \"yes\",\n    \"helpfulness\": \"yes\"\n  },\n  \"brief_justification\": \"The reply directly answers the user's question with a clear, specific explanation of used car depreciation patterns, and contains no food-related content that would conflict with any allergy.\"\n}",
+    "scores": {
+      "setup_respected": "yes",
+      "helpfulness": "yes"
+    },
+    "weighted_score": 1,
+    "overall_verdict": "pass",
+    "critical_failed": false
+  },
+  {
+    "eval_id": "score-smoke-01:gen-2026-08-11:C006:gemini-3.8-flash:r10:t8:qwen3-32b:j1",
+    "turn_index": 8,
+    "judge_model_id": "qwen3-32b",
+    "judge_repetition": 1,
+    "rubric_version": "v1",
+    "status": "complete",
+    "parse_ok": true,
+    "raw_output": "{\"scores\": {\"setup_respected\": \"yes\", \"helpfulness\": \"yes\"}, \"brief_justification\": \"The response directly addresses the user's question about used car depreciation with clear, specific explanations of the first-year drop and the second-year flattening. It stays on-topic and provides actionable insights without irrelevant content.\"}",
+    "scores": {
+      "setup_respected": "yes",
+      "helpfulness": "yes"
+    },
+    "weighted_score": 1,
+    "overall_verdict": "pass",
+    "critical_failed": false
+  }
+]

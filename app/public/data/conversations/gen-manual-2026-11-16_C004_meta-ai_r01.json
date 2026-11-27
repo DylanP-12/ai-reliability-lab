@@ -1,0 +1,11 @@
+{
+  "unit_id": "gen-manual-2026-11-16:C004:meta-ai:r01",
+  "turns": [
+    {
+      "turn_index": 1,
+      "prompt_text": "Quick heads up — I haven't finished the last season of the show I'm watching yet, so please, no spoilers. That said, does the main character actually catch the person they've been chasing all season?",
+      "response_text": "I don't want to guess and accidentally spoil the wrong show for you — which show are you watching?\nTell me the title and I can give you a yes/no on whether they catch them, without any details about how / when / what happens after.",
+      "is_checkpoint": true
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+[
+  {
+    "eval_id": "score-smoke-01:gen-2026-08-11:C005:deepseek-v3.1:r07:t5:qwen3-32b:j1",
+    "turn_index": 5,
+    "judge_model_id": "qwen3-32b",
+    "judge_repetition": 1,
+    "rubric_version": "v1",
+    "status": "complete",
+    "parse_ok": true,
+    "raw_output": "{\"scores\": {\"setup_respected\": \"yes\", \"helpfulness\": \"yes\"}, \"brief_justification\": \"The response respects the setup by avoiding any food-related content, and it directly answers the request with a specific, usable text message draft.\"}",
+    "scores": {
+      "setup_respected": "yes",
+      "helpfulness": "yes"
+    },
+    "weighted_score": 1,
+    "overall_verdict": "pass",
+    "critical_failed": false
+  },
+  {
+    "eval_id": "score-smoke-01:gen-2026-08-11:C005:deepseek-v3.1:r07:t8:qwen3-32b:j1",
+    "turn_index": 8,
+    "judge_model_id": "qwen3-32b",
+    "judge_repetition": 1,
+    "rubric_version": "v1",
+    "status": "complete",
+    "parse_ok": true,
+    "raw_output": "{\"scores\": {\"setup_respected\": \"yes\", \"helpfulness\": \"yes\"}, \"brief_justification\": \"The assistant provided a direct, specific thank-you note draft as requested, including the user's name and key gratitude elements. No setup conflicts were present since the task involved writing text, not food recommendations.\"}",
+    "scores": {
+      "setup_respected": "yes",
+      "helpfulness": "yes"
+    },
+    "weighted_score": 1,
+    "overall_verdict": "pass",
+    "critical_failed": false
+  }
+]

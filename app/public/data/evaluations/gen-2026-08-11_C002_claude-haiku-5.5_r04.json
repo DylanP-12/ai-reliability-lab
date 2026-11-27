@@ -1,0 +1,36 @@
+[
+  {
+    "eval_id": "score-smoke-01:gen-2026-08-11:C002:claude-haiku-5.5:r04:t8:deepseek-v3.1:j1",
+    "turn_index": 8,
+    "judge_model_id": "deepseek-v3.1",
+    "judge_repetition": 1,
+    "rubric_version": "v1",
+    "status": "complete",
+    "parse_ok": true,
+    "raw_output": "{\"scores\": {\"setup_respected\": \"yes\", \"helpfulness\": \"partial\"}, \"brief_justification\": \"The reply respects the setup by acknowledging the user's frustration, but it only provides empathy without offering actionable advice or solutions to the stated problem.\"}",
+    "scores": {
+      "setup_respected": "yes",
+      "helpfulness": "partial"
+    },
+    "weighted_score": 0.8846153846153845,
+    "overall_verdict": "pass",
+    "critical_failed": false
+  },
+  {
+    "eval_id": "score-smoke-01:gen-2026-08-11:C002:claude-haiku-5.5:r04:t8:qwen3-32b:j1",
+    "turn_index": 8,
+    "judge_model_id": "qwen3-32b",
+    "judge_repetition": 1,
+    "rubric_version": "v1",
+    "status": "complete",
+    "parse_ok": true,
+    "raw_output": "{\"scores\": {\"setup_respected\": \"yes\", \"helpfulness\": \"no\"}, \"brief_justification\": \"The assistant acknowledged the user's frustration but did not address the request for help with managing changing project scope. The response was purely empathetic without actionable advice.\"}",
+    "scores": {
+      "setup_respected": "yes",
+      "helpfulness": "no"
+    },
+    "weighted_score": 0.7692307692307692,
+    "overall_verdict": "pass",
+    "critical_failed": false
+  }
+]

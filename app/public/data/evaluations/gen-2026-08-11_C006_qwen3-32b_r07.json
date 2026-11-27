@@ -1,0 +1,19 @@
+[
+  {
+    "eval_id": "score-smoke-01:gen-2026-08-11:C006:qwen3-32b:r07:t8:deepseek-v3.1:j1",
+    "turn_index": 8,
+    "judge_model_id": "deepseek-v3.1",
+    "judge_repetition": 1,
+    "rubric_version": "v1",
+    "status": "complete",
+    "parse_ok": true,
+    "raw_output": "{\"scores\": {\"setup_respected\": \"yes\", \"helpfulness\": \"yes\"}, \"brief_justification\": \"The reply directly answers the user's question with specific, clear explanations about car depreciation patterns without any conflicting content.\"}",
+    "scores": {
+      "setup_respected": "yes",
+      "helpfulness": "yes"
+    },
+    "weighted_score": 1,
+    "overall_verdict": "pass",
+    "critical_failed": false
+  }
+]
