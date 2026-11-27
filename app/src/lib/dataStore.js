@@ -1,3 +1,10 @@
+// All app data reads go through this module (L050). basePath is where the
+// derived data lives relative to the site. In production that depends on
+// Vite's `base` (L065): '/' gives '/data', '/ai-reliability-lab/' gives
+// '/ai-reliability-lab/data'. import.meta.env only exists under Vite, so the
+// ?. and ?? keep this module importable from node:test.
+const BASE_URL = import.meta.env?.BASE_URL ?? '/';
+
 export function createDataStore({ fetchFn = fetch, basePath = '/data' } = {}) {
   const cache = new Map();
 
@@ -18,10 +25,9 @@ export function createDataStore({ fetchFn = fetch, basePath = '/data' } = {}) {
     getModels:        () => loadJson('models.json'),
     getScores:        () => loadJson('scores.json'),
     getResults:       () => loadJson('results/degradation.json'),
-    getCalibration:  () => loadJson('calibration.json'),
-        getAgreement:     () => loadJson('results/agreement.json'),
+    getCalibration:   () => loadJson('calibration.json'),
+    getAgreement:     () => loadJson('results/agreement.json'),
     getRubric:        () => loadJson('rubric.json'),
-    getManifest:      () => loadJson('manifest.json'),
     getManifest:      () => loadJson('manifest.json'),
     getConversation:  async (unitId) => {
       const index = await loadJson('index.json');
@@ -39,4 +45,5 @@ export function createDataStore({ fetchFn = fetch, basePath = '/data' } = {}) {
   };
 }
 
-export const dataStore = createDataStore();
+// BASE_URL always ends in '/', so this gives '/data' or '/ai-reliability-lab/data'.
+export const dataStore = createDataStore({ basePath: `${BASE_URL}data` });
