@@ -66,3 +66,40 @@ with a reason, never counted as zero.
   measures consistency under the same handicap, not accuracy against the full
   conversation.
 - Writing style may reveal the model. This cannot be removed, only recorded.
+
+---
+
+## Addendum 2026-11-27: people involved and review before the study
+
+Added at v1.0.0. Nothing above this line was changed.
+
+### People involved
+
+People are recorded by role only. No personal data about any of them (names
+beyond initials, ages, contact details, or anything about their own lives) is
+collected, stored or published.
+
+| Role | What they did or will do | What they received | Status |
+|---|---|---|---|
+| Rehearsal rater (the student) | Graded sheets hs-2026-11-13 and hs-2026-11-14 to rehearse this protocol | Blinded packets and score sheet | Done; practice only, not calibration |
+| Manual collectors (E, H, D) | Typed scripted prompts into consumer chat apps and recorded the replies, under `docs/manual-collection-protocol.md` | The script and the protocol | Done (1 unit) |
+| Expert rater | Will grade a blind Rule A sheet; their grades are analysed as agreement with the AI judges | Blinded packets, score sheet, rubric | Planned |
+| Clinical author (psychiatrist) | Will write clinical content for the study scenarios and checkpoints | Scenario format and rubric draft | Planned |
+| Adolescent authors | Will contribute the wording of scenario turns | Scenario format and instructions | Planned |
+
+### Review before the study
+
+The expert rater's grades are analysed, not just used: the agreement figure is
+a statement about how that person applied the rubric. Adolescents contributing
+writing is also a form of involvement that a science fair or journal may
+review. Whether either counts as human-participants research is for the
+reviewing committee (for ISEF, the Scientific Review Committee or IRB) to
+decide, and its rules change from year to year.
+
+Before any planned session above takes place, the question will be put to the
+reviewing committee, with this protocol attached, and its answer recorded here
+with the date. No planned session starts until that answer is recorded.
+
+| Date | Asked of | Answer |
+|---|---|---|
+| (pending) | | |

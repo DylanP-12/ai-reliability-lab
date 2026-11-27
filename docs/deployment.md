@@ -92,5 +92,15 @@ to hard-refresh.
 
 - 2026-11-26: production build and preview, all five screens OK.
 - 2026-11-26: subdirectory build via `vite.config.js` base, grid loads.
-- Live URL on another device, all five screens, `data/index.json` 200:
-  (fill in after the first deploy).
+- 2026-11-27: first deploy from `main` (v1.0.0, `e82f949`); CI test, build
+  and deploy jobs all green.
+- 2026-11-27: live URL on a phone, all five screens load. Deployed
+  `data/index.json` returned 200 with 10 units, all complete;
+  `manifest.json` also loaded from outside. Agreement panel shows
+  "No calibration yet", as expected (calibration is local only).
+- 2026-11-27: live URL on desktop, all five screens checked against
+  `docs/user-guide.md`. Transcripts grid shows 4 scenarios (C001 and C003
+  have no units) and the MANUAL badge on meta-ai C004; Results counts
+  13 checkpoints and keeps the manual unit out of comparison views;
+  Export panel lists included and excluded contents; Run screen shows
+  the key warning, demo limits and ephemeral label.

@@ -1,7 +1,7 @@
 {
   "name": "ai-reliability-lab",
-  "version": "0.1.0",
-  "description": "Research instrument measuring LLM constraint adherence over long conversations",
+  "version": "1.0.0",
+  "description": "Research instrument that measures how LLMs respond at scored checkpoints across scripted multi-turn conversations",
   "main": "index.js",
   "type": "module",
   "scripts": {
