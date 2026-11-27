@@ -4,10 +4,17 @@ on:
   push:
     branches: [main]
   pull_request:
+  workflow_dispatch:   # L065: lets you redeploy by hand from the Actions tab
 
-# Least privilege: this job only needs to read the code.
+# Least privilege: by default every job can only read the code.
+# Only the deploy job gets more, and only what Pages needs.
 permissions:
   contents: read
+
+# L065: never run two Pages deployments at once; let a running one finish.
+concurrency:
+  group: pages-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
   test:
@@ -23,9 +30,49 @@ jobs:
       # Gate 2 (behavior): the full suite, including the acceptance matrix.
       # Gate 3 (data): the app-data validator runs inside npm test
       #   (tests/validateAppData.test.js) against a committed FAKE fixture.
-      #   Real app/public/data/ is gitignored, derived from study data, and is
-      #   validated locally before each deploy. See docs/security-review.md.
+      #   Since L065, app/public/data/ (sample dataset) is committed so the
+      #   site can deploy it. CI cannot validate it directly, because the
+      #   byte-identity check needs the gitignored frozen files, so it is
+      #   validated locally before every data commit. See docs/deployment.md.
       - name: Gates 1-3 - core purity, full test suite, data validator on fixture
         run: npm test
       - name: Gate 2b - acceptance matrix has not shrunk
         run: npm run acceptance:count
+
+  # L065: build the production app. Runs on PRs too, so a broken build is
+  # caught before merge, not after deploy. Only runs if every gate passed.
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+      - name: Install app dependencies
+        run: npm ci
+        working-directory: app
+      - name: Production build (base from vite.config.js)
+        run: npm run build
+        working-directory: app
+      - name: Upload the built site for Pages
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: app/dist
+
+  # L065: publish to GitHub Pages. Only from main, never from a PR.
+  deploy:
+    needs: build
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5

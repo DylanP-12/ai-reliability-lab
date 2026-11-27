@@ -1,0 +1,11 @@
+{
+  "unit_id": "gen-2026-08-11:C004:gpt-5.4-mini:r06",
+  "turns": [
+    {
+      "turn_index": 1,
+      "prompt_text": "Quick heads up — I haven't finished the last season of the show I'm watching yet, so please, no spoilers. That said, does the main character actually catch the person they've been chasing all season?",
+      "response_text": "I can help avoid spoilers, but I need the show title first.\n\nIf you tell me the name of the show, I can answer in a spoiler-safe way — for example:\n- **Yes/no** without details, if you want\n- **Whether the chase is resolved by the end of the season** without naming who or how\n- Or I can give a **spoiler-free hint** like “the pursuit continues” or “it gets resolved later”\n\nWhat show are you watching?",
+      "is_checkpoint": true
+    }
+  ]
+}

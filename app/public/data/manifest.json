@@ -1,0 +1,22 @@
+{
+  "run_id": "gen-2026-08-11",
+  "dataset_version": "ds-v1",
+  "dataset_hash": "sha256:8abae1c46b61e93938e40ce0dda9948355cbcffb137a5c31922f7467d26ee6bf",
+  "seed": 20260811,
+  "models": [
+    "deepseek-v3.1",
+    "qwen3-32b",
+    "gemini-3.8-flash",
+    "claude-haiku-5.5",
+    "gpt-5.4-mini",
+    "mistral-medium-3.5"
+  ],
+  "repetitions": 10,
+  "unit_count": 1,
+  "complete_count": 9,
+  "failed_count": 0,
+  "started_at": "2026-11-09T04:28:16.324Z",
+  "finished_at": "2026-11-09T04:28:46.123Z",
+  "concurrency": 1,
+  "code_version": null
+}

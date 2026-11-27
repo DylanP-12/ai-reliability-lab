@@ -1,0 +1,44 @@
+[
+  {
+    "model_id": "deepseek-v3.1",
+    "label": "DeepSeek V3.1",
+    "reasoning_enabled": false,
+    "family": "deepseek",
+    "weights": "open"
+  },
+  {
+    "model_id": "qwen3-32b",
+    "label": "Qwen3 32B",
+    "reasoning_enabled": false,
+    "family": "qwen",
+    "weights": "open"
+  },
+  {
+    "model_id": "gemini-3.8-flash",
+    "label": "Gemini 3.8 Flash",
+    "reasoning_enabled": false,
+    "family": "gemini",
+    "weights": "closed"
+  },
+  {
+    "model_id": "claude-haiku-5.5",
+    "label": "Claude Haiku 5.5",
+    "reasoning_enabled": false,
+    "family": "claude",
+    "weights": "closed"
+  },
+  {
+    "model_id": "gpt-5.4-mini",
+    "label": "GPT-5.4 Mini",
+    "reasoning_enabled": false,
+    "family": "gpt",
+    "weights": "closed"
+  },
+  {
+    "model_id": "mistral-medium-3.5",
+    "label": "Mistral Medium 3.5",
+    "reasoning_enabled": false,
+    "family": "mistral",
+    "weights": "closed"
+  }
+]
