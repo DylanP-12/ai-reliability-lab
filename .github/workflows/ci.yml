@@ -1,0 +1,31 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Least privilege: this job only needs to read the code.
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          cache: 'npm'
+      - run: npm ci
+      # Gate 1 (architecture): core purity check, first in the npm test chain.
+      # Gate 2 (behavior): the full suite, including the acceptance matrix.
+      # Gate 3 (data): the app-data validator runs inside npm test
+      #   (tests/validateAppData.test.js) against a committed FAKE fixture.
+      #   Real app/public/data/ is gitignored, derived from study data, and is
+      #   validated locally before each deploy. See docs/security-review.md.
+      - name: Gates 1-3 - core purity, full test suite, data validator on fixture
+        run: npm test
+      - name: Gate 2b - acceptance matrix has not shrunk
+        run: npm run acceptance:count

@@ -7,7 +7,8 @@
   "scripts": {
     "playground": "node playground/main.js",
     "test": "node scripts/check-core-purity.js && node --test",
-    "acceptance": "node --test --test-name-pattern=ACCEPT/ --test-reporter=spec"
+    "acceptance": "node --test --test-name-pattern=ACCEPT/ --test-reporter=spec",
+    "acceptance:count": "node scripts/check-accept-count.js"
   },
   "author": "",
   "license": "MIT"

@@ -1,0 +1,64 @@
+# Security review (L064)
+
+Date: 2026-11-26. Branch: `ci/workflow` (PR #77). Reviewer: DylanP-12.
+
+Rule for this document: every item has **evidence** (a command and its output, a test
+name, or a screenshot). An item with no evidence is a finding, not a pass.
+
+## History scan
+
+Deleting a file does not remove it from Git history, so every scan below covers **all
+commits on all branches**, not the working tree.
+
+| Scan | Command | Result |
+|---|---|---|
+| OpenRouter key strings | `git log --all -p \| Select-String -Pattern "sk-or-v1-[A-Za-z0-9]+" -AllMatches` (values truncated to 12 chars before display) | One unique value, `sk-or-v1-FAK...`: the fake canary key planted by the no-secrets tests. No real key. |
+| `.env` ever committed | `git log --all --name-only --format="" \| Select-String -Pattern "(^\|/)\.env$"` | No output. Never committed. |
+| Human-scoring key files, manual transcripts | `git log --all --name-only --format="" \| Select-String -Pattern "human-key\|^manual/\|session-log"` | Only `manual/session-log.csv` (see item 10). No `human-key-*.json`, no `manual/*.txt`. |
+| Images (keys in screenshots) | `git log --all --name-only --format="" \| Select-String -Pattern "\.(png\|jpe?g\|gif\|webp)$"` | Only `app/src/assets/hero.png`: the Vite template graphic. Inspected; no text. |
+
+## Checklist
+
+| # | Item | Status | Evidence |
+|---|---|---|---|
+| 1 | `.env` gitignored and never committed | Pass | `.gitignore:2`; `git check-ignore -v .env` matches; history path scan empty. |
+| 2 | No key in any source file, fixture, doc, or screenshot | Pass | History key scan finds only the test canary; only committed image inspected. |
+| 3 | No key in CI configuration or GitHub Secrets | Pass | `ci.yml` contains no key and no `secrets.` reference; Settings > Secrets and variables > Actions: "This repository has no secrets." CI runs green with no key. |
+| 4 | `app/public/data/` free of secrets and private notes | Pass | `node cli/validateAppData.js app/public/data` on real local data: `PASS: app/public/data is consistent, safe, and honest`. In CI the same validator runs inside `npm test` against the committed fixture (see Decisions). |
+| 5 | Run screen `localStorage` warning present and accurate | Pass | `app/src/screens/RunScreen.jsx` line 73: names localStorage, who can read it (scripts, extensions), how long it stays (until Clear key), and the mitigation (separate low-limit demo key, never the study key). |
+| 6 | Key rotation documented and tested at least once | Pass | Rotated 2026-11-26: new key created with a $5 credit limit, placed in `.env`, verified with OpenRouter's key-info endpoint (limit 5, usage 0, no model call), old key deleted. Steps documented in `SECURITY.md`. |
+| 7 | Export contains no secrets | Pass | Test `ACCEPT/integrity: export: no secret anywhere in the package`, green in CI. |
+| 8 | Dependencies reviewed (`npm audit`) | Pass | Root: `found 0 vulnerabilities` (no third-party dependencies). `app/`: `found 0 vulnerabilities`. Decision: no action needed; re-run before each release. |
+| 9 | Human-scoring key files gitignored and absent from history | Pass | Covered by `export/` in `.gitignore`; `git check-ignore -v export/human/human-key-test.json` matches; history scan finds none. |
+| 10 | Raw manual transcripts gitignored; none in issues, PRs, or commits | Pass | `manual/*.txt` in `.gitignore`; history scan finds no `.txt` under `manual/`. `manual/session-log.csv` **is** committed on purpose: inspected, holds IDs, a timestamp, a method note, and a single-initial collector. No identifying data. |
+
+## Findings fixed during this review
+
+1. **No `package-lock.json` was committed.** `npm ci` refused to run, so CI failed in
+   4 seconds. Root cause: the root has no third-party dependencies, so `npm install` had
+   never been run there. Fixed by committing the lockfile (2601aa3).
+2. **16 tests read real, gitignored study data.** `prepareAppData` defaults every input
+   to a real file under `data/`, and three test files did not override them all. On the
+   researcher's laptop the files existed, so the tests passed against whatever data was
+   present (including real manual transcripts); in a fresh clone they failed with
+   ENOENT. Fixed with one shared fake fixture, `tests/helpers/appDataFixture.js`, that
+   passes **every** input explicitly (dbea326). Rule going forward: a test never falls
+   through to a default under `data/`.
+3. **A sabotage test planted a no-op.** The degradation test set a rate to 0.5, which
+   the new fixture's real rate already was, so nothing was planted. Fixed: the plant now
+   always differs from the real value and the test asserts that it does.
+4. **Redundant `.gitignore` rule** (L063 open item 7). `export/human/human-key-*.json`
+   was already covered by `export/`. Removed; the reason was moved into the `export/`
+   comment.
+
+## Decisions
+
+- **App data in CI.** `app/public/data/` stays gitignored: it is derived from real study
+  responses and is regenerated by `cli/prepare-app-data.js`. CI therefore does not run
+  the validator against real data. Instead the validator runs inside `npm test`
+  (`tests/validateAppData.test.js`) against the committed fixture, including every
+  planted-problem case. The real data is validated locally before each deploy (item 4).
+- **CI is keyless.** No test makes a network call; no secret is stored in GitHub. Real
+  calls stay manual and gated (L026, L037, L042, L057).
+- **Branch protection on `main`.** The `test` check is required and cannot be bypassed.
+  Verified with a throwaway PR whose check was failing on purpose: merge button disabled.

@@ -1,5 +1,9 @@
 # AI Reliability Lab
 
+[![CI](https://github.com/DylanP-12/ai-reliability-lab/actions/workflows/ci.yml/badge.svg)](https://github.com/DylanP-12/ai-reliability-lab/actions/workflows/ci.yml)
+
+Security: see [SECURITY.md](SECURITY.md) and the [security review](docs/security-review.md).
+
 ## What this is
 A study of whether AI models reliably maintain a user-stated constraint across single and long, drifting conversations.
 

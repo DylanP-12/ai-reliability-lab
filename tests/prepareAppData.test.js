@@ -5,75 +5,12 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { prepareAppData, unitFile } from '../cli/prepare-app-data.js';
 
-// Adversarial on purpose: accent, emoji, tab, newline, and trailing spaces.
-const TRICKY = 'Caf\u00e9 \u2615 \u{1F600}\tTabbed  \nSecond line  ';
-const FAKE_KEY = 'sk-or-v1-FAKEKEY0123456789abcdef0123456789';
-
-const OK_UNIT = 'run-x:FIX1:modelA:r01';
-const FAIL_UNIT = 'run-x:FIX1:modelA:r02';
-const RETRY_UNIT = 'run-x:FIX1:modelA:r03';
-
-function turn(i, prompt, response, isCheckpoint) {
-  return {
-    turn_index: i,
-    prompt_text: prompt,
-    response_text: response,
-    is_checkpoint: isCheckpoint,
-    upstream_provider: 'ProviderSecretName',
-  };
-}
-
-function base(unitId, repetition) {
-  return {
-    unit_id: unitId, conversation_id: 'FIX1', model_id: 'modelA', category: 'format',
-    repetition, reasoning_enabled: false,
-  };
-}
-
-function buildFixture() {
-  const dir = mkdtempSync(join(tmpdir(), 'prep-test-'));
-  const records = [
-    {
-      ...base(OK_UNIT, 1), status: 'complete', debug_auth: FAKE_KEY,
-      turns: [turn(1, 'Hello', 'Hi there', false), turn(2, 'Second prompt', TRICKY, true)],
-    },
-    {
-      ...base(FAIL_UNIT, 2), status: 'failed', turns: [],
-      error: { stage: 'generation', turn_index: 1, classification: 'auth', message: 'status 401' },
-    },
-    {
-      ...base(RETRY_UNIT, 3), status: 'failed', turns: [],
-      error: { stage: 'generation', turn_index: 1, classification: 'rate_limit', message: 'status 429' },
-    },
-    {
-      ...base(RETRY_UNIT, 3), status: 'complete',
-      turns: [turn(1, 'Hello', 'Hi again', false), turn(2, 'Second prompt', 'Retry worked', true)],
-    },
-  ];
-  writeFileSync(join(dir, 'responses.jsonl'), records.map((r) => JSON.stringify(r)).join('\n') + '\n', 'utf8');
-  writeFileSync(join(dir, 'models.json'), JSON.stringify([
-    { model_id: 'modelA', label: 'Model A', or_model: 'vendor/model-a', provider_pin: 'somehost',
-      api_key: FAKE_KEY, reasoning_enabled: false, family: 'fam', weights: 'open',
-      price_in_per_m: 1, price_out_per_m: 2 },
-  ]), 'utf8');
-  writeFileSync(join(dir, 'scenarios.csv'),
-    'conversation_id,turn_index,prompt_text,evaluation_note,category\n' +
-    'FIX1,1,Hello,,format\n' +
-    'FIX1,2,Second prompt,CANARY_PRIVATE_NOTE_7731,format\n', 'utf8');
-  writeFileSync(join(dir, 'scenarios.meta.json'), JSON.stringify({ categories: ['format'] }), 'utf8');
-  return dir;
-}
+import { buildFixture, fixturePaths, TRICKY, FAKE_KEY, OK_UNIT, FAIL_UNIT, RETRY_UNIT } from './helpers/appDataFixture.js';
 
 function runPrep() {
   const dir = buildFixture();
   const outDir = join(dir, 'out');
-  prepareAppData({
-    responsesPath: join(dir, 'responses.jsonl'),
-    modelsPath: join(dir, 'models.json'),
-    scenariosPath: join(dir, 'scenarios.csv'),
-    metaPath: join(dir, 'scenarios.meta.json'),
-    outDir,
-  });
+  prepareAppData({ ...fixturePaths(dir), outDir });
   return outDir;
 }
 
@@ -167,13 +104,7 @@ test('categories meta: only the declared list ships, even if the source meta has
     private_field: 'CANARY_META_PRIVATE_4417',
   }), 'utf8');
   const outDir = join(dir, 'out');
-  prepareAppData({
-    responsesPath: join(dir, 'responses.jsonl'),
-    modelsPath: join(dir, 'models.json'),
-    scenariosPath: join(dir, 'scenarios.csv'),
-    metaPath: join(dir, 'scenarios.meta.json'),
-    outDir,
-  });
+  prepareAppData({ ...fixturePaths(dir), outDir });
 
   const meta = JSON.parse(readFileSync(join(outDir, 'scenarios.meta.json'), 'utf8'));
   assert.deepEqual(meta, { categories: ['format'] });   // exact: any extra key fails
